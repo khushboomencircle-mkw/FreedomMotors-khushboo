@@ -1,0 +1,71 @@
+# ---------------------------------------------------------------
+# Root .gitignore — applies to the whole repo (apps/web + apps/studio).
+# Each app also has its own .gitignore; this one is the safety net.
+# ---------------------------------------------------------------
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# Lock files (team decision: not tracked)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+npm-shrinkwrap.json
+
+# Environment files / secrets — never commit. Keep the *.example templates.
+.env
+.env.*
+*.local
+!.env.example
+!.env.*.example
+!.env.local.example
+*.pem
+*.key
+certificates/*
+!certificates/.gitkeep
+
+# Build output & framework caches
+.next/
+out/
+build/
+dist/
+.sanity/
+.turbo/
+.vercel
+.cache/
+*.tsbuildinfo
+next-env.d.ts
+
+# Sanity dataset exports / backups (large binaries, not code)
+exports/
+*.tar.gz
+*.tgz
+
+# Logs & debug
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Test coverage
+coverage/
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# Stray dev-time screenshot, not part of the app
+/image.png

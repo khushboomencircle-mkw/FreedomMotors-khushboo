@@ -1,0 +1,210 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  /* Global Site Theme body font (falls back to the app default). */
+  font-family: var(--theme-body-font, var(--font-geist-sans), Arial, Helvetica, sans-serif);
+  font-weight: var(--theme-body-weight, 400);
+}
+
+/* Global Site Theme fonts applied site-wide (header, footer, sections, etc.).
+   Each var is set on :root by the global theme, or on a section wrapper by a
+   section theme override — the cascade resolves the right one per element. */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--theme-heading-font, inherit);
+}
+button {
+  font-family: var(--theme-button-font, inherit);
+}
+
+/* Site chrome: Header and Footer read the Site Theme (:root --theme-* vars).
+   Every fallback is the pre-theme look, so nothing changes while Site Theme is off.
+   In the components layer so Tailwind utilities on the same element still win. */
+@layer components {
+  .chrome-topbar {
+    background: var(--theme-surface, #000000);
+    color: var(--theme-text, #ffffff);
+  }
+  .chrome-nav {
+    background: var(--theme-bg, #111827);
+    color: var(--theme-text, #ffffff);
+    box-shadow: inset 0 -1px 0 var(--theme-border, transparent);
+  }
+  .chrome-menu {
+    background: var(--theme-bg, #111827);
+    border-top: 1px solid var(--theme-border, rgba(255, 255, 255, 0.1));
+  }
+  .chrome-menu-item {
+    border-bottom: 1px solid var(--theme-border, rgba(255, 255, 255, 0.05));
+  }
+  .chrome-nav-link {
+    color: var(--theme-text, #ffffff);
+  }
+  .chrome-nav-link:hover {
+    color: var(--theme-muted, #d1d5db);
+  }
+  .chrome-nav-link[aria-current='page'] {
+    color: var(--theme-primary, #f87171);
+  }
+  .chrome-nav-link[aria-current='page']:hover {
+    color: var(--theme-accent, #fca5a5);
+  }
+  .chrome-link {
+    transition: color 150ms ease;
+  }
+  .chrome-link:hover {
+    color: var(--theme-primary, #f87171);
+  }
+  .chrome-muted {
+    color: var(--theme-muted, #9ca3af);
+  }
+  .chrome-subtle {
+    color: var(--theme-muted, #6b7280);
+  }
+  .chrome-strong {
+    color: var(--theme-text, #ffffff);
+  }
+  .chrome-muted-link {
+    color: var(--theme-muted, #9ca3af);
+  }
+  .chrome-muted-link:hover {
+    color: var(--theme-primary, #ffffff);
+  }
+  /* Compact bar button: color, border, radius, font and weight follow the Site
+     Theme button; size and padding stay small so the fixed-height top bar holds. */
+  .chrome-btn {
+    background: var(--theme-button-bg, #dc2626);
+    color: var(--theme-button-text, #ffffff);
+    border: var(--theme-button-border-width, 0px) solid var(--theme-button-border, transparent);
+    border-radius: var(--theme-button-radius, 9999px);
+    font-family: var(--theme-button-font, inherit);
+    font-weight: var(--theme-button-weight, 700);
+  }
+  .chrome-btn:hover {
+    filter: brightness(0.88);
+  }
+  /* The footer uses the same Background and Text colors as the header nav. Secondary text is the
+     Text color softened (--theme-text-soft, set in layout.tsx while Site Theme is on) so it stays
+     readable on whatever Background is chosen, instead of the built-in gray Muted default. */
+  .chrome-footer {
+    background: var(--theme-bg, #1a1a1a);
+    color: var(--theme-text, #d1d5db);
+    font-size: var(--theme-body-size, 1rem);
+    line-height: var(--theme-line-height, 1.5);
+    box-shadow: inset 0 1px 0 var(--theme-border, transparent);
+  }
+  .chrome-heading {
+    font-weight: var(--theme-heading-weight, 700);
+  }
+  .chrome-footer .chrome-link {
+    color: var(--theme-text, #ffffff);
+  }
+  .chrome-footer .chrome-link:hover {
+    color: var(--theme-accent, #f87171);
+    text-decoration: underline;
+  }
+  .chrome-footer .chrome-muted,
+  .chrome-footer .chrome-muted-link {
+    color: var(--theme-text-soft, #9ca3af);
+  }
+  .chrome-footer .chrome-subtle {
+    color: var(--theme-text-soft, #6b7280);
+  }
+  .chrome-footer .chrome-muted-link:hover {
+    color: var(--theme-text, #ffffff);
+  }
+  .chrome-divider {
+    border-top: 1px solid var(--theme-border, #1f2937);
+  }
+  /* Social icons are buttons: they take the Site Theme button colors, border and rounding.
+     While Site Theme is off they keep the original outlined look. */
+  .chrome-social {
+    background: var(--theme-button-bg, transparent);
+    color: var(--theme-button-text, #d1d5db);
+    border: var(--theme-button-border-width, 1px) solid var(--theme-button-border, #4b5563);
+    border-radius: var(--theme-button-radius, 9999px);
+  }
+  .chrome-social:hover {
+    color: var(--theme-button-text, #ffffff);
+    border-color: var(--theme-button-border, #ffffff);
+    filter: brightness(0.9);
+  }
+}
+
+/* Hide scrollbar for horizontal scroller while keeping scroll functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Visible, thick scrollbar for the Cards Grid filter-pill row (opposite of .scrollbar-hide above). */
+.scrollbar-thick {
+  scrollbar-width: thin;
+  scrollbar-color: #6b7280 #27272a;
+}
+.scrollbar-thick::-webkit-scrollbar {
+  height: 8px;
+}
+.scrollbar-thick::-webkit-scrollbar-track {
+  background: #27272a;
+  border-radius: 4px;
+}
+.scrollbar-thick::-webkit-scrollbar-thumb {
+  background-color: #6b7280;
+  border-radius: 4px;
+}
+
+/* Link List Section — CSS-only hover highlight (reads --hl CSS variable set per row). */
+.link-list-row {
+  transition: background-color 150ms ease, color 150ms ease;
+}
+.link-list-row:hover {
+  background-color: var(--hl, var(--theme-primary, #dc2626));
+  color: #ffffff;
+}
+
+/* Custom HTML Section — scoped wrapper for editor-supplied markup.
+   Keeps content contained so it cannot cause page-wide horizontal scroll.
+   (<style> tags are stripped by the sanitizer, so no global CSS can be injected.) */
+.custom-html-section {
+  width: 100%;
+}
+.custom-html-section__inner {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.custom-html-section__inner img,
+.custom-html-section__inner table,
+.custom-html-section__inner video {
+  max-width: 100%;
+}
+
+/* Respect reduced-motion for the full-width feature slider. */
+@media (prefers-reduced-motion: reduce) {
+  [aria-roledescription="carousel"] > div {
+    transition-duration: 0.01ms !important;
+  }
+}
