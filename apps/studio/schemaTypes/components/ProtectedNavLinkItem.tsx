@@ -6,7 +6,8 @@ import {NavLinkProtectionContext, PROTECTED_LINK_NOTE} from '../navLinkProtectio
 /**
  * Row for one nav link. A protected link keeps its drag handle and Edit, but its Remove and
  * Duplicate menu entries are hidden (a row-level `readOnly` would also lock dragging), and a
- * short note explains why.
+ * short note explains why. A row removes itself through the Studio's own form callbacks, not
+ * through the list input, so `onRemove` is also made inert here: this row is the real gate.
  */
 export default function ProtectedNavLinkItem(props: ObjectItemProps) {
   const context = useContext(NavLinkProtectionContext)
@@ -17,6 +18,7 @@ export default function ProtectedNavLinkItem(props: ObjectItemProps) {
     <Stack gap={2}>
       {props.renderDefault({
         ...props,
+        onRemove: () => undefined,
         parentSchemaType: {
           ...parentSchemaType,
           options: {...parentSchemaType.options, disableActions: ['remove', 'duplicate']},

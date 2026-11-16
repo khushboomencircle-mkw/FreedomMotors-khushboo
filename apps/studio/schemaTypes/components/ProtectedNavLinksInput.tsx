@@ -11,8 +11,9 @@ import {
 
 /**
  * Input for the navigation `links` list. Works out which links are protected (see
- * navLinkProtection.ts), shares that with the rows and the href field through context, and
- * refuses to remove a protected link even if something other than the menu asks for it.
+ * navLinkProtection.ts) and shares that with the rows and the href field through context.
+ * Rows remove themselves (ProtectedNavLinkItem is their gate); the guards below only cover
+ * removals that are routed through this input.
  */
 export default function ProtectedNavLinksInput(props: ArrayOfObjectsInputProps) {
   const {value, onItemRemove, onChange, renderDefault} = props
