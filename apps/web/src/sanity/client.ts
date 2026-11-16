@@ -209,7 +209,10 @@ function describeError(err: unknown): Record<string, unknown> {
  * - Logs a useful, serialized error only after all attempts fail.
  */
 const fetchWithRetry = cache(async (query: string, paramsKey: string, retries: number, draft: boolean) => {
-  const params: QueryParams = JSON.parse(paramsKey)
+  // `$preview` is reserved: it mirrors the client actually used (true only for the drafts
+  // perspective), so a failed draft read that falls back to published also falls back to the
+  // strict live rules. Queries may use it; callers can't set it.
+  const params: QueryParams = {...JSON.parse(paramsKey), preview: draft}
   const activeClient = draft ? draftClient : client
   let lastErr: unknown
 

@@ -1,14 +1,8 @@
-/** Keys used by the seeded built-in nav links — href is read-only for these. */
-export const BUILT_IN_NAV_KEYS = new Set([
-  'nav-vehicles',
-  'nav-drivers',
-  'nav-vehicle',
-  'nav-commercial',
-  'nav-our-story',
-  'nav-contact',
-])
-
-/** Hrefs owned by code-built pages — never create a customPage for these. */
+/**
+ * Single source of truth for "built-in": pages built in code (apps/web/src/app), as nav hrefs.
+ * Their nav links can never be removed or re-pointed, and no Landing Page may take their URL.
+ * Keep in sync with BUILT_IN_NAV_HREFS in apps/web/src/sanity/queries.ts (separate app, own copy).
+ */
 export const BUILT_IN_NAV_HREFS = new Set([
   '/vehicles',
   '/drivers',
@@ -18,6 +12,14 @@ export const BUILT_IN_NAV_HREFS = new Set([
   '/contact',
   '/educational',
 ])
+
+/** Lower-cased, trimmed, no trailing slash — so "/Contact/" and "/contact" compare equal. */
+export const normalizeNavHref = (href?: string | null): string =>
+  (href ?? '').trim().toLowerCase().replace(/\/+$/, '')
+
+/** True when the href points at a page built in code. */
+export const isBuiltInNavHref = (href?: string | null): boolean =>
+  BUILT_IN_NAV_HREFS.has(normalizeNavHref(href))
 
 // Routes with no nav link of their own that a custom page must also never take.
 // Keep in sync with the folders in apps/web/src/app.

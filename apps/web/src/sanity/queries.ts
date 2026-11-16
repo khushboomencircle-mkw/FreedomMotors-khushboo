@@ -1,4 +1,5 @@
 import {sanityFetch} from './client'
+import {LANDING_PAGE_VISIBLE, NAV_LINK_HAS_PAGE} from './navQueries'
 
 const SECTION_PROJECTION = `{
   _key,
@@ -402,9 +403,13 @@ export async function getConvertVehicle2() {
   }`)
 }
 
-/** Nav-eligible custom pages, for building the header menu. */
+/**
+ * Nav-eligible custom pages, for building the header menu (the fallback when the Navigation list
+ * has no visible links). Same visibility rule as the nav links, so an unpublished or inactive
+ * page can't leak into the header through this path.
+ */
 export async function getCustomPagesForNav() {
-  return sanityFetch<any[]>(`*[_type == "customPage" && showInNavigation == true] | order(navOrder asc){
+  return sanityFetch<any[]>(`*[_type == "customPage" && showInNavigation == true && ${LANDING_PAGE_VISIBLE}] | order(navOrder asc){
     title,
     navLabel,
     "slug": slug.current,
@@ -415,6 +420,7 @@ export async function getCustomPagesForNav() {
 
 /** Header nav links from navigationSettings (showInHeader == true), ordered as saved. */
 // Built-in hrefs are code-routed pages that always exist on the site.
+// Keep in sync with BUILT_IN_NAV_HREFS in apps/studio/schemaTypes/navConstants.ts (separate app, own copy).
 const BUILT_IN_NAV_HREFS = [
   '/vehicles',
   '/drivers',
@@ -494,16 +500,7 @@ export interface NavLink {
 export async function getNavLinks() {
   return sanityFetch<NavLink[] | null>(
     `*[_id == "navigationSettings"][0].links[
-      showInHeader == true && (
-        href in $builtIn
-        || string::startsWith(href, "http")
-        || count(*[
-             _type == "customPage"
-             && !(_id in path("drafts.**"))
-             && isActive == true
-             && "/" + slug.current == ^.href
-           ]) > 0
-      )
+      showInHeader == true && ${NAV_LINK_HAS_PAGE}
     ]{
       label,
       href,
@@ -568,22 +565,11 @@ export async function getNavLinks() {
 }
 
 export async function getFooterNavLinks() {
-  // Built-in hrefs and external URLs always show when showInFooter is true.
-  // Custom-page links only show when a published, active customPage exists for the href.
-  // Links with no matching customPage (e.g. standalone footer-only links) also show.
+  // Same rule as the header (see navQueries.ts): built-in pages and external URLs always show;
+  // anything else needs a visible Landing Page behind it. A link with no page never shows.
   return sanityFetch<{label: string; href: string; openInNewTab?: boolean}[] | null>(
     `*[_id == "navigationSettings"][0].links[
-      showInFooter == true && (
-        href in $builtIn
-        || string::startsWith(href, "http")
-        || count(*[_type == "customPage" && "/" + slug.current == ^.href]) == 0
-        || count(*[
-             _type == "customPage"
-             && !(_id in path("drafts.**"))
-             && isActive == true
-             && "/" + slug.current == ^.href
-           ]) > 0
-      )
+      showInFooter == true && ${NAV_LINK_HAS_PAGE}
     ]{label, href, openInNewTab}`,
     {builtIn: BUILT_IN_NAV_HREFS},
     {fallback: null},

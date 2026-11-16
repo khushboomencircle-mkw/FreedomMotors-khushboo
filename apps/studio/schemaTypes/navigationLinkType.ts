@@ -1,6 +1,6 @@
 import {defineField, defineType} from 'sanity'
 import {LinkIcon} from '@sanity/icons/Link'
-import {BUILT_IN_NAV_KEYS} from './navConstants'
+import ProtectedNavLinkHrefInput from './components/ProtectedNavLinkHrefInput'
 
 const normalizeHref = (href: string) =>
   (href || '').trim().replace(/^\/+|\/+$/g, '').toLowerCase()
@@ -49,7 +49,8 @@ export const navigationLinkType = defineType({
       fieldset: 'linkDetails',
       description: 'Internal path or full URL (e.g. /contact or https://example.com).',
       placeholder: '/contact',
-      readOnly: ({parent}) => BUILT_IN_NAV_KEYS.has((parent as any)?._key ?? ''),
+      // Locked for links used by a page (built-in or Landing Page); see ProtectedNavLinkHrefInput.
+      components: {input: ProtectedNavLinkHrefInput},
       validation: (rule) =>
         rule
           .required()
