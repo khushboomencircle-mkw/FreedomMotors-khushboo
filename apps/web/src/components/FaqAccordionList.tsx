@@ -1,13 +1,17 @@
 'use client'
 
 import {useState} from 'react'
-import {PortableText, type PortableTextComponents} from '@portabletext/react'
+import {
+  PortableText,
+  type PortableTextBlock,
+  type PortableTextComponents,
+} from '@portabletext/react'
 
 export interface FaqItem {
   _key: string
   question: string
   /** Rich text (block content array) or legacy plain string */
-  answer: any[] | string
+  answer: PortableTextBlock[] | string
   isExpandedByDefault?: boolean
   expandedByDefault?: boolean
 }

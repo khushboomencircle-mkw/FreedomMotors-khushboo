@@ -13,7 +13,7 @@ export default function NotFound() {
           <div className="max-w-lg order-2 md:order-1">
             <h1 className="text-6xl md:text-7xl font-bold tracking-tight mb-5">OOPS...</h1>
 
-            <h2 className="text-2xl md:text-3xl font-bold mb-3">Looks like you're lost</h2>
+            <h2 className="text-2xl md:text-3xl font-bold mb-3">Looks like you&apos;re lost</h2>
 
             <p className="text-lg text-gray-200 leading-relaxed mb-8">
               Sorry, the page you are looking for doesn’t exist or has been moved.

@@ -464,12 +464,6 @@ export default function Header({
     return () => ro.disconnect()
   }, [navItems.length])
 
-  // Close on route change
-  useEffect(() => {
-    setMenuOpen(false)
-    setActiveMega(null)
-  }, [pathname])
-
   // Close hamburger on outside click
   const headerRef = useRef<HTMLElement>(null)
   useEffect(() => {
@@ -487,6 +481,17 @@ export default function Header({
   const [activeMega, setActiveMega] = useState<string | null>(null)
   const [megaVisible, setMegaVisible] = useState(false)
   const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Close the hamburger menu and any open mega panel on route change. Done
+  // during render (tracking the previous pathname) rather than in an effect,
+  // so the stale open menu never paints for a frame after navigation. Sits
+  // here, after both states are declared, because it sets them.
+  const [prevPathname, setPrevPathname] = useState(pathname)
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname)
+    setMenuOpen(false)
+    setActiveMega(null)
+  }
 
   const openMega = (href: string) => {
     if (leaveTimer.current) clearTimeout(leaveTimer.current)

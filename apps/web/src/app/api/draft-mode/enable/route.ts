@@ -1,3 +1,4 @@
+import {unstable_rethrow} from 'next/navigation'
 import {defineEnableDraftMode} from 'next-sanity/draft-mode'
 import {client} from '@/sanity/client'
 
@@ -44,11 +45,12 @@ export async function GET(request: Request) {
   try {
     return await enableDraftMode.GET(request)
   } catch (err) {
-    // Next.js redirect() throws NEXT_REDIRECT internally.
-    // It must be rethrown, not converted into a 503 response.
-    if (err instanceof Error && err.message === 'NEXT_REDIRECT') {
-      throw err
-    }
+    // Next.js signals redirect() (NEXT_REDIRECT) and "this route can't be
+    // prerendered" (NEXT_PRERENDER_INTERRUPTED, raised during `next build`
+    // when the handler reads request.url) by throwing internal errors. Those
+    // must be rethrown for Next to handle, not logged or turned into a 503.
+    // Real failures fall through to the handling below.
+    unstable_rethrow(err)
 
     console.error('[Draft Mode] Enable failed:', err)
 

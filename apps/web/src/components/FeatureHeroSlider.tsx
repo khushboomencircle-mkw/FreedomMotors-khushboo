@@ -8,7 +8,7 @@ import RichText from './RichText'
 interface Feature {
   _key: string
   title?: string
-  description?: string | any[]
+  description?: string | unknown[]
   mediaType?: 'image' | 'video'
   image?: {url?: string; alt?: string}
   videoFileUrl?: string

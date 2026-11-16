@@ -1,6 +1,7 @@
 import {defineField, defineType} from 'sanity'
 import {LinkIcon} from '@sanity/icons/Link'
 import {BUILT_IN_NAV_KEYS} from './navConstants'
+import NavLinkItemInput from './components/NavLinkItemInput'
 
 const normalizeHref = (href: string) =>
   (href || '')
@@ -18,6 +19,8 @@ export const navigationLinkType = defineType({
   title: 'Navigation Link',
   type: 'object',
   icon: LinkIcon,
+  // Auto-fills Link Path from Nav Label for new links (see the component).
+  components: {input: NavLinkItemInput},
   fieldsets: [
     {
       name: 'linkDetails',

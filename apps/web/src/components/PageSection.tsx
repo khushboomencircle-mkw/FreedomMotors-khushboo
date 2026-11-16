@@ -43,7 +43,7 @@ export interface StepCard {
     url?: string
     alt?: string
   }
-  description?: string | any[]
+  description?: string | unknown[]
   mediaType?: 'image' | 'video' | 'none'
   videoFileUrl?: string
   videoUrl?: string
@@ -177,7 +177,7 @@ interface CardStyleConfig {
 export interface LinkListItem {
   _key: string
   title?: string
-  description?: string | any[]
+  description?: string | unknown[]
   linkUrl?: string
   openInNewTab?: boolean
   buttonLabel?: string
@@ -188,7 +188,7 @@ export interface LinkListItem {
 export interface FeatureCard {
   _key: string
   title?: string
-  description?: string | any[]
+  description?: string | unknown[]
   mediaType?: 'image' | 'video'
   image?: {url?: string; alt?: string}
   videoFileUrl?: string
@@ -213,7 +213,7 @@ export interface Section {
   darkTheme?: ThemeConfig | null
   sectionType?: 'cardsGrid' | 'faqAccordion' | 'accordionSection' | 'standard'
   sectionHeading?: string
-  sectionDescription?: string | any[]
+  sectionDescription?: string | unknown[]
   cards?: StepCard[]
   features?: FeatureCard[]
   showFooter?: boolean
@@ -258,7 +258,7 @@ export interface Section {
   eyebrow?: string
   headerStyle?: string
   heading?: string
-  description?: string | any[]
+  description?: string | unknown[]
   images?: SectionImage[]
   imageLayout?: string
   textPosition?: string
@@ -679,7 +679,7 @@ function LinkListRow({
   const href = item.linkUrl
   // CSS-only hover via a CSS variable + rule in globals.css (.link-list-row:hover).
   // No event handlers → server-component safe.
-  const rowStyle = {['--hl' as any]: highlight} as React.CSSProperties
+  const rowStyle = {'--hl': highlight} as React.CSSProperties
 
   const row = (
     <div

@@ -1,6 +1,6 @@
 'use client'
 
-import {useEffect, useState} from 'react'
+import {useState} from 'react'
 
 interface CardEntry {
   key: string
@@ -35,10 +35,15 @@ export default function LoadMoreCardsGrid({
   // included) — `keysSignature` is a primitive, so this effect only fires
   // when the actual set of cards changes, not on every server re-render of
   // an unchanged list (which would otherwise recreate `items` every time).
+  // Done during render (tracking the previous signature) rather than in an
+  // effect — same reset, without an extra render pass showing stale cards.
   const keysSignature = items.map((item) => item.key).join('|')
-  useEffect(() => {
+  const resetKey = `${initialVisibleCount}:${keysSignature}`
+  const [prevResetKey, setPrevResetKey] = useState(resetKey)
+  if (resetKey !== prevResetKey) {
+    setPrevResetKey(resetKey)
     setVisibleCount(initialVisibleCount)
-  }, [keysSignature, initialVisibleCount])
+  }
 
   const visible = items.slice(0, visibleCount)
   const hasMore = visibleCount < items.length

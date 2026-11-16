@@ -1,6 +1,6 @@
 'use client'
 
-import {useEffect, useState} from 'react'
+import {useEffect, useState, useSyncExternalStore} from 'react'
 import {useRouter} from 'next/navigation'
 import {RefreshCw} from 'lucide-react'
 
@@ -9,13 +9,24 @@ interface ErrorProps {
   retry: () => void
 }
 
+// Nothing to subscribe to — useSyncExternalStore is used below only because
+// it reports `false` during server render/hydration and `true` afterwards.
+const subscribeNoop = () => () => {}
+
 export default function Error({error, retry}: ErrorProps) {
   const router = useRouter()
   const [isRetrying, setIsRetrying] = useState(false)
-  const [referenceId, setReferenceId] = useState('')
+  // Random fallback for errors that carry no digest. Generated once per mount.
+  const [fallbackReferenceId] = useState(() => crypto.randomUUID().slice(0, 8).toUpperCase())
+  const isClient = useSyncExternalStore(
+    subscribeNoop,
+    () => true,
+    () => false,
+  )
+  // Blank until the client has hydrated, so server and client markup match.
+  const referenceId = isClient ? error.digest || fallbackReferenceId : ''
 
   useEffect(() => {
-    setReferenceId(error.digest || crypto.randomUUID().slice(0, 8).toUpperCase())
     console.error('Application Error:', error)
   }, [error])
 

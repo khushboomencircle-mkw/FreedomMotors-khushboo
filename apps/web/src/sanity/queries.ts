@@ -1,4 +1,5 @@
 import {sanityFetch} from './client'
+import type {ThemeConfig, ThemeMode} from '@/lib/theme'
 
 const SECTION_PROJECTION = `{
   _key,
@@ -239,10 +240,58 @@ export async function getChromeVisibility() {
   )
 }
 
+/** Result shape of getSiteSettings() — mirrors the projection below, field for field. */
+export interface SiteSettings {
+  siteTitle?: string
+  siteLogo?: string
+  favicon?: string
+
+  // Header
+  stickyHeader?: boolean
+  headerLogoRedirect?: string
+  topBarEnabled?: boolean
+  businessHours?: string
+  phoneLabel?: string
+  phoneNumber?: string
+  headerCta?: {label?: string; endpoint?: string; openInNewTab?: boolean}
+
+  // Footer contact
+  footerLogo?: string
+  footerContactTitle?: string
+  addressLine1?: string
+  addressLine2?: string
+  addressMapUrl?: string
+  footerPhoneLabel?: string
+  footerPhone?: string
+  footerTextLabel?: string
+  footerTextNumber?: string
+  footerEmail?: string
+
+  // Social media links
+  facebookUrl?: string
+  instagramUrl?: string
+  twitterUrl?: string
+  linkedinUrl?: string
+  youtubeUrl?: string
+  tiktokUrl?: string
+  pinterestUrl?: string
+
+  copyright?: string
+
+  // Other
+  seo?: Seo | null
+
+  // Theme
+  enableSiteTheme?: boolean
+  defaultMode?: ThemeMode
+  lightTheme?: ThemeConfig | null
+  darkTheme?: ThemeConfig | null
+}
+
 export async function getSiteSettings() {
   // Target the Studio singleton by _id — a stray second siteSettings document
   // exists in the dataset, and `*[_type == "siteSettings"][0]` would grab it.
-  return sanityFetch<any>(
+  return sanityFetch<SiteSettings | null>(
     `*[_id == "siteSettings"][0]{
     siteTitle,
     "siteLogo": siteLogo.asset->url,
@@ -410,9 +459,18 @@ export async function getConvertVehicle2() {
   }`)
 }
 
+/** Result shape of getCustomPagesForNav() — one entry per nav-eligible custom page. */
+export interface CustomNavPage {
+  title?: string
+  navLabel?: string
+  slug?: string
+  navOrder?: number
+  openInNewTab?: boolean
+}
+
 /** Nav-eligible custom pages, for building the header menu. */
 export async function getCustomPagesForNav() {
-  return sanityFetch<any[]>(
+  return sanityFetch<CustomNavPage[]>(
     `*[_type == "customPage" && showInNavigation == true] | order(navOrder asc){
     title,
     navLabel,

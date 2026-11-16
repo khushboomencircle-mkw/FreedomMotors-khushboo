@@ -258,6 +258,11 @@ interface FetchOptions<T> {
  *   whole site down. Without a fallback it throws a typed SanityFetchError,
  *   which the nearest error boundary (error.tsx / global-error.tsx) renders.
  */
+// `any` default is deliberate: every page-level getXPage() query in queries.ts
+// calls this without a type argument and its page component reads the result
+// untyped. Defaulting to `unknown` would require typing each of those results
+// first (a separate refactor) — callers that do know their shape pass `<T>`.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function sanityFetch<T = any>(
   query: string,
   params: QueryParams = {},

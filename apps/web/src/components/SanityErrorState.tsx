@@ -11,7 +11,7 @@ export default function SanityErrorState() {
         <h2 className="text-2xl font-bold text-white mb-3">Unable to Load Content</h2>
 
         <p className="text-gray-400 mb-6">
-          We're having trouble connecting to our content service. Please check your internet
+          We&apos;re having trouble connecting to our content service. Please check your internet
           connection and try again.
         </p>
 
