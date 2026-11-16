@@ -9,7 +9,11 @@ export const borderConfigType = defineType({
   type: 'object',
   description: 'Draws an outline around this area.',
   fieldsets: [
-    {name: 'style', title: '1. Line Style', options: {columns: 2, collapsible: true, collapsed: true}},
+    {
+      name: 'style',
+      title: '1. Line Style',
+      options: {columns: 2, collapsible: true, collapsed: true},
+    },
     {name: 'sides', title: '2. Which Sides', options: {collapsible: true, collapsed: true}},
   ],
   fields: [

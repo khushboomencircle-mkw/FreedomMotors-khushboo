@@ -1,15 +1,18 @@
-import type { Metadata } from 'next'
-import { getEducationalPage, getAllCategoriesForFilter, getAllEducationalArticlesForFilter } from '@/sanity/queries'
-import { Suspense } from 'react'
-import PageSection, { Section } from '@/components/PageSection'
+import type {Metadata} from 'next'
+import {
+  getEducationalPage,
+  getAllCategoriesForFilter,
+  getAllEducationalArticlesForFilter,
+} from '@/sanity/queries'
+import {Suspense} from 'react'
+import PageSection, {Section} from '@/components/PageSection'
 import SanityErrorState from '@/components/SanityErrorState'
 import RichText from '@/components/RichText'
-import { seoToMetadata } from '@/lib/seo'
-import { splitAroundStaticSection } from '@/lib/staticSection'
+import {seoToMetadata} from '@/lib/seo'
+import {splitAroundStaticSection} from '@/lib/staticSection'
 import EducationalArticleFilterGrid from '@/components/EducationalArticleFilterGrid'
 
 export async function generateMetadata(): Promise<Metadata> {
-
   try {
     const page = await getEducationalPage()
 
@@ -41,9 +44,7 @@ async function PageContent() {
   if (!page) {
     return (
       <div className="text-center py-24">
-        <p className="text-gray-400 text-lg">
-          Page not configured yet.
-        </p>
+        <p className="text-gray-400 text-lg">Page not configured yet.</p>
         <p className="text-gray-500 text-sm mt-2">
           Create an &quot;Educational Page&quot; document in Sanity Studio.
         </p>
@@ -60,7 +61,10 @@ async function PageContent() {
           </h1>
 
           {page.pageDescription && (
-            <RichText value={page.pageDescription} className="mt-4 text-lg text-gray-300 max-w-3xl mx-auto" />
+            <RichText
+              value={page.pageDescription}
+              className="mt-4 text-lg text-gray-300 max-w-3xl mx-auto"
+            />
           )}
         </div>
       )}
@@ -78,14 +82,12 @@ async function PageContent() {
  * only ever appears once an editor explicitly adds the placeholder, at the
  * sequence position they put it.
  */
-async function StaticSectionContent({ sections }: { sections?: Section[] }) {
-  const { before, after, showStatic } = splitAroundStaticSection<Section>(sections, false)
+async function StaticSectionContent({sections}: {sections?: Section[]}) {
+  const {before, after, showStatic} = splitAroundStaticSection<Section>(sections, false)
 
   let filterGrid = null
   if (showStatic) {
-    const [categories] = await Promise.all([
-      getAllCategoriesForFilter(),
-    ])
+    const [categories] = await Promise.all([getAllCategoriesForFilter()])
     filterGrid = <EducationalArticleFilterGrid categories={categories} />
   }
 
@@ -110,13 +112,7 @@ export default function EducationalPage() {
       className="min-h-screen overflow-x-hidden"
       style={{background: 'var(--theme-bg, #121212)', color: 'var(--theme-text, #ffffff)'}}
     >
-      <Suspense
-        fallback={
-          <p className="text-gray-400 text-center py-24">
-            Loading...
-          </p>
-        }
-      >
+      <Suspense fallback={<p className="text-gray-400 text-center py-24">Loading...</p>}>
         <PageContent />
       </Suspense>
     </div>

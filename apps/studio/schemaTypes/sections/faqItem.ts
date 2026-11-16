@@ -67,14 +67,13 @@ export const accordionItemType = defineType({
   preview: {
     select: {title: 'question', subtitle: 'answer'},
     prepare({title, subtitle}) {
-      const text =
-        Array.isArray(subtitle)
-          ? subtitle
-              .filter((b: any) => b._type === 'block')
-              .map((b: any) => b.children?.map((c: any) => c.text).join('') || '')
-              .join(' ')
-              .slice(0, 80)
-          : (subtitle || '')
+      const text = Array.isArray(subtitle)
+        ? subtitle
+            .filter((b: any) => b._type === 'block')
+            .map((b: any) => b.children?.map((c: any) => c.text).join('') || '')
+            .join(' ')
+            .slice(0, 80)
+        : subtitle || ''
       return {
         title: title || 'Untitled Question',
         subtitle: text,

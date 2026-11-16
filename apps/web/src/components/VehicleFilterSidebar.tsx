@@ -71,7 +71,11 @@ export default function VehicleFilterSidebar() {
     <aside className="w-full flex-shrink-0 lg:w-64">
       <div className="divide-y divide-[var(--theme-border,rgba(255,255,255,0.1))] rounded-xl border border-[var(--theme-border,rgba(255,255,255,0.1))] bg-[var(--theme-surface,rgba(255,255,255,0.02))]">
         {FILTER_CATEGORIES.map((category) => (
-          <FilterAccordionRow key={category.label} label={category.label} options={category.options} />
+          <FilterAccordionRow
+            key={category.label}
+            label={category.label}
+            options={category.options}
+          />
         ))}
       </div>
     </aside>

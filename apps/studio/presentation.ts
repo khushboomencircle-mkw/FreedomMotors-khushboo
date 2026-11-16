@@ -53,9 +53,7 @@ export const presentation = presentationTool({
       customPage: defineLocations({
         select: {title: 'title', slug: 'slug.current'},
         resolve: (doc) => ({
-          locations: [
-            {title: doc?.title || 'Untitled Page', href: `/${doc?.slug || ''}`},
-          ],
+          locations: [{title: doc?.title || 'Untitled Page', href: `/${doc?.slug || ''}`}],
         }),
       }),
       vehicle: defineLocations({

@@ -35,7 +35,10 @@ async function HomeContent() {
             {page.pageTitle}
           </h1>
           {page.pageDescription && (
-            <RichText value={page.pageDescription} className="mt-4 text-lg text-gray-300 max-w-3xl mx-auto" />
+            <RichText
+              value={page.pageDescription}
+              className="mt-4 text-lg text-gray-300 max-w-3xl mx-auto"
+            />
           )}
         </div>
       )}

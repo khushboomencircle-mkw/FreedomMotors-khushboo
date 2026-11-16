@@ -21,7 +21,13 @@ interface Props {
  * client-side state (how many are revealed), so only this leaf is a client
  * component, same reasoning as OneColumnSlider being split out on its own.
  */
-export default function LoadMoreCardsGrid({items, initialVisibleCount, buttonLabel, gridClassName, gapPx}: Props) {
+export default function LoadMoreCardsGrid({
+  items,
+  initialVisibleCount,
+  buttonLabel,
+  gridClassName,
+  gapPx,
+}: Props) {
   const [visibleCount, setVisibleCount] = useState(initialVisibleCount)
 
   // Resets back to the initial count whenever the underlying set of cards

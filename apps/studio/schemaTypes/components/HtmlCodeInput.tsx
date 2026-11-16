@@ -30,7 +30,8 @@ export default function HtmlCodeInput(props: TextInputProps) {
       style={{
         width: '100%',
         boxSizing: 'border-box',
-        fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace',
+        fontFamily:
+          'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace',
         fontSize: 13,
         lineHeight: 1.55,
         padding: 12,

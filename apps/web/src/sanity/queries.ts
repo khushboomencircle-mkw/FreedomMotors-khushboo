@@ -222,7 +222,8 @@ export interface ChromeRule {
  * A route ending in "/*" (vehicle detail pages) matches by prefix.
  */
 export async function getChromeVisibility() {
-  return sanityFetch<ChromeRule[]>(`[
+  return sanityFetch<ChromeRule[]>(
+    `[
     ...*[_id == "homePage"]{"route": "/", showHeader, showFooter},
     ...*[_type == "commercialPage"]{"route": "/commercial", showHeader, showFooter},
     ...*[_type == "contactPage"]{"route": "/contact", showHeader, showFooter},
@@ -232,13 +233,17 @@ export async function getChromeVisibility() {
     ...*[_type == "driver"]{"route": "/drivers", showHeader, showFooter},
     ...*[_type == "customPage" && defined(slug.current)]{"route": "/" + slug.current, showHeader, showFooter},
     ...*[_type == "vehicleDetailPage"]{"route": "/vehicles/*", showHeader, showFooter}
-  ]`, {}, {fallback: []})
+  ]`,
+    {},
+    {fallback: []},
+  )
 }
 
 export async function getSiteSettings() {
   // Target the Studio singleton by _id — a stray second siteSettings document
   // exists in the dataset, and `*[_type == "siteSettings"][0]` would grab it.
-  return sanityFetch<any>(`*[_id == "siteSettings"][0]{
+  return sanityFetch<any>(
+    `*[_id == "siteSettings"][0]{
     siteTitle,
     "siteLogo": siteLogo.asset->url,
     "favicon": favicon.asset->url,
@@ -283,7 +288,10 @@ export async function getSiteSettings() {
     defaultMode,
     lightTheme,
     darkTheme
-  }`, {}, {fallback: null})
+  }`,
+    {},
+    {fallback: null},
+  )
 }
 
 export async function getDriverPage() {
@@ -404,13 +412,17 @@ export async function getConvertVehicle2() {
 
 /** Nav-eligible custom pages, for building the header menu. */
 export async function getCustomPagesForNav() {
-  return sanityFetch<any[]>(`*[_type == "customPage" && showInNavigation == true] | order(navOrder asc){
+  return sanityFetch<any[]>(
+    `*[_type == "customPage" && showInNavigation == true] | order(navOrder asc){
     title,
     navLabel,
     "slug": slug.current,
     navOrder,
     openInNewTab
-  }`, {}, {fallback: []})
+  }`,
+    {},
+    {fallback: []},
+  )
 }
 
 /** Header nav links from navigationSettings (showInHeader == true), ordered as saved. */

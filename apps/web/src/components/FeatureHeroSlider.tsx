@@ -142,15 +142,21 @@ export default function FeatureHeroSlider({
 
   useEffect(() => {
     if (!autoPlay || !loop || paused) return
-    const id = setInterval(() => {
-      if (document.visibilityState === 'visible') next()
-    }, Math.max(2, intervalSeconds) * 1000)
+    const id = setInterval(
+      () => {
+        if (document.visibilityState === 'visible') next()
+      },
+      Math.max(2, intervalSeconds) * 1000,
+    )
     return () => clearInterval(id)
   }, [autoPlay, loop, paused, intervalSeconds, next])
 
-  useEffect(() => () => {
-    if (settleTimer.current) clearTimeout(settleTimer.current)
-  }, [])
+  useEffect(
+    () => () => {
+      if (settleTimer.current) clearTimeout(settleTimer.current)
+    },
+    [],
+  )
 
   const activeIndex = loop ? (pos - 1 + n) % n : 0
 
@@ -215,7 +221,13 @@ export default function FeatureHeroSlider({
             style={
               contentIsTop
                 ? {top: padTop, left: sidePad, right: sidePad}
-                : {bottom: 0, left: sidePad, right: sidePad, paddingTop: 24, paddingBottom: 'clamp(32px, 6vw, 72px)'}
+                : {
+                    bottom: 0,
+                    left: sidePad,
+                    right: sidePad,
+                    paddingTop: 24,
+                    paddingBottom: 'clamp(32px, 6vw, 72px)',
+                  }
             }
           >
             {f.title && (
@@ -227,7 +239,10 @@ export default function FeatureHeroSlider({
                     style={{width: 4, background: barColor, borderRadius: 2}}
                   />
                 )}
-                <h3 data-sanity-edit-target className="min-w-0 text-3xl font-extrabold leading-tight text-white drop-shadow sm:text-5xl">
+                <h3
+                  data-sanity-edit-target
+                  className="min-w-0 text-3xl font-extrabold leading-tight text-white drop-shadow sm:text-5xl"
+                >
                   {f.title}
                 </h3>
               </div>

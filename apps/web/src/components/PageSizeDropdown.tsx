@@ -75,7 +75,10 @@ export default function PageSizeDropdown({
                 >
                   {size} per page
                   {isSelected && (
-                    <Check className="h-4 w-4 flex-shrink-0 text-[var(--theme-primary,#ef4444)]" aria-hidden />
+                    <Check
+                      className="h-4 w-4 flex-shrink-0 text-[var(--theme-primary,#ef4444)]"
+                      aria-hidden
+                    />
                   )}
                 </Link>
               </li>

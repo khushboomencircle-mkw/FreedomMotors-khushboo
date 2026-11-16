@@ -30,9 +30,7 @@ export function CreateNavPagesAction(props: DocumentActionProps) {
   // Use props.draft for the enabled/disabled check so the button state is reactive.
   const previewDoc = props.draft ?? props.published
   const previewLinks: NavLink[] = (previewDoc as any)?.links ?? []
-  const hasNewLinks = previewLinks.some(
-    (l) => l.href?.startsWith('/') && !isReservedSlug(l.href),
-  )
+  const hasNewLinks = previewLinks.some((l) => l.href?.startsWith('/') && !isReservedSlug(l.href))
 
   return {
     label: busy ? 'Creating pages…' : 'Create Pages',
@@ -63,9 +61,7 @@ export function CreateNavPagesAction(props: DocumentActionProps) {
         )
         const links: NavLink[] = freshDoc?.links ?? []
 
-        const newLinks = links.filter(
-          (l) => l.href?.startsWith('/') && !isReservedSlug(l.href),
-        )
+        const newLinks = links.filter((l) => l.href?.startsWith('/') && !isReservedSlug(l.href))
 
         if (newLinks.length === 0) {
           outcome.skipped.push('(no new internal links found)')
@@ -82,10 +78,9 @@ export function CreateNavPagesAction(props: DocumentActionProps) {
                 `count(*[_type == "customPage" && lower(slug.current) == $slug])`,
                 {slug},
               ),
-              client.fetch<number>(
-                `count(*[_id == $draftId])`,
-                {draftId: `drafts.customPage-${slug.replace(/\//g, '-')}`},
-              ),
+              client.fetch<number>(`count(*[_id == $draftId])`, {
+                draftId: `drafts.customPage-${slug.replace(/\//g, '-')}`,
+              }),
             ])
 
             if (publishedCount > 0 || draftCount > 0) {

@@ -15,9 +15,7 @@ export function resolveChrome(
 
   let match = rules.find((r) => r.route === path)
   if (!match) {
-    match = rules.find(
-      (r) => r.route.endsWith('/*') && path.startsWith(r.route.slice(0, -2) + '/'),
-    )
+    match = rules.find((r) => r.route.endsWith('/*') && path.startsWith(r.route.slice(0, -2) + '/'))
   }
 
   return {

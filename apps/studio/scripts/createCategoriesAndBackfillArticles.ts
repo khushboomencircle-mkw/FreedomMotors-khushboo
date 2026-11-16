@@ -42,7 +42,9 @@ function slugify(input: string): string {
 }
 
 async function main() {
-  const existing: {_id: string; title: string}[] = await client.fetch(`*[_type == "category"]{_id, title}`)
+  const existing: {_id: string; title: string}[] = await client.fetch(
+    `*[_type == "category"]{_id, title}`,
+  )
   const existingTitles = new Set(existing.map((c) => c.title.toLowerCase()))
 
   const toCreate = CANONICAL_CATEGORIES.filter((title) => !existingTitles.has(title.toLowerCase()))
@@ -74,14 +76,19 @@ async function main() {
   await tx.commit()
 
   // Re-fetch so newly-created categories are available for the backfill pass.
-  const allCategories: {_id: string; title: string}[] = await client.fetch(`*[_type == "category"]{_id, title}`)
+  const allCategories: {_id: string; title: string}[] = await client.fetch(
+    `*[_type == "category"]{_id, title}`,
+  )
   const byTitleLower = new Map(allCategories.map((c) => [c.title.toLowerCase(), c._id]))
 
   const backfillTx = client.transaction()
   let backfilledCount = 0
   for (const article of articles) {
     if (!article.eyebrow) continue
-    const tags = article.eyebrow.split(',').map((t) => t.trim()).filter(Boolean)
+    const tags = article.eyebrow
+      .split(',')
+      .map((t) => t.trim())
+      .filter(Boolean)
     const refs = tags
       .map((tag) => byTitleLower.get(tag.toLowerCase()))
       .filter((id): id is string => Boolean(id))
@@ -94,7 +101,9 @@ async function main() {
   await backfillTx.commit()
 
   console.log('')
-  console.log(`Created ${toCreate.length} categor${toCreate.length === 1 ? 'y' : 'ies'}, backfilled categories on ${backfilledCount} article(s).`)
+  console.log(
+    `Created ${toCreate.length} categor${toCreate.length === 1 ? 'y' : 'ies'}, backfilled categories on ${backfilledCount} article(s).`,
+  )
 }
 
 main().catch((e) => {

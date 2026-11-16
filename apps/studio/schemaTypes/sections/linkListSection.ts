@@ -2,10 +2,10 @@
  * Link List Section — image on one side + a hover-highlighted list of
  * clickable text links on the other side, with optional per-item button.
  */
-import { defineArrayMember, defineField, defineType } from 'sanity'
-import { sectionThemeFields } from '../fields/sectionTheme'
-import { MenuIcon } from '@sanity/icons/Menu'
-import { sectionHeaderFields, sequenceField, activeField } from '../fields/sectionFields'
+import {defineArrayMember, defineField, defineType} from 'sanity'
+import {sectionThemeFields} from '../fields/sectionTheme'
+import {MenuIcon} from '@sanity/icons/Menu'
+import {sectionHeaderFields, sequenceField, activeField} from '../fields/sectionFields'
 import ColorPaletteInput from '../components/ColorPaletteInput'
 import FullWidthDescField from '../components/FullWidthDescField'
 
@@ -16,16 +16,24 @@ export const linkListSectionType = defineType({
   icon: MenuIcon,
   description: 'An image beside a clickable list of titles; hover highlights the row.',
   groups: [
-    { name: 'content', title: 'Content', default: true },
-    { name: 'layout', title: 'Layout' },
-    { name: 'typography', title: 'Typography' },
-    { name: 'sectionStyles', title: 'Section Theme' },
-    { name: 'behavior', title: 'Behavior' },
+    {name: 'content', title: 'Content', default: true},
+    {name: 'layout', title: 'Layout'},
+    {name: 'typography', title: 'Typography'},
+    {name: 'sectionStyles', title: 'Section Theme'},
+    {name: 'behavior', title: 'Behavior'},
   ],
   fieldsets: [
-    { name: 'layoutRow', title: '1. Layout Options', options: { columns: 2, collapsible: true, collapsed: true } },
-    { name: 'listOptions', title: '2. List Options', options: { columns: 2, collapsible: true, collapsed: true } },
-    { name: 'header', title: '1. Header', options: { collapsible: true, collapsed: true } },
+    {
+      name: 'layoutRow',
+      title: '1. Layout Options',
+      options: {columns: 2, collapsible: true, collapsed: true},
+    },
+    {
+      name: 'listOptions',
+      title: '2. List Options',
+      options: {columns: 2, collapsible: true, collapsed: true},
+    },
+    {name: 'header', title: '1. Header', options: {collapsible: true, collapsed: true}},
   ],
   fields: [
     // ── Content ──
@@ -43,7 +51,7 @@ export const linkListSectionType = defineType({
       type: 'array',
       group: 'content',
       description: 'Each row is a clickable link that highlights on hover.',
-      of: [defineArrayMember({ type: 'linkListItem' })],
+      of: [defineArrayMember({type: 'linkListItem'})],
     }),
 
     // ── Layout ──
@@ -55,8 +63,8 @@ export const linkListSectionType = defineType({
       fieldset: 'layoutRow',
       options: {
         list: [
-          { title: 'Image Left', value: 'left' },
-          { title: 'Image Right', value: 'right' },
+          {title: 'Image Left', value: 'left'},
+          {title: 'Image Right', value: 'right'},
         ],
         layout: 'radio',
         direction: 'horizontal',
@@ -69,8 +77,9 @@ export const linkListSectionType = defineType({
       type: 'string',
       group: 'layout',
       fieldset: 'layoutRow',
-      description: 'Background color shown when any row is hovered. Leave blank to follow the Site Theme.',
-      components: { input: ColorPaletteInput, field: FullWidthDescField },
+      description:
+        'Background color shown when any row is hovered. Leave blank to follow the Site Theme.',
+      components: {input: ColorPaletteInput, field: FullWidthDescField},
     }),
     defineField({
       name: 'showNumbers',
@@ -78,7 +87,7 @@ export const linkListSectionType = defineType({
       type: 'boolean',
       group: 'layout',
       fieldset: 'listOptions',
-      options: { layout: 'switch' },
+      options: {layout: 'switch'},
       initialValue: true,
     }),
     defineField({
@@ -88,7 +97,7 @@ export const linkListSectionType = defineType({
       group: 'layout',
       fieldset: 'listOptions',
       description: 'Off shows descriptions always; on shows them only on hover.',
-      options: { layout: 'switch' },
+      options: {layout: 'switch'},
       initialValue: false,
     }),
 
@@ -107,22 +116,22 @@ export const linkListSectionType = defineType({
       title: 'Section Background & Width (Fallback Theme)',
       type: 'containerConfig',
       group: 'sectionStyles',
-      hidden: ({ parent }) => parent?.enableSectionTheme,
+      hidden: ({parent}) => parent?.enableSectionTheme,
     }),
     defineField({
       name: 'border',
       title: 'Section Border',
       type: 'borderConfig',
       group: 'sectionStyles',
-      hidden: ({ parent }) => parent?.enableSectionTheme,
+      hidden: ({parent}) => parent?.enableSectionTheme,
     }),
 
     // ── Behavior ──
     activeField('behavior'),
   ],
   preview: {
-    select: { heading: 'sectionHeading', sequence: 'sequence', items: 'listItems' },
-    prepare({ heading, sequence, items }) {
+    select: {heading: 'sectionHeading', sequence: 'sequence', items: 'listItems'},
+    prepare({heading, sequence, items}) {
       const count = items?.length || 0
       return {
         title: heading || `Image + Link List (${count})`,

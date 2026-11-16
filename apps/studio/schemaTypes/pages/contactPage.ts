@@ -37,7 +37,8 @@ export const contactPage = defineType({
       name: 'sections',
       title: 'Page Sections',
       type: 'array',
-      description: 'Add banner, cards grid, accordion, feature grid, or link list sections — they render in order.',
+      description:
+        'Add banner, cards grid, accordion, feature grid, or link list sections — they render in order.',
       of: allSectionMembers,
       validation: sectionsArrayValidation,
     }),

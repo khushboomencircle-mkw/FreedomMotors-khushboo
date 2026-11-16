@@ -7,6 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "eslint": "eslint .",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,mjs,css}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,mjs,css}\"",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "redirects:sync": "node --env-file-if-exists=.env.local ./node_modules/tsx/dist/cli.mjs scripts/syncRedirects.ts",
@@ -37,8 +40,15 @@
     "drizzle-kit": "^0.31.11",
     "eslint": "^9",
     "eslint-config-next": "16.4.3",
+    "prettier": "^3.5",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",
     "typescript": "^5"
+  },
+  "prettier": {
+    "bracketSpacing": false,
+    "printWidth": 100,
+    "semi": false,
+    "singleQuote": true
   }
 }

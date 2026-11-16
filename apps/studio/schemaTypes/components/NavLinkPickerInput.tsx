@@ -118,9 +118,7 @@ export default function NavLinkPickerInput(props: ObjectInputProps) {
         `*[_id in ["drafts.navigationSettings", "navigationSettings"]] | order(_updatedAt desc)[0]
          .links[]{label, href}`,
       ),
-      client.fetch<string[]>(
-        `*[_type == "customPage" && defined(slug.current)].slug.current`,
-      ),
+      client.fetch<string[]>(`*[_type == "customPage" && defined(slug.current)].slug.current`),
     ])
       .then(([links, existingSlugs]) => {
         if (cancelled) return
@@ -187,7 +185,7 @@ export default function NavLinkPickerInput(props: ObjectInputProps) {
             </option>
             {navLinks.map((link) => (
               <option key={link.href} value={link.href}>
-                {link.label}  ·  {link.href}
+                {link.label} · {link.href}
               </option>
             ))}
           </select>
@@ -198,8 +196,8 @@ export default function NavLinkPickerInput(props: ObjectInputProps) {
       {!hasTitle && ready && navLinks.length === 0 && (
         <div style={guidanceCard}>
           <p style={guidanceText}>
-            No unmatched navigation links found. To create a custom page, first add a new link
-            under <strong>Navigation</strong> in the sidebar, then return here to create its page.
+            No unmatched navigation links found. To create a custom page, first add a new link under{' '}
+            <strong>Navigation</strong> in the sidebar, then return here to create its page.
           </p>
         </div>
       )}

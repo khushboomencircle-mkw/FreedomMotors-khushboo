@@ -21,7 +21,9 @@ async function run() {
   const entry = map?.[pathname]
 
   if (!entry) {
-    console.log(`"${input}" (normalized: "${pathname}") has no redirect. It would be served normally.`)
+    console.log(
+      `"${input}" (normalized: "${pathname}") has no redirect. It would be served normally.`,
+    )
     return
   }
 

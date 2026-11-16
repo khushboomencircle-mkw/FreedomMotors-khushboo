@@ -20,7 +20,8 @@ function AlignIcon({type}: {type: 'left' | 'center' | 'right'}) {
             width: `${w}%`,
             background: 'currentColor',
             borderRadius: '2px',
-            alignSelf: justify === 'center' ? 'center' : justify === 'flex-end' ? 'flex-end' : 'flex-start',
+            alignSelf:
+              justify === 'center' ? 'center' : justify === 'flex-end' ? 'flex-end' : 'flex-start',
           }}
         />
       ))}
@@ -35,7 +36,14 @@ export default function AlignInput(props: StringInputProps) {
   const available = order.filter((v) => list.some((o) => o.value === v))
 
   return (
-    <div style={{display: 'inline-flex', border: '1px solid #e2e8f0', borderRadius: '6px', overflow: 'hidden'}}>
+    <div
+      style={{
+        display: 'inline-flex',
+        border: '1px solid #e2e8f0',
+        borderRadius: '6px',
+        overflow: 'hidden',
+      }}
+    >
       {available.map((align) => {
         const selected = value === align
         const label = list.find((o) => o.value === align)?.title || align

@@ -80,12 +80,7 @@ export default function VideoLightbox({trigger, videoUrl, videoFileUrl}: Props) 
           ×
         </button>
         {isFile ? (
-          <video
-            src={embedSrc}
-            controls
-            autoPlay
-            className="w-full h-full object-contain"
-          />
+          <video src={embedSrc} controls autoPlay className="w-full h-full object-contain" />
         ) : (
           <iframe
             src={embedSrc}

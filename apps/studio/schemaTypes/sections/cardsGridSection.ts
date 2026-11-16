@@ -2,9 +2,9 @@
  * Cards Grid Section — displays step cards in a configurable grid.
  * Reusable across any page schema.
  */
-import { defineArrayMember, defineField, defineType } from 'sanity'
-import { sectionThemeFields } from '../fields/sectionTheme'
-import { ThLargeIcon } from '@sanity/icons/ThLarge'
+import {defineArrayMember, defineField, defineType} from 'sanity'
+import {sectionThemeFields} from '../fields/sectionTheme'
+import {ThLargeIcon} from '@sanity/icons/ThLarge'
 import {
   sectionHeaderFields,
   expandableFields,
@@ -20,17 +20,21 @@ export const cardsGridSectionType = defineType({
   icon: ThLargeIcon,
   description: 'A row or grid of cards — great for steps, services, or features.',
   groups: [
-    { name: 'content', title: 'Content', default: true },
-    { name: 'layout', title: 'Layout' },
-    { name: 'cardStyles', title: 'Card Style' },
-    { name: 'typography', title: 'Typography' },
-    { name: 'sectionStyles', title: 'Section Theme' },
-    { name: 'behavior', title: 'Behavior' },
+    {name: 'content', title: 'Content', default: true},
+    {name: 'layout', title: 'Layout'},
+    {name: 'cardStyles', title: 'Card Style'},
+    {name: 'typography', title: 'Typography'},
+    {name: 'sectionStyles', title: 'Section Theme'},
+    {name: 'behavior', title: 'Behavior'},
   ],
   fieldsets: [
-    { name: 'header', title: '1. Header', options: { collapsible: true, collapsed: true } },
-    { name: 'display', title: '2. Display', options: { collapsible: true, collapsed: true } },
-    { name: 'sliderOptions', title: '3. Slider Options', options: { collapsible: true, collapsed: true } },
+    {name: 'header', title: '1. Header', options: {collapsible: true, collapsed: true}},
+    {name: 'display', title: '2. Display', options: {collapsible: true, collapsed: true}},
+    {
+      name: 'sliderOptions',
+      title: '3. Slider Options',
+      options: {collapsible: true, collapsed: true},
+    },
   ],
   fields: [
     // ── Content ──
@@ -42,7 +46,7 @@ export const cardsGridSectionType = defineType({
       type: 'array',
       group: 'content',
       description: 'Add one card per item.',
-      of: [defineArrayMember({ type: 'cardItem' })],
+      of: [defineArrayMember({type: 'cardItem'})],
     }),
     defineField({
       name: 'items',
@@ -50,7 +54,7 @@ export const cardsGridSectionType = defineType({
       type: 'array',
       group: 'content',
       description: 'Click-to-expand questions shown below the cards grid.',
-      of: [defineArrayMember({ type: 'accordionItem' })],
+      of: [defineArrayMember({type: 'accordionItem'})],
     }),
 
     // ── Layout ──
@@ -63,10 +67,10 @@ export const cardsGridSectionType = defineType({
       description: 'How many cards sit side by side on a desktop screen.',
       options: {
         list: [
-          { title: '1', value: '1' },
-          { title: '2', value: '2' },
-          { title: '3', value: '3' },
-          { title: '4', value: '4' },
+          {title: '1', value: '1'},
+          {title: '2', value: '2'},
+          {title: '3', value: '3'},
+          {title: '4', value: '4'},
         ],
         layout: 'radio',
         direction: 'horizontal',
@@ -79,13 +83,13 @@ export const cardsGridSectionType = defineType({
       type: 'string',
       group: 'layout',
       fieldset: 'display',
-      components: { input: ScaleInput },
+      components: {input: ScaleInput},
       options: {
         list: [
-          { title: 'Tight', value: '16' },
-          { title: 'Normal', value: '24' },
-          { title: 'Wide', value: '32' },
-          { title: 'Extra Wide', value: '48' },
+          {title: 'Tight', value: '16'},
+          {title: 'Normal', value: '24'},
+          {title: 'Wide', value: '32'},
+          {title: 'Extra Wide', value: '48'},
         ],
       },
       initialValue: '24',
@@ -96,12 +100,12 @@ export const cardsGridSectionType = defineType({
       type: 'boolean',
       group: 'layout',
       fieldset: 'display',
-      description: 'Every first card in each group of 5 becomes a larger featured tile, instead of a uniform grid.',
+      description:
+        'Every first card in each group of 5 becomes a larger featured tile, instead of a uniform grid.',
       // Horizontal slider is this section's only non-grid state — any other
       // Columns value, or Columns=1 + Vertical Stack, is still a grid.
-      hidden: ({ parent }) =>
-        parent?.columns === '1' && parent?.oneColumnDisplayMode === 'slider',
-      options: { layout: 'switch' },
+      hidden: ({parent}) => parent?.columns === '1' && parent?.oneColumnDisplayMode === 'slider',
+      options: {layout: 'switch'},
       initialValue: false,
     }),
     defineField({
@@ -113,9 +117,9 @@ export const cardsGridSectionType = defineType({
       description: 'The order title, image, and description stack inside each card.',
       options: {
         list: [
-          { title: 'Title → Image → Text', value: 'titleImageDesc' },
-          { title: 'Image → Title → Text', value: 'imageTitleDesc' },
-          { title: 'Title → Text → Image', value: 'titleDescImage' },
+          {title: 'Title → Image → Text', value: 'titleImageDesc'},
+          {title: 'Image → Title → Text', value: 'imageTitleDesc'},
+          {title: 'Title → Text → Image', value: 'titleDescImage'},
         ],
         layout: 'radio',
       },
@@ -127,8 +131,9 @@ export const cardsGridSectionType = defineType({
       type: 'boolean',
       group: 'layout',
       fieldset: 'display',
-      description: 'Shows only the first batch of cards, with a button to reveal the rest. Off: every card shows at once, same as today.',
-      options: { layout: 'switch' },
+      description:
+        'Shows only the first batch of cards, with a button to reveal the rest. Off: every card shows at once, same as today.',
+      options: {layout: 'switch'},
       initialValue: false,
     }),
     defineField({
@@ -137,7 +142,7 @@ export const cardsGridSectionType = defineType({
       type: 'number',
       group: 'layout',
       fieldset: 'display',
-      hidden: ({ parent }) => !parent?.enableLoadMore,
+      hidden: ({parent}) => !parent?.enableLoadMore,
       initialValue: 8,
       validation: (rule) => rule.min(1),
     }),
@@ -147,7 +152,7 @@ export const cardsGridSectionType = defineType({
       type: 'string',
       group: 'layout',
       fieldset: 'display',
-      hidden: ({ parent }) => !parent?.enableLoadMore,
+      hidden: ({parent}) => !parent?.enableLoadMore,
       initialValue: 'Load More',
     }),
 
@@ -159,11 +164,11 @@ export const cardsGridSectionType = defineType({
       group: 'layout',
       fieldset: 'sliderOptions',
       description: 'When Columns is 1, show cards as a vertical stack or as a horizontal slider.',
-      hidden: ({ parent }) => parent?.columns !== '1',
+      hidden: ({parent}) => parent?.columns !== '1',
       options: {
         list: [
-          { title: 'Vertical Stack', value: 'stack' },
-          { title: 'Full-Width Slider (with arrows)', value: 'slider' },
+          {title: 'Vertical Stack', value: 'stack'},
+          {title: 'Full-Width Slider (with arrows)', value: 'slider'},
         ],
         layout: 'radio',
       },
@@ -176,9 +181,8 @@ export const cardsGridSectionType = defineType({
       group: 'layout',
       fieldset: 'sliderOptions',
       description: 'Automatically advances to the next card every few seconds.',
-      hidden: ({ parent }) =>
-        parent?.columns !== '1' || parent?.oneColumnDisplayMode !== 'slider',
-      options: { layout: 'switch' },
+      hidden: ({parent}) => parent?.columns !== '1' || parent?.oneColumnDisplayMode !== 'slider',
+      options: {layout: 'switch'},
       initialValue: false,
     }),
     defineField({
@@ -188,7 +192,7 @@ export const cardsGridSectionType = defineType({
       group: 'layout',
       fieldset: 'sliderOptions',
       description: 'How long each card stays visible before the next one appears.',
-      hidden: ({ parent }) =>
+      hidden: ({parent}) =>
         parent?.columns !== '1' ||
         parent?.oneColumnDisplayMode !== 'slider' ||
         !parent?.sliderAutoPlay,
@@ -201,9 +205,8 @@ export const cardsGridSectionType = defineType({
       type: 'boolean',
       group: 'layout',
       fieldset: 'sliderOptions',
-      hidden: ({ parent }) =>
-        parent?.columns !== '1' || parent?.oneColumnDisplayMode !== 'slider',
-      options: { layout: 'switch' },
+      hidden: ({parent}) => parent?.columns !== '1' || parent?.oneColumnDisplayMode !== 'slider',
+      options: {layout: 'switch'},
       initialValue: true,
     }),
     defineField({
@@ -212,9 +215,8 @@ export const cardsGridSectionType = defineType({
       type: 'boolean',
       group: 'layout',
       fieldset: 'sliderOptions',
-      hidden: ({ parent }) =>
-        parent?.columns !== '1' || parent?.oneColumnDisplayMode !== 'slider',
-      options: { layout: 'switch' },
+      hidden: ({parent}) => parent?.columns !== '1' || parent?.oneColumnDisplayMode !== 'slider',
+      options: {layout: 'switch'},
       initialValue: true,
     }),
 
@@ -241,23 +243,23 @@ export const cardsGridSectionType = defineType({
       title: 'Section Background & Width (Fallback Theme)',
       type: 'containerConfig',
       group: 'sectionStyles',
-      hidden: ({ parent }) => parent?.enableSectionTheme,
+      hidden: ({parent}) => parent?.enableSectionTheme,
     }),
     defineField({
       name: 'border',
       title: 'Section Border',
       type: 'borderConfig',
       group: 'sectionStyles',
-      hidden: ({ parent }) => parent?.enableSectionTheme,
+      hidden: ({parent}) => parent?.enableSectionTheme,
     }),
 
     // ── Behavior ──
     activeField('behavior'),
-    ...expandableFields({ group: 'behavior', includeFaqOptions: true }),
+    ...expandableFields({group: 'behavior', includeFaqOptions: true}),
   ],
   preview: {
-    select: { heading: 'sectionHeading', sequence: 'sequence', cards: 'cards' },
-    prepare({ heading, sequence, cards }) {
+    select: {heading: 'sectionHeading', sequence: 'sequence', cards: 'cards'},
+    prepare({heading, sequence, cards}) {
       const count = cards?.length || 0
       return {
         title: heading || `${count} Card${count === 1 ? '' : 's'} Section`,

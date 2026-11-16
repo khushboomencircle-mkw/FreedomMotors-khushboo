@@ -1,18 +1,17 @@
-import { defineConfig } from 'sanity'
-import { structureTool } from 'sanity/structure'
-import { visionTool } from '@sanity/vision'
-import { schemaTypes } from './schemaTypes'
-import { presentation } from './presentation'
-import { pageTemplates } from './pageTemplates'
-import { DuplicateLandingPageAction } from './schemaTypes/actions/DuplicateLandingPageAction'
-import { sectionCopyPasteFieldActionsResolver } from './schemaTypes/fieldActions/sectionCopyPasteFieldActions'
+import {defineConfig} from 'sanity'
+import {structureTool} from 'sanity/structure'
+import {visionTool} from '@sanity/vision'
+import {schemaTypes} from './schemaTypes'
+import {presentation} from './presentation'
+import {pageTemplates} from './pageTemplates'
+import {DuplicateLandingPageAction} from './schemaTypes/actions/DuplicateLandingPageAction'
+import {sectionCopyPasteFieldActionsResolver} from './schemaTypes/fieldActions/sectionCopyPasteFieldActions'
 const dynamicPages = [
-  { type: 'convertVehicle2Page', title: 'Convert Your Vehicle' },
-  { type: 'driver', title: 'Driver Page' },
+  {type: 'convertVehicle2Page', title: 'Convert Your Vehicle'},
+  {type: 'driver', title: 'Driver Page'},
   // Adding a new page to the sidebar is now as simple as adding a new object line:
   // { type: 'aboutPage', title: 'About Us Page' },
 ]
-
 
 // Which Sanity project/dataset this Studio manages, and what its header
 // says — all overridable per environment (see apps/studio/.env.example) so
@@ -38,9 +37,7 @@ export default defineConfig({
           .items([
             S.listItem()
               .title('Site Settings')
-              .child(
-                S.document().schemaType('siteSettings').documentId('siteSettings'),
-              ),
+              .child(S.document().schemaType('siteSettings').documentId('siteSettings')),
             S.listItem()
               .title('Pages')
               .child(
@@ -67,38 +64,30 @@ export default defineConfig({
                           .title('Landing Page(s)')
                           .initialValueTemplates(
                             pageTemplates.map((t) => S.initialValueTemplateItem(t.id)),
-                          )
+                          ),
                       ),
                   ]),
               ),
-              // Vehicle inventory — a separate schema from the Pages list.
-              S.listItem()
+            // Vehicle inventory — a separate schema from the Pages list.
+            S.listItem()
               .title('Vehicle Listing')
-              .child(
-                S.documentTypeList('vehicle').title('Vehicle Listing'),
-              ),
-              // Standalone articles at /educational/[slug] — separate from the
-              // Educational Page's own hand-curated sections.
-              S.listItem()
+              .child(S.documentTypeList('vehicle').title('Vehicle Listing')),
+            // Standalone articles at /educational/[slug] — separate from the
+            // Educational Page's own hand-curated sections.
+            S.listItem()
               .title('Educational Articles')
-              .child(
-                S.documentTypeList('educationalArticle').title('Educational Articles'),
-              ),
-              S.listItem()
+              .child(S.documentTypeList('educationalArticle').title('Educational Articles')),
+            S.listItem()
               .title('Categories')
-              .child(
-                S.documentTypeList('category').title('Categories'),
-              ),
-              S.listItem()
+              .child(S.documentTypeList('category').title('Categories')),
+            S.listItem()
               .title('Navigation')
               .child(
                 S.document().schemaType('navigationSettings').documentId('navigationSettings'),
               ),
-              S.listItem()
+            S.listItem()
               .title('Redirects')
-              .child(
-                S.documentTypeList('redirect').title('Redirects'),
-              ),
+              .child(S.documentTypeList('redirect').title('Redirects')),
           ]),
     }),
     presentation,
@@ -118,7 +107,9 @@ export default defineConfig({
     // built-in Duplicate action unchanged.
     actions: (prev, context) =>
       context.schemaType === 'customPage'
-        ? prev.map((action) => (action.action === 'duplicate' ? DuplicateLandingPageAction : action))
+        ? prev.map((action) =>
+            action.action === 'duplicate' ? DuplicateLandingPageAction : action,
+          )
         : prev,
     // Always-visible Copy/Paste icon buttons on every page type's `sections`
     // field — wraps Sanity's own built-in copyField/pasteField field actions.

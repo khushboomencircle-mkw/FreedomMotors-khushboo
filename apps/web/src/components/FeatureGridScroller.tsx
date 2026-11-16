@@ -43,8 +43,10 @@ interface Props {
 const CARD_OVERLAY_MAP: Record<string, string> = {
   transparent: 'transparent',
   light: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.15) 55%, rgba(0,0,0,0) 100%)',
-  medium: 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.35) 55%, rgba(0,0,0,0.05) 100%)',
-  strong: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 55%, rgba(0,0,0,0.25) 100%)',
+  medium:
+    'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.35) 55%, rgba(0,0,0,0.05) 100%)',
+  strong:
+    'linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 55%, rgba(0,0,0,0.25) 100%)',
 }
 
 const CARD_WIDTH_MAP: Record<string, string> = {
@@ -56,15 +58,19 @@ const CARD_WIDTH_MAP: Record<string, string> = {
 
 function PlayButton({accent, label, imageUrl}: {accent: string; label: string; imageUrl?: string}) {
   return (
-    <div className="absolute bottom-0 left-0 p-6 flex items-center gap-3 pointer-events-none" aria-hidden>
+    <div
+      className="absolute bottom-0 left-0 p-6 flex items-center gap-3 pointer-events-none"
+      aria-hidden
+    >
       <span
         className="w-14 h-14 rounded-full flex items-center justify-center text-white text-xl shadow-xl flex-shrink-0 overflow-hidden"
-        style={{background: imageUrl ? 'transparent' : (accent || '#dc2626')}}
+        style={{background: imageUrl ? 'transparent' : accent || '#dc2626'}}
       >
-        {imageUrl
-          ? <img src={imageUrl} alt="Play" className="w-full h-full object-cover" />
-          : <span className="pl-1">▶</span>
-        }
+        {imageUrl ? (
+          <img src={imageUrl} alt="Play" className="w-full h-full object-cover" />
+        ) : (
+          <span className="pl-1">▶</span>
+        )}
       </span>
       {label && (
         <span className="text-white font-bold text-sm uppercase tracking-widest drop-shadow">
@@ -180,9 +186,7 @@ export default function FeatureGridScroller({
     // ever affects the bar, including the explicit "transparent" (no color)
     // choice, which should never also hide the play button.
     const barColor = accentBarColor || f.accentColor || '#dc2626'
-    const hoverTint = highlightColor
-      ? `${highlightColor}38`
-      : `${f.accentColor || '#dc2626'}38`
+    const hoverTint = highlightColor ? `${highlightColor}38` : `${f.accentColor || '#dc2626'}38`
     const bgUrl = isVideo ? f.videoThumbnail?.url : f.image?.url
     const cardW = CARD_WIDTH_MAP[cardWidthPreset || 'normal']
     const contentIsTop = cardContentPosition === 'top'
@@ -218,7 +222,9 @@ export default function FeatureGridScroller({
           className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
           style={{background: hoverTint}}
         />
-        {isVideo && <PlayButton accent={accent} label={playButtonText} imageUrl={playButtonImageUrl} />}
+        {isVideo && (
+          <PlayButton accent={accent} label={playButtonText} imageUrl={playButtonImageUrl} />
+        )}
         <div className="flex flex-col gap-3" style={contentStyle}>
           {f.title && (
             <div className="flex items-stretch gap-4">
@@ -299,7 +305,11 @@ export default function FeatureGridScroller({
       <div
         ref={scrollRef}
         className="flex overflow-x-auto scrollbar-hide"
-        style={{gap: cardGap, cursor: features.length > 1 ? 'grab' : 'default', scrollSnapType: 'x mandatory'}}
+        style={{
+          gap: cardGap,
+          cursor: features.length > 1 ? 'grab' : 'default',
+          scrollSnapType: 'x mandatory',
+        }}
         onMouseDown={onMouseDown}
         onMouseMove={onMouseMove}
         onMouseUp={stopDrag}

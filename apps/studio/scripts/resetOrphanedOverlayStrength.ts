@@ -38,7 +38,12 @@ async function main() {
     {
       _id: string
       _type: string
-      sectionHits: {_key: string; _type: string; overlay: number; enableBackgroundImage: boolean | null}[]
+      sectionHits: {
+        _key: string
+        _type: string
+        overlay: number
+        enableBackgroundImage: boolean | null
+      }[]
     }[]
   >(`*[]{
     _id, _type,
@@ -52,7 +57,13 @@ async function main() {
   const hits: Hit[] = docs.flatMap((doc) =>
     doc.sectionHits
       .filter((s) => !s.enableBackgroundImage)
-      .map((s) => ({docId: doc._id, docType: doc._type, sectionKey: s._key, sectionType: s._type, overlay: s.overlay})),
+      .map((s) => ({
+        docId: doc._id,
+        docType: doc._type,
+        sectionKey: s._key,
+        sectionType: s._type,
+        overlay: s.overlay,
+      })),
   )
 
   if (hits.length === 0) {
@@ -60,9 +71,13 @@ async function main() {
     return
   }
 
-  console.log(`Found ${hits.length} orphaned overlay value(s) to reset across ${new Set(hits.map((h) => h.docId)).size} document(s):\n`)
+  console.log(
+    `Found ${hits.length} orphaned overlay value(s) to reset across ${new Set(hits.map((h) => h.docId)).size} document(s):\n`,
+  )
   for (const h of hits) {
-    console.log(`[${h.docType} ${h.docId}] sections[_key=="${h.sectionKey}"] (${h.sectionType}) — overlay ${h.overlay} -> 0`)
+    console.log(
+      `[${h.docType} ${h.docId}] sections[_key=="${h.sectionKey}"] (${h.sectionType}) — overlay ${h.overlay} -> 0`,
+    )
   }
 
   if (!WRITE) {
@@ -76,7 +91,9 @@ async function main() {
   for (const [docId, docHits] of byDoc) {
     const setFields = Object.assign(
       {},
-      ...docHits.map((h) => ({[`sections[_key=="${h.sectionKey}"].container.backgroundOverlay`]: 0})),
+      ...docHits.map((h) => ({
+        [`sections[_key=="${h.sectionKey}"].container.backgroundOverlay`]: 0,
+      })),
     )
     await client.patch(docId).set(setFields).commit()
     console.log(`Patched ${docId} (${docHits.length} section${docHits.length === 1 ? '' : 's'}).`)

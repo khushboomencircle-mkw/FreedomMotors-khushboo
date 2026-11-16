@@ -130,7 +130,9 @@ const draftClient = client.withConfig({
       if (typeof endPath !== 'string' || !STEGA_TEXT_FIELDS.has(endPath)) return false
       if (
         SHADOWED_CARD_FIELDS.has(endPath) &&
-        props.resultPath.some((segment) => typeof segment === 'string' && CARD_ARRAY_ANCESTORS.has(segment))
+        props.resultPath.some(
+          (segment) => typeof segment === 'string' && CARD_ARRAY_ANCESTORS.has(segment),
+        )
       ) {
         return false
       }
@@ -208,27 +210,29 @@ function describeError(err: unknown): Record<string, unknown> {
  *   rejects once the prerender completes).
  * - Logs a useful, serialized error only after all attempts fail.
  */
-const fetchWithRetry = cache(async (query: string, paramsKey: string, retries: number, draft: boolean) => {
-  const params: QueryParams = JSON.parse(paramsKey)
-  const activeClient = draft ? draftClient : client
-  let lastErr: unknown
+const fetchWithRetry = cache(
+  async (query: string, paramsKey: string, retries: number, draft: boolean) => {
+    const params: QueryParams = JSON.parse(paramsKey)
+    const activeClient = draft ? draftClient : client
+    let lastErr: unknown
 
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    try {
-      return await activeClient.fetch(query, params, fetchOptions)
-    } catch (err) {
-      lastErr = err
-      // Retry immediately; a transient connection reset often clears at once.
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        return await activeClient.fetch(query, params, fetchOptions)
+      } catch (err) {
+        lastErr = err
+        // Retry immediately; a transient connection reset often clears at once.
+      }
     }
-  }
 
-  console.error('[Sanity fetch failed]', {
-    query: query.replace(/\s+/g, ' ').trim().slice(0, 140),
-    draft,
-    ...describeError(lastErr),
-  })
-  throw new SanityFetchError('Failed to load content from the CMS.', lastErr)
-})
+    console.error('[Sanity fetch failed]', {
+      query: query.replace(/\s+/g, ' ').trim().slice(0, 140),
+      draft,
+      ...describeError(lastErr),
+    })
+    throw new SanityFetchError('Failed to load content from the CMS.', lastErr)
+  },
+)
 
 interface FetchOptions<T> {
   /** When the query ultimately fails, return this instead of throwing. */

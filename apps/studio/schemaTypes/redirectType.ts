@@ -164,7 +164,9 @@ export const redirectType = defineType({
       // place. This still walks the chain in case that invariant was
       // broken by data saved before this validation existed, or by the
       // bulk CSV import script.
-      const graph = new Map(others.map((o) => [normalizePath(o.source), normalizePath(o.destination)]))
+      const graph = new Map(
+        others.map((o) => [normalizePath(o.source), normalizePath(o.destination)]),
+      )
       graph.set(source, destination)
       let current = destination
       for (let hop = 0; hop < others.length + 1; hop++) {

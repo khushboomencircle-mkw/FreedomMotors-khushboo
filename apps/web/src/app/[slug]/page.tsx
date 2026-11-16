@@ -36,7 +36,10 @@ async function PageContent({slug}: {slug: string}) {
       {page.title && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-4 text-center">
           {page.pageDescription && (
-            <RichText value={page.pageDescription} className="mt-4 text-lg text-gray-300 max-w-3xl mx-auto" />
+            <RichText
+              value={page.pageDescription}
+              className="mt-4 text-lg text-gray-300 max-w-3xl mx-auto"
+            />
           )}
         </div>
       )}

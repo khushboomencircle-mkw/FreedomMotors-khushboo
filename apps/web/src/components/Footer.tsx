@@ -1,5 +1,13 @@
 import Link from 'next/link'
-import {FaFacebook, FaInstagram, FaXTwitter, FaLinkedin, FaYoutube, FaTiktok, FaPinterest} from 'react-icons/fa6'
+import {
+  FaFacebook,
+  FaInstagram,
+  FaXTwitter,
+  FaLinkedin,
+  FaYoutube,
+  FaTiktok,
+  FaPinterest,
+} from 'react-icons/fa6'
 
 interface NavLink {
   label: string
@@ -59,11 +67,7 @@ export default function Footer({
             {/* Left: Logo + Contact Info */}
             <div>
               {settings.footerLogo && (
-                <img
-                  src={settings.footerLogo}
-                  alt="Logo"
-                  className="h-12 mb-8"
-                />
+                <img src={settings.footerLogo} alt="Logo" className="h-12 mb-8" />
               )}
 
               {settings.footerContactTitle && (
@@ -93,7 +97,9 @@ export default function Footer({
 
               {settings.footerPhone && (
                 <p className="mb-1">
-                  <span className="chrome-muted">{settings.footerPhoneLabel || 'Call us Today:'}</span>{' '}
+                  <span className="chrome-muted">
+                    {settings.footerPhoneLabel || 'Call us Today:'}
+                  </span>{' '}
                   <a
                     href={`tel:${settings.footerPhone.replace(/[^\d+]/g, '')}`}
                     className="chrome-strong chrome-link font-semibold"
@@ -116,10 +122,7 @@ export default function Footer({
               )}
 
               {settings.footerEmail && (
-                <a
-                  href={`mailto:${settings.footerEmail}`}
-                  className="chrome-strong chrome-link"
-                >
+                <a href={`mailto:${settings.footerEmail}`} className="chrome-strong chrome-link">
                   {settings.footerEmail}
                 </a>
               )}

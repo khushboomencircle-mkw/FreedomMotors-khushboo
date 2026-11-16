@@ -1,4 +1,4 @@
-import { defineField, defineType } from 'sanity'
+import {defineField, defineType} from 'sanity'
 
 /**
  * photoWithAlt — a single photo + its alt text. The one shared "photo" shape
@@ -22,7 +22,7 @@ export const photoWithAltType = defineType({
       name: 'image',
       title: 'Image',
       type: 'image',
-      options: { hotspot: true },
+      options: {hotspot: true},
     }),
     defineField({
       name: 'alt',
@@ -32,8 +32,8 @@ export const photoWithAltType = defineType({
     }),
   ],
   preview: {
-    select: { media: 'image', alt: 'alt' },
-    prepare({ media, alt }) {
+    select: {media: 'image', alt: 'alt'},
+    prepare({media, alt}) {
       return {
         title: alt || 'Untitled Photo',
         media,

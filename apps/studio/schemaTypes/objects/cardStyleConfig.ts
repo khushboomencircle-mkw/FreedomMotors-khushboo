@@ -11,7 +11,11 @@ export const cardStyleConfigType = defineType({
   description: 'How each card in the grid looks.',
   fieldsets: [
     {name: 'card', title: '1. Card', options: {columns: 2, collapsible: true, collapsed: true}},
-    {name: 'image', title: '2. Card Image', options: {columns: 2, collapsible: true, collapsed: true}},
+    {
+      name: 'image',
+      title: '2. Card Image',
+      options: {columns: 2, collapsible: true, collapsed: true},
+    },
     {name: 'cardBorder', title: '3. Card Border', options: {collapsible: true, collapsed: true}},
   ],
   fields: [

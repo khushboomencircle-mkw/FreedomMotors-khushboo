@@ -40,8 +40,7 @@ export default function ColorPaletteInput(props: StringInputProps) {
   const {onChange, value, schemaType, path} = props
   const opts = schemaType.options as PaletteOptions | undefined
   const allowsTransparent =
-    opts?.allowTransparent === true ||
-    (opts?.list || []).some((o) => o?.value === 'transparent')
+    opts?.allowTransparent === true || (opts?.list || []).some((o) => o?.value === 'transparent')
 
   const modeDefault = modeDefaultFor(path, schemaType.initialValue)
   const current = value || ''
@@ -56,7 +55,11 @@ export default function ColorPaletteInput(props: StringInputProps) {
   // clicking it (toggling an already-"transparent" state off) could never
   // explicitly set the value rather than just matching the default.
   const isSetTransparent = current === 'transparent'
-  const pickerValue = HEX6.test(current) ? current : HEX6.test(modeDefault || '') ? (modeDefault as string) : '#ffffff'
+  const pickerValue = HEX6.test(current)
+    ? current
+    : HEX6.test(modeDefault || '')
+      ? (modeDefault as string)
+      : '#ffffff'
 
   const commit = useCallback(
     (next: string) => {
@@ -77,7 +80,8 @@ export default function ColorPaletteInput(props: StringInputProps) {
             ? isSetTransparent
               ? 'Transparent — click to pick a color'
               : `Default: transparent — click to pick a color`
-            : current || (modeDefault ? `Default: ${modeDefault} — click to pick a color` : 'Pick a color')
+            : current ||
+              (modeDefault ? `Default: ${modeDefault} — click to pick a color` : 'Pick a color')
         }
         style={{
           position: 'relative',

@@ -3,7 +3,10 @@ import {LinkIcon} from '@sanity/icons/Link'
 import {BUILT_IN_NAV_KEYS} from './navConstants'
 
 const normalizeHref = (href: string) =>
-  (href || '').trim().replace(/^\/+|\/+$/g, '').toLowerCase()
+  (href || '')
+    .trim()
+    .replace(/^\/+|\/+$/g, '')
+    .toLowerCase()
 
 /**
  * navigationLink — a single nav link item used in both the header nav bar

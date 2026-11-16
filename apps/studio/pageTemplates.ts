@@ -138,7 +138,9 @@ function callToActionSection(heading: string, buttonLabel: string) {
     sequence: 6,
     isActive: true,
     sectionHeading: heading,
-    sectionDescription: placeholderRichText('Replace with a short closing line that nudges the reader to act.'),
+    sectionDescription: placeholderRichText(
+      'Replace with a short closing line that nudges the reader to act.',
+    ),
     showButton: true,
     buttonLabel,
     buttonLinkUrl: '/contact',
@@ -163,7 +165,8 @@ export const pageTemplates: Template[] = [
   {
     id: 'model-launch',
     title: 'Model Launch',
-    description: 'Hero, key features, photo gallery, reviews, and FAQ — for introducing a new model.',
+    description:
+      'Hero, key features, photo gallery, reviews, and FAQ — for introducing a new model.',
     icon: RocketIcon,
     schemaType: 'customPage',
     value: () => ({
@@ -194,7 +197,8 @@ export const pageTemplates: Template[] = [
   {
     id: 'campaign',
     title: 'Campaign',
-    description: 'Hero, key features, FAQ, and a closing call to action — for a time-limited campaign page.',
+    description:
+      'Hero, key features, FAQ, and a closing call to action — for a time-limited campaign page.',
     icon: BellIcon,
     schemaType: 'customPage',
     value: () => ({
@@ -248,7 +252,9 @@ export const pageTemplates: Template[] = [
       // callToActionSection only until that library actually exists.
       // (Vehicles slider correctly excluded too — no vehicle data in this
       // demo.)
-      sections: [callToActionSection('Replace with your offer headline', 'Replace with button text')],
+      sections: [
+        callToActionSection('Replace with your offer headline', 'Replace with button text'),
+      ],
     }),
   },
 ]

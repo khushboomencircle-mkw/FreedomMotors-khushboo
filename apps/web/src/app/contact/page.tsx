@@ -1,14 +1,14 @@
-import type { Metadata } from 'next'
-import { getContactPage } from '@/sanity/queries'
-import { Suspense } from 'react'
-import PageSection, { Section } from '@/components/PageSection'
+import type {Metadata} from 'next'
+import {getContactPage} from '@/sanity/queries'
+import {Suspense} from 'react'
+import PageSection, {Section} from '@/components/PageSection'
 import RichText from '@/components/RichText'
-import { seoToMetadata } from '@/lib/seo'
+import {seoToMetadata} from '@/lib/seo'
 
 export async function generateMetadata(): Promise<Metadata> {
   const page = await getContactPage()
 
-  if (!page) return { title: 'Contact Us' }
+  if (!page) return {title: 'Contact Us'}
 
   return seoToMetadata(page.seo)
 }
@@ -35,7 +35,10 @@ async function PageContent() {
             {page.pageTitle}
           </h1>
           {page.pageDescription && (
-            <RichText value={page.pageDescription} className="mt-4 text-lg text-gray-300 max-w-3xl mx-auto" />
+            <RichText
+              value={page.pageDescription}
+              className="mt-4 text-lg text-gray-300 max-w-3xl mx-auto"
+            />
           )}
         </div>
       )}

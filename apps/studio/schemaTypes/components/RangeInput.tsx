@@ -48,7 +48,15 @@ export default function RangeInput(props: NumberInputProps) {
           background: `linear-gradient(to right, #2563eb ${pct}%, #e2e8f0 ${pct}%)`,
         }}
       />
-      <span style={{minWidth: '92px', textAlign: 'right', fontSize: '12px', fontWeight: 500, color: '#64748b'}}>
+      <span
+        style={{
+          minWidth: '92px',
+          textAlign: 'right',
+          fontSize: '12px',
+          fontWeight: 500,
+          color: '#64748b',
+        }}
+      >
         {label}
       </span>
     </div>

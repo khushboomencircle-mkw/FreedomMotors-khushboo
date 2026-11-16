@@ -41,7 +41,7 @@ export async function GET(request: Request) {
       {status: 500},
     )
   }
- try {
+  try {
     return await enableDraftMode.GET(request)
   } catch (err) {
     // Next.js redirect() throws NEXT_REDIRECT internally.
@@ -52,9 +52,8 @@ export async function GET(request: Request) {
 
     console.error('[Draft Mode] Enable failed:', err)
 
-    return new Response(
-      'Draft mode could not be enabled. Check the Next.js server logs.',
-      {status: 503},
-    )
+    return new Response('Draft mode could not be enabled. Check the Next.js server logs.', {
+      status: 503,
+    })
   }
 }

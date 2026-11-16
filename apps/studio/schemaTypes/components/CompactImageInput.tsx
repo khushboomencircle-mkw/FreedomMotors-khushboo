@@ -1,4 +1,3 @@
-
 import {useCallback, useRef} from 'react'
 import {useClient, set, unset} from 'sanity'
 import type {ObjectInputProps} from 'sanity'
@@ -19,12 +18,7 @@ type CompactImageInputProps = ObjectInputProps & {
 }
 
 export default function CompactImageInput(props: CompactImageInputProps) {
-  const {
-    value,
-    onChange,
-    renderDefault,
-    showCustomFields = false,
-  } = props
+  const {value, onChange, renderDefault, showCustomFields = false} = props
 
   const client = useClient({apiVersion: '2024-01-01'})
   const {projectId, dataset} = client.config()
@@ -123,11 +117,7 @@ export default function CompactImageInput(props: CompactImageInputProps) {
               paddingTop: 4,
             }}
           >
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              style={BTN}
-            >
+            <button type="button" onClick={() => fileInputRef.current?.click()} style={BTN}>
               Replace
             </button>
 
@@ -168,10 +158,7 @@ export default function CompactImageInput(props: CompactImageInputProps) {
               `}
             </style>
 
-            <div
-              className="compact-image-fields"
-              style={{width: '100%', minWidth: 0}}
-            >
+            <div className="compact-image-fields" style={{width: '100%', minWidth: 0}}>
               {renderDefault(props)}
             </div>
           </>

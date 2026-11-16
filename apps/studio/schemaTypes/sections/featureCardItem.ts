@@ -9,9 +9,7 @@ export const featureCardItemType = defineType({
   title: 'Feature Card',
   type: 'object',
   icon: ImageIcon,
-  fieldsets: [
-    {name: 'media', title: 'Media', options: {collapsible: true, collapsed: false}},
-  ],
+  fieldsets: [{name: 'media', title: 'Media', options: {collapsible: true, collapsed: false}}],
   fields: [
     defineField({
       name: 'title',
@@ -77,9 +75,7 @@ export const featureCardItemType = defineType({
       hidden: ({parent}) => parent?.mediaType !== 'video',
       options: {hotspot: true},
       components: {input: CompactImageInput},
-      fields: [
-        defineField({name: 'alt', title: 'Alt Text', type: 'string'}),
-      ],
+      fields: [defineField({name: 'alt', title: 'Alt Text', type: 'string'})],
     }),
 
     // ── Style ──

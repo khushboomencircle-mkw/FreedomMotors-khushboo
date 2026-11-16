@@ -9,7 +9,10 @@
     "deploy": "sanity deploy",
     "deploy-graphql": "sanity graphql deploy",
     "dev": "sanity dev",
-    "start": "sanity start"
+    "start": "sanity start",
+    "eslint": "eslint .",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,mjs,css}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,mjs,css}\""
   },
   "keywords": [
     "sanity"
