@@ -1,6 +1,6 @@
-import { sanityFetch } from './client'
-import type { ThemeConfig, ThemeMode } from '@/lib/theme'
-import { LANDING_PAGE_VISIBLE, NAV_LINK_HAS_PAGE } from './navQueries'
+import {sanityFetch} from './client'
+import type {ThemeConfig, ThemeMode} from '@/lib/theme'
+import {LANDING_PAGE_VISIBLE, NAV_LINK_HAS_PAGE} from './navQueries'
 
 const SECTION_PROJECTION = `{
   _key,
@@ -237,7 +237,7 @@ export async function getChromeVisibility() {
     ...*[_type == "vehicleDetailPage"]{"route": "/vehicles/*", showHeader, showFooter}
   ]`,
     {},
-    { fallback: [] },
+    {fallback: []},
   )
 }
 
@@ -254,7 +254,7 @@ export interface SiteSettings {
   businessHours?: string
   phoneLabel?: string
   phoneNumber?: string
-  headerCta?: { label?: string; endpoint?: string; openInNewTab?: boolean }
+  headerCta?: {label?: string; endpoint?: string; openInNewTab?: boolean}
 
   // Footer contact
   footerLogo?: string
@@ -340,7 +340,7 @@ export async function getSiteSettings() {
     darkTheme
   }`,
     {},
-    { fallback: null },
+    {fallback: null},
   )
 }
 
@@ -440,13 +440,13 @@ export async function getVehicleBySlug(slug: string) {
       "gallery": gallery[]{"url": image.asset->url, alt},
       ${SEO_PROJECTION}
     }`,
-    { slug },
+    {slug},
   )
 }
 
 /** All vehicle slugs, for static generation. */
 export async function getAllVehicleSlugs() {
-  return sanityFetch<{ slug: string }[]>(
+  return sanityFetch<{slug: string}[]>(
     `*[_type == "vehicle" && defined(slug.current)]{"slug": slug.current}`,
   )
 }
@@ -479,7 +479,7 @@ export async function getCustomPagesForNav() {
     openInNewTab
   }`,
     {},
-    { fallback: [] },
+    {fallback: []},
   )
 }
 
@@ -621,20 +621,20 @@ export async function getNavLinks() {
         panelHorizontalPadding
       }
     }`,
-    { builtIn: BUILT_IN_NAV_HREFS },
-    { fallback: null },
+    {builtIn: BUILT_IN_NAV_HREFS},
+    {fallback: null},
   )
 }
 
 export async function getFooterNavLinks() {
   // Same rule as the header (see navQueries.ts): built-in pages and external URLs always show;
   // anything else needs a visible Landing Page behind it. A link with no page never shows.
-  return sanityFetch<{ label: string; href: string; openInNewTab?: boolean }[] | null>(
+  return sanityFetch<{label: string; href: string; openInNewTab?: boolean}[] | null>(
     `*[_id == "navigationSettings"][0].links[
       showInFooter == true && ${NAV_LINK_HAS_PAGE}
     ]{label, href, openInNewTab}`,
-    { builtIn: BUILT_IN_NAV_HREFS },
-    { fallback: null },
+    {builtIn: BUILT_IN_NAV_HREFS},
+    {fallback: null},
   )
 }
 
@@ -647,7 +647,7 @@ export async function getCustomPageBySlug(slug: string) {
       ${SEO_PROJECTION},
       "sections": sections[] | order(sequence asc)${SECTION_PROJECTION}
     }`,
-    { slug },
+    {slug},
   )
 }
 
@@ -669,7 +669,7 @@ export async function getEducationalArticleBySlug(slug: string) {
       description,
       ${SEO_PROJECTION}
     }`,
-    { slug },
+    {slug},
   )
 }
 
@@ -697,20 +697,20 @@ export async function getCategoryBySlug(slug: string) {
         image{"url": image.asset->url, "alt": alt}
       }
     }`,
-    { slug },
+    {slug},
   )
 }
 
 /** All category slugs, for static generation. */
 export async function getAllCategorySlugs() {
-  return sanityFetch<{ slug: string }[]>(
+  return sanityFetch<{slug: string}[]>(
     `*[_type == "category" && defined(slug.current)]{"slug": slug.current}`,
   )
 }
 
 /** Every category, alphabetically — the Educational page's Filter & Search pill list (see EducationalArticleFilterGrid). */
 export async function getAllCategoriesForFilter() {
-  return sanityFetch<{ slug: string; title: string }[]>(
+  return sanityFetch<{slug: string; title: string}[]>(
     `*[_type == "category" && defined(slug.current)] | order(title asc){
       "slug": slug.current,
       title
@@ -725,8 +725,8 @@ export async function getAllEducationalArticlesForFilter() {
       slug: string
       title?: string
       eyebrow?: string
-      image?: { url?: string; alt?: string }
-      categories?: { slug: string; title: string }[]
+      image?: {url?: string; alt?: string}
+      categories?: {slug: string; title: string}[]
     }[]
   >(
     `*[_type == "educationalArticle" && isActive != false && defined(slug.current)]{

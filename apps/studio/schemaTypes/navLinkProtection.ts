@@ -2,13 +2,6 @@ import {createContext} from 'react'
 import type {FormPatch, ValidationContext} from 'sanity'
 import {isBuiltInNavHref, normalizeNavHref} from './navConstants'
 
-/**
- * Protected nav links: a link can't be removed (or re-pointed) while a page is behind it.
- * Protected = its href is a built-in page (navConstants.ts), or a Landing Page (customPage
- * document, draft or published) has the matching slug. Enforced three ways: the Remove/Duplicate
- * menu entries are hidden, removal patches are dropped, and the `links` validation blocks publish.
- */
-
 export interface NavLinkValue {
   _key?: string
   label?: string
@@ -63,11 +56,6 @@ export function withoutProtectedRemovals(
   })
 }
 
-/**
- * Safety net for `links`: errors when a link that was in the published list, and is still
- * protected, is missing from the edited list. Catches removals the UI can't (restore, scripts).
- * A failed lookup never blocks editors — it just can't verify.
- */
 export async function validateProtectedLinks(
   links: NavLinkValue[] | undefined,
   getClient: ValidationContext['getClient'],
@@ -83,9 +71,9 @@ export async function validateProtectedLinks(
 
   const landingHrefs = toLandingHrefs(result?.pageSlugs)
   const present = new Set((links ?? []).map((link) => normalizeNavHref(link.href)))
-  const missing = [...new Set((result?.publishedHrefs ?? []).filter((href): href is string => !!href))].filter(
-    (href) => isProtectedHref(href, landingHrefs) && !present.has(normalizeNavHref(href)),
-  )
+  const missing = [
+    ...new Set((result?.publishedHrefs ?? []).filter((href): href is string => !!href)),
+  ].filter((href) => isProtectedHref(href, landingHrefs) && !present.has(normalizeNavHref(href)))
 
   return missing.length === 0
     ? true

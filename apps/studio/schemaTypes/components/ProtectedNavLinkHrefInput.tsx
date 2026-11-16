@@ -3,10 +3,6 @@ import {Stack, Text} from '@sanity/ui'
 import type {StringInputProps} from 'sanity'
 import {NavLinkProtectionContext, PROTECTED_LINK_NOTE} from '../navLinkProtection'
 
-/**
- * Link Path field. Read-only for a protected link, so renaming it can't break the page behind
- * it. Label, Show in Header and Show in Footer stay editable.
- */
 export default function ProtectedNavLinkHrefInput(props: StringInputProps) {
   const context = useContext(NavLinkProtectionContext)
   // This field's path looks like ['links', {_key}, 'href'].

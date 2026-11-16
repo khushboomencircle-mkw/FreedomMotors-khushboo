@@ -1,6 +1,6 @@
-import { cache } from 'react'
-import { createClient, type QueryParams } from 'next-sanity'
-import { draftMode } from 'next/headers'
+import {cache} from 'react'
+import {createClient, type QueryParams} from 'next-sanity'
+import {draftMode} from 'next/headers'
 
 const isProduction = process.env.NODE_ENV === 'production'
 
@@ -76,7 +76,7 @@ async function isDraftModeActive(): Promise<boolean> {
  * publish can still return the old content. Ignored when `useCdn` is false
  * (dev, and every draft-mode read), so it's safe to pass unconditionally.
  */
-const fetchOptions = isProduction ? ({ cacheMode: 'noStale' } as const) : undefined
+const fetchOptions = isProduction ? ({cacheMode: 'noStale'} as const) : undefined
 
 /** Error thrown when a Sanity query fails (network down, API error, timeout). */
 export class SanityFetchError extends Error {
@@ -94,7 +94,7 @@ function describeError(err: unknown): Record<string, unknown> {
     message?: string
     name?: string
     statusCode?: number
-    response?: { statusCode?: number; body?: unknown }
+    response?: {statusCode?: number; body?: unknown}
     code?: string
   }
   return {
@@ -110,7 +110,7 @@ const fetchWithRetry = cache(
     // `$preview` is reserved: it mirrors the client actually used (true only for the drafts
     // perspective), so a failed draft read that falls back to published also falls back to the
     // strict live rules. Queries may use it; callers can't set it.
-    const params: QueryParams = { ...JSON.parse(paramsKey), preview: draft }
+    const params: QueryParams = {...JSON.parse(paramsKey), preview: draft}
     const activeClient = draft ? draftClient : client
     let lastErr: unknown
 
@@ -139,7 +139,9 @@ interface FetchOptions<T> {
   retries?: number
 }
 
-
+// `any` default is intentional: call sites rely on it for untyped queries (a stricter default
+// like `unknown` breaks ~100 call sites). Callers can still pass an explicit type.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function sanityFetch<T = any>(
   query: string,
   params: QueryParams = {},

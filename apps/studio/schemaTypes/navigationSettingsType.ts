@@ -123,7 +123,9 @@ export const navigationSettingsType = defineType({
       ],
       // Protection must not depend on initialValue: existing documents never receive it.
       validation: (Rule) =>
-        Rule.custom<NavLinkValue[]>((links, context) => validateProtectedLinks(links, context.getClient)),
+        Rule.custom<NavLinkValue[]>((links, context) =>
+          validateProtectedLinks(links, context.getClient),
+        ),
     }),
   ],
   preview: {
