@@ -1,5 +1,9 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
 import {MenuIcon} from '@sanity/icons/Menu'
+import ProtectedNavLinksInput from './components/ProtectedNavLinksInput'
+import ProtectedNavLinkItem from './components/ProtectedNavLinkItem'
+import NavLinkItemInput from './components/NavLinkItemInput'
+import {validateProtectedLinks, type NavLinkValue} from './navLinkProtection'
 
 /**
  * navigationSettings — singleton document that owns all navigation links.
@@ -106,8 +110,20 @@ export const navigationSettingsType = defineType({
       title: 'Navigation Links',
       type: 'array',
       description:
-        'All nav links in one list — toggle where each one shows (header, footer, or both).',
-      of: [defineArrayMember({type: 'navigationLink'})],
+        'All nav links in one list — toggle where each one shows (header, footer, or both). ' +
+        'A link only appears on the site while a published page is behind it.',
+      components: {input: ProtectedNavLinksInput},
+      // `components` here replaces (not merges with) the link type's own, so `input` must be
+      // repeated: it auto-fills Link Path from Nav Label.
+      of: [
+        defineArrayMember({
+          type: 'navigationLink',
+          components: {item: ProtectedNavLinkItem, input: NavLinkItemInput},
+        }),
+      ],
+      // Protection must not depend on initialValue: existing documents never receive it.
+      validation: (Rule) =>
+        Rule.custom<NavLinkValue[]>((links, context) => validateProtectedLinks(links, context.getClient)),
     }),
   ],
   preview: {
