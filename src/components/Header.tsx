@@ -521,7 +521,6 @@ export default function Header({
 
   const activeMegaItem = navItems.find((item) => item.href === activeMega && item.showMegaMenu)
 
-  console.log('settings : ', settings)
   return (
     <header ref={headerRef} className={settings?.stickyHeader ? 'sticky top-0 z-50' : 'relative'}>
       {/* Top Bar */}

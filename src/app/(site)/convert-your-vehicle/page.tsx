@@ -21,7 +21,6 @@ async function PageContent() {
   if (!response.ok) {
     throw new Error('Unable to download source image')
   }
-  console.log('response : ', response)
   const imageBuffer = Buffer.from(await response.arrayBuffer())
   const page = await getConvertVehicle2()
 
