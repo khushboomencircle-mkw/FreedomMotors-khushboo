@@ -2,6 +2,7 @@ import {sanityFetch} from './client'
 import type {ThemeConfig, ThemeMode} from '@/lib/theme'
 import {LANDING_PAGE_VISIBLE, NAV_LINK_HAS_PAGE} from './navQueries'
 import {BLOG_POST_VISIBLE} from './blogQueries'
+import {VEHICLE_AVAILABLE, VEHICLE_CAROUSEL_PROJECTION} from './vehicleQueries'
 
 const SECTION_PROJECTION = `{
   _key,
@@ -129,6 +130,7 @@ const SECTION_PROJECTION = `{
   },
   layout,
   lightbox,
+  // Vehicle Carousel only — live vehicles come with the page query (see vehicleQueries.ts).${VEHICLE_CAROUSEL_PROJECTION}
   eyebrow,
   headerStyle,
   imageLayout,
@@ -421,7 +423,7 @@ export async function getVehicleDetailPage() {
 
 /** All vehicles, for the listing rendered on the /vehicles page. */
 export async function getAllVehicles() {
-  return sanityFetch(`*[_type == "vehicle" && isAvailable != false] | order(isFeatured desc, year desc){
+  return sanityFetch(`*[_type == "vehicle" && ${VEHICLE_AVAILABLE}] | order(isFeatured desc, year desc){
     "slug": slug.current,
     year, make, model, trim, body, stock, vin,
     sellingPrice, internetPrice, msrp,

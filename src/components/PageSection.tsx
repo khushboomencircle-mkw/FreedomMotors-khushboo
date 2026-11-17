@@ -9,6 +9,8 @@ import OneColumnSlider from './OneColumnSlider'
 import LoadMoreCardsGrid from './LoadMoreCardsGrid'
 import FeatureGridScroller from './FeatureGridScroller'
 import FeatureHeroSlider from './FeatureHeroSlider'
+import VehicleCarousel from './VehicleCarousel'
+import type {CarouselVehicle} from './VehicleCarouselCard'
 import {sanitizeHtml} from '@/lib/sanitizeHtml'
 import {resolveSectionTheme, themeToCssVars, type ThemeConfig} from '@/lib/theme'
 import {toPlainText} from '@/lib/richText'
@@ -300,6 +302,9 @@ export interface Section {
   photos?: {_key: string; url?: string; alt?: string}[]
   layout?: 'grid' | 'mosaic' | 'slider'
   lightbox?: boolean
+  // Vehicle Carousel Section (vehicleCarouselSection) — `isPreview` is true only on draft reads.
+  vehicles?: CarouselVehicle[] | null
+  isPreview?: boolean
 }
 
 const RADIUS_MAP: Record<string, string> = {
@@ -1594,6 +1599,68 @@ function PhotoGallerySection({section}: {section: Section}) {
 }
 
 /**
+ * Vehicle Carousel Section — the vehicles an editor picked, as a swipeable row of cards. They
+ * arrive with the page's own query, already limited to picked vehicles that still exist and are
+ * available (same rule as /vehicles — see sanity/vehicleQueries.ts), priced and named by
+ * lib/vehicleDisplay.ts, so the section is exactly as fresh as the page.
+ * Colors all come from --theme-* variables, so Site Theme and Section Theme apply.
+ */
+function VehicleCarouselSection({section}: {section: Section}) {
+  const vehicles = section.vehicles ?? []
+
+  // Only reachable in preview — PageSection hides an empty carousel on the live site.
+  if (vehicles.length === 0) {
+    return (
+      <div
+        className="mx-auto max-w-3xl rounded-xl p-8 text-center"
+        style={{border: '2px dashed color-mix(in srgb, currentColor 35%, transparent)'}}
+      >
+        <p className="font-semibold">Vehicle Carousel</p>
+        <p className="mt-1 text-sm opacity-80">
+          No vehicles are selected, or the selected ones are unavailable. This note only shows in
+          preview — the section stays hidden on the live site until a selected vehicle is available.
+        </p>
+      </div>
+    )
+  }
+
+  const hasButton = Boolean(section.showButton && section.buttonLabel)
+
+  return (
+    <div>
+      {(section.sectionHeading || section.sectionDescription || hasButton) && (
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div className="min-w-0 max-w-2xl">
+            {section.sectionHeading && (
+              <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
+                {section.sectionHeading}
+              </h2>
+            )}
+            {section.sectionDescription && (
+              <RichText
+                value={section.sectionDescription}
+                className="mt-2 text-base leading-relaxed opacity-80 sm:text-lg"
+              />
+            )}
+          </div>
+          {hasButton && (
+            <div className="shrink-0">
+              <PrimaryButton section={section} />
+            </div>
+          )}
+        </div>
+      )}
+
+      <VehicleCarousel
+        vehicles={vehicles}
+        fallbackImageUrl={NO_IMAGE_FALLBACK_URL}
+        label={stegaClean(section.sectionHeading) || 'Vehicles for sale'}
+      />
+    </div>
+  )
+}
+
+/**
  * Generic CTA button — same styling rules as PrimaryButton/SecondaryButton
  * (resolveButtonColors + the theme-var-with-fallback convention) but
  * prop-driven instead of reading straight off a `Section`, so it isn't tied
@@ -2479,6 +2546,15 @@ export default function PageSection({section}: {section: Section}) {
   if (section._type === 'staticSection') {
     return null
   }
+  // A carousel with no matching vehicles is hidden on the live site entirely (no empty padded
+  // band). In preview it stays so the editor sees a placeholder instead.
+  if (
+    section._type === 'vehicleCarouselSection' &&
+    !section.isPreview &&
+    !section.vehicles?.length
+  ) {
+    return null
+  }
 
   const cont = section.container
 
@@ -2496,6 +2572,9 @@ export default function PageSection({section}: {section: Section}) {
   // other section types already have — so shape-inference would be
   // ambiguous here. _type is the only reliable signal.
   const isCallToAction = section._type === 'callToActionSection'
+
+  // Same: explicit _type — it shares sectionHeading and the button fields with other sections.
+  const isVehicleCarousel = section._type === 'vehicleCarouselSection'
 
   const isFeatureGrid =
     !isLinkList &&
@@ -2676,6 +2755,8 @@ export default function PageSection({section}: {section: Section}) {
               <PhotoGallerySection section={section} />
             ) : isCallToAction ? (
               <CallToActionSection section={section} />
+            ) : isVehicleCarousel ? (
+              <VehicleCarouselSection section={section} />
             ) : (
               <StandardSectionContent section={section} isWhiteTheme={isWhiteTheme} />
             )}
@@ -2699,6 +2780,8 @@ export default function PageSection({section}: {section: Section}) {
           <PhotoGallerySection section={section} />
         ) : isCallToAction ? (
           <CallToActionSection section={section} />
+        ) : isVehicleCarousel ? (
+          <VehicleCarouselSection section={section} />
         ) : (
           <StandardSectionContent section={section} isWhiteTheme={isWhiteTheme} />
         )}

@@ -91,10 +91,18 @@ interface ButtonOpts {
   includeSecondary?: boolean
   includeOverlay?: boolean
   includeStyle?: boolean
+  /** Starting values for a brand-new section's primary button (e.g. an always-useful "View all" link). */
+  defaults?: {show?: boolean; label?: string; linkUrl?: string}
 }
 
 export function buttonFields(opts: ButtonOpts = {}) {
-  const {group, includeSecondary = false, includeOverlay = false, includeStyle = true} = opts
+  const {
+    group,
+    includeSecondary = false,
+    includeOverlay = false,
+    includeStyle = true,
+    defaults = {},
+  } = opts
 
   return [
     defineField({
@@ -103,7 +111,7 @@ export function buttonFields(opts: ButtonOpts = {}) {
       type: 'boolean',
       group,
       options: {layout: 'switch'},
-      initialValue: false,
+      initialValue: defaults.show ?? false,
     }),
     defineField({
       name: 'buttonLabel',
@@ -112,6 +120,7 @@ export function buttonFields(opts: ButtonOpts = {}) {
       group,
       fieldset: 'primaryButton',
       hidden: ({parent}) => !parent?.showButton,
+      initialValue: defaults.label,
     }),
     defineField({
       name: 'buttonLinkUrl',
@@ -122,6 +131,7 @@ export function buttonFields(opts: ButtonOpts = {}) {
       description: 'Path (/about/) or full URL (https://…).',
       placeholder: '/about/',
       hidden: ({parent}) => !parent?.showButton,
+      initialValue: defaults.linkUrl,
     }),
     // Legacy — hidden so saved content still renders.
     defineField({

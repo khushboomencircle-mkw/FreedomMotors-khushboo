@@ -10,6 +10,7 @@ import VehicleSearchBar, {type ActiveFilter} from '@/components/VehicleSearchBar
 import VehicleFilterSidebar from '@/components/VehicleFilterSidebar'
 import VehiclePagination, {PAGE_SIZE_OPTIONS} from '@/components/VehiclePagination'
 import LoadingOverlay from '@/components/LoadingOverlay'
+import {CONVERSION_LABEL, getVehiclePrice, vehicleName} from '@/lib/vehicleDisplay'
 import {Video, Banknote, ArrowRight} from 'lucide-react'
 
 // Default items per page — the visitor can change this (see VehiclePagination's
@@ -97,16 +98,6 @@ interface VehicleCard {
   mainImage?: string
 }
 
-const CONVERSION_LABEL: Record<string, string> = {
-  'rear-entry': 'Rear Entry',
-  'side-entry': 'Side Entry',
-}
-
-/** A dealer feed sometimes uses 0 to mean "not set" rather than leaving the field empty. */
-function moneyOrNull(value?: number): number | null {
-  return value != null && value > 0 ? value : null
-}
-
 function SpecRow({label, value}: {label: string; value: string}) {
   return (
     <div>
@@ -132,10 +123,8 @@ function StaticPillButton({icon: Icon, children}: {icon: typeof Video; children:
 }
 
 function VehicleCardRow({v}: {v: VehicleCard}) {
-  const name = [v.year, v.make, v.model, v.trim].filter(Boolean).join(' ') || 'Vehicle'
-  const price = moneyOrNull(v.sellingPrice) ?? moneyOrNull(v.internetPrice) ?? moneyOrNull(v.msrp)
-  const msrp = moneyOrNull(v.msrp)
-  const showStruckMsrp = msrp != null && price != null && msrp > price
+  const name = vehicleName(v)
+  const {price, msrp, showStruckMsrp} = getVehiclePrice(v)
   const conversionLabel = v.conversionType ? CONVERSION_LABEL[v.conversionType] : undefined
   const transLabel = v.transmissionDescription || v.transmission
 
