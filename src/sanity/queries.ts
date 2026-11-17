@@ -361,6 +361,7 @@ export async function getContactPage() {
     pageTitle,
     pageDescription,
     ${SEO_PROJECTION},
+    customCss,
     "sections": sections[] | order(sequence asc)${SECTION_PROJECTION}
   }`)
 }
@@ -370,6 +371,7 @@ export async function getOurStoryPage() {
     pageTitle,
     pageDescription,
     ${SEO_PROJECTION},
+    customCss,
     "sections": sections[] | order(sequence asc)${SECTION_PROJECTION}
   }`)
 }
@@ -379,6 +381,7 @@ export async function getEducationalPage() {
     pageTitle,
     pageDescription,
     ${SEO_PROJECTION},
+    customCss,
     "sections": sections[] | order(sequence asc)${SECTION_PROJECTION}
   }`)
 }
@@ -388,6 +391,7 @@ export async function getCommercialPage() {
     pageTitle,
     pageDescription,
     ${SEO_PROJECTION},
+    customCss,
     "sections": sections[] | order(sequence asc)${SECTION_PROJECTION}
   }`)
 }
@@ -397,6 +401,7 @@ export async function getVehiclesPage() {
     pageTitle,
     pageDescription,
     ${SEO_PROJECTION},
+    customCss,
     "sections": sections[] | order(sequence asc)${SECTION_PROJECTION}
   }`)
 }
@@ -407,6 +412,7 @@ export async function getHomePage() {
     pageTitle,
     pageDescription,
     ${SEO_PROJECTION},
+    customCss,
     "sections": sections[] | order(sequence asc)${SECTION_PROJECTION}
   }`)
 }
@@ -417,6 +423,7 @@ export async function getVehicleDetailPage() {
     pageTitle,
     pageDescription,
     ${SEO_PROJECTION},
+    customCss,
     "sections": sections[] | order(sequence asc)${SECTION_PROJECTION}
   }`)
 }
@@ -459,6 +466,7 @@ export async function getConvertVehicle2() {
     pageTitle,
     pageDescription,
     ${SEO_PROJECTION},
+    customCss,
     "sections": sections[] | order(sequence asc)${SECTION_PROJECTION}
   }`)
 }
@@ -648,6 +656,7 @@ export async function getCustomPageBySlug(slug: string) {
       title,
       pageDescription,
       ${SEO_PROJECTION},
+      customCss,
       "sections": sections[] | order(sequence asc)${SECTION_PROJECTION}
     }`,
     {slug},
@@ -698,6 +707,7 @@ export async function getBlogPostByPath(landingSlug: string, postSlug: string) {
       image{"url": image.asset->url, "alt": alt},
       description,
       ${SEO_PROJECTION},
+      customCss,
       "sections": sections[] | order(sequence asc)${SECTION_PROJECTION}
     }`,
     {landingSlug, postSlug},

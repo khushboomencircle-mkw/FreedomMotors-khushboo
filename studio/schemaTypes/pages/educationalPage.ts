@@ -2,6 +2,7 @@ import {defineField, defineType} from 'sanity'
 import {BookIcon} from '@sanity/icons/Book'
 import {allSectionMembers} from '../sections'
 import {pageChromeFieldsets, pageChromeFields} from '../fields/pageChrome'
+import {pageCssFieldsets, pageCssFields} from '../fields/pageCss'
 import {sectionsArrayValidation} from '../fields/sectionFields'
 import {richTextOf} from '../fields/richText'
 
@@ -21,7 +22,7 @@ export const educationalPage = defineType({
   title: 'Educational Page',
   type: 'document',
   icon: BookIcon,
-  fieldsets: [...pageChromeFieldsets],
+  fieldsets: [...pageChromeFieldsets, ...pageCssFieldsets],
   fields: [
     defineField({
       name: 'pageTitle',
@@ -43,6 +44,7 @@ export const educationalPage = defineType({
       of: richTextOf,
     }),
     ...pageChromeFields,
+    ...pageCssFields(),
     defineField({
       name: 'seo',
       title: 'SEO',

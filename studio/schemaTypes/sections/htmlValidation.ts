@@ -17,6 +17,7 @@
  * setup — if you change one, change the other the same way. Both read the
  * same TRUSTED_SCRIPT_HOSTS env var, so the host list itself is always shared.
  */
+import {CSS_UNSAFE_RULES, type CssUnsafeRule} from '../../../src/lib/cssPolicy'
 
 export const ALLOWED_TAGS = new Set<string>([
   'div',
@@ -178,16 +179,19 @@ function validateScriptElement(el: Element): string | null {
   return null
 }
 
+// Editor-facing wording for each shared rule. The rules themselves (what counts as unsafe) live in
+// src/lib/cssPolicy.ts, shared with the website's sanitizer and the page-wide Custom CSS field.
+const STYLE_BLOCK_MESSAGES: Record<CssUnsafeRule['id'], string> = {
+  import: '@import is not allowed inside <style> (it loads external CSS).',
+  expression: 'CSS expression() is not allowed inside <style>.',
+  scriptScheme: 'javascript:/vbscript: URLs are not allowed inside <style>.',
+  unsafeUrlScheme: 'Unsafe url() scheme inside <style>.',
+}
+
 /** Returns an error string if a <style> block's CSS is unsafe, else null. */
-function validateCss(css: string): string | null {
-  const v = css.toLowerCase()
-  if (v.includes('@import')) return '@import is not allowed inside <style> (it loads external CSS).'
-  if (v.includes('expression(')) return 'CSS expression() is not allowed inside <style>.'
-  if (/(javascript|vbscript)\s*:/.test(v))
-    return 'javascript:/vbscript: URLs are not allowed inside <style>.'
-  if (/url\(\s*['"]?\s*(javascript|vbscript|data)\s*:/.test(v))
-    return 'Unsafe url() scheme inside <style>.'
-  return null
+export function validateCss(css: string): string | null {
+  const rule = CSS_UNSAFE_RULES.find((r) => r.test.test(css))
+  return rule ? STYLE_BLOCK_MESSAGES[rule.id] : null
 }
 
 function isSafeUrl(raw: string): boolean {

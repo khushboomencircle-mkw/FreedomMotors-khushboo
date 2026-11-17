@@ -3,6 +3,8 @@ import {notFound} from 'next/navigation'
 import {Suspense} from 'react'
 import {getVehicleBySlug, getVehicleDetailPage} from '@/sanity/queries'
 import PageSection, {Section} from '@/components/PageSection'
+import PageCss from '@/components/PageCss'
+import {pageCssId} from '@/lib/cssPolicy'
 import {splitAroundStaticSection} from '@/lib/staticSection'
 import RichText from '@/components/RichText'
 import {seoToMetadata} from '@/lib/seo'
@@ -60,6 +62,8 @@ async function VehicleContent({slug}: {slug: string}) {
 
   return (
     <div className="w-full">
+      {/* The shared Vehicle Detail Page template's Custom CSS applies to every vehicle's page. */}
+      <PageCss id="vehicle-detail" css={detailPage?.customCss} />
       {/* Editor-built sections placed before the vehicle specs (Static Section
           placeholder), if an editor chose to position any there. */}
       {before.map((section: Section) => (
@@ -173,6 +177,7 @@ export default async function VehicleDetailPage({params}: {params: Promise<{slug
 
   return (
     <div
+      data-page-css={pageCssId('vehicle-detail')}
       className="min-h-screen overflow-x-hidden"
       style={{background: 'var(--theme-bg, #121212)', color: 'var(--theme-text, #ffffff)'}}
     >

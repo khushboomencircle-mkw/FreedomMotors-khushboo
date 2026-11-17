@@ -2458,6 +2458,23 @@ function StandardSectionContent({
 }
 
 /**
+ * Stable, harmless hooks on every section's wrapper, so a page's Custom CSS can aim at one section:
+ *   [data-section-key="abc123"]  — this exact section
+ *   .page-section--bannerSection — every section of that type
+ * Nothing in the site's own styles uses these names, so adding them changes no current styling.
+ * Values are reduced to safe characters (a Sanity _key/_type is already plain, this is belt and braces).
+ */
+function sectionHooks(section: Section, extraClass = '') {
+  const safe = (value?: string) => (value || '').replace(/[^A-Za-z0-9_-]/g, '')
+  return {
+    className: ['page-section', `page-section--${safe(section._type) || 'section'}`, extraClass]
+      .filter(Boolean)
+      .join(' '),
+    'data-section-key': safe(section._key) || undefined,
+  }
+}
+
+/**
  * Custom HTML Section — renders editor-supplied HTML after an independent
  * allowlist sanitization pass. The markup is scoped inside a dedicated wrapper
  * so it cannot style unrelated sections. Multiple instances are isolated per key.
@@ -2474,7 +2491,7 @@ function CustomHtmlSection({section}: {section: Section}) {
   const sectionThemeVars = themeToCssVars(sectionThemeConfig)
   return (
     <section
-      className="custom-html-section w-full"
+      {...sectionHooks(section, 'custom-html-section w-full')}
       style={{
         ...(sectionThemeVars as React.CSSProperties),
         backgroundColor: 'var(--theme-bg, transparent)',
@@ -2502,7 +2519,13 @@ function CustomHtmlSection({section}: {section: Section}) {
  * would populate it was never loaded, so this renders nothing rather than an
  * empty box — only logged as a warning server-side, in development.
  */
-function GoogleReviewsSection({widgetId}: {widgetId?: string}) {
+function GoogleReviewsSection({
+  widgetId,
+  hooks,
+}: {
+  widgetId?: string
+  hooks: ReturnType<typeof sectionHooks>
+}) {
   if (!widgetId) return null
   const loaderSrc = process.env.NEXT_PUBLIC_TRUSTINDEX_LOADER_SRC
   if (!loaderSrc) {
@@ -2515,7 +2538,7 @@ function GoogleReviewsSection({widgetId}: {widgetId?: string}) {
     return null
   }
   return (
-    <section className="w-full py-12 sm:py-16">
+    <section {...hooks}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="ti-widget" data-pid={widgetId} data-trustindex-widget="true" />
       </div>
@@ -2536,7 +2559,12 @@ export default function PageSection({section}: {section: Section}) {
     return <CustomHtmlSection section={section} />
   }
   if (section._type === 'googleReviewsSection') {
-    return <GoogleReviewsSection widgetId={section.trustindexWidgetId} />
+    return (
+      <GoogleReviewsSection
+        widgetId={section.trustindexWidgetId}
+        hooks={sectionHooks(section, 'w-full py-12 sm:py-16')}
+      />
+    )
   }
   // Placeholder only — marks where a page's own built-in content (e.g. the
   // vehicle listing grid) belongs among the CMS sections. Pages that have
@@ -2731,7 +2759,7 @@ export default function PageSection({section}: {section: Section}) {
 
   if (section.expandable) {
     return (
-      <section style={outerWrapperStyle}>
+      <section {...sectionHooks(section)} style={outerWrapperStyle}>
         {bgOverlayEl}
         <div className={containerClass} style={{...innerStyle, ...contentLayerStyle}}>
           <ExpandableSection
@@ -2767,7 +2795,7 @@ export default function PageSection({section}: {section: Section}) {
   }
 
   return (
-    <section style={outerWrapperStyle}>
+    <section {...sectionHooks(section)} style={outerWrapperStyle}>
       {bgOverlayEl}
       <div className={containerClass} style={{...innerStyle, ...contentLayerStyle}}>
         {isLinkList ? (

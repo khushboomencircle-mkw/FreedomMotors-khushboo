@@ -3,6 +3,8 @@ import {notFound} from 'next/navigation'
 import {Suspense} from 'react'
 import {getAllCustomPageSlugs, getCustomPageBySlug} from '@/sanity/queries'
 import PageSection, {Section} from '@/components/PageSection'
+import PageCss from '@/components/PageCss'
+import {pageCssId} from '@/lib/cssPolicy'
 import RichText from '@/components/RichText'
 import {seoToMetadata} from '@/lib/seo'
 
@@ -33,6 +35,7 @@ async function PageContent({slug}: {slug: string}) {
 
   return (
     <div className="w-full">
+      <PageCss id={`page-${slug}`} css={page.customCss} />
       {page.title && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-4 text-center">
           {page.pageDescription && (
@@ -58,6 +61,7 @@ export default async function CustomPage({params}: {params: Promise<{slug: strin
 
   return (
     <div
+      data-page-css={pageCssId(`page-${slug}`)}
       className="min-h-screen overflow-x-hidden"
       style={{background: 'var(--theme-bg, #121212)', color: 'var(--theme-text, #ffffff)'}}
     >

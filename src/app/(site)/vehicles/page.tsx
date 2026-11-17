@@ -3,6 +3,8 @@ import Link from 'next/link'
 import {getVehiclesPage, getAllVehicles} from '@/sanity/queries'
 import {Suspense} from 'react'
 import PageSection, {Section} from '@/components/PageSection'
+import PageCss from '@/components/PageCss'
+import {pageCssId} from '@/lib/cssPolicy'
 import {splitAroundStaticSection} from '@/lib/staticSection'
 import RichText from '@/components/RichText'
 import {seoToMetadata} from '@/lib/seo'
@@ -330,6 +332,7 @@ async function PageContent({
 
   return (
     <div className="w-full">
+      <PageCss id="vehicles" css={page?.customCss} />
       {page?.pageTitle && (
         <div className="mx-auto max-w-7xl px-4 pb-4 pt-10 text-center sm:px-6 lg:px-8">
           <h1 className="text-4xl font-extrabold tracking-tight text-[var(--theme-text,#ffffff)] sm:text-5xl">
@@ -375,6 +378,7 @@ export default function VehiclesPage({
 }) {
   return (
     <div
+      data-page-css={pageCssId('vehicles')}
       className="min-h-screen overflow-x-hidden"
       style={{background: 'var(--theme-bg, #121212)', color: 'var(--theme-text, #ffffff)'}}
     >

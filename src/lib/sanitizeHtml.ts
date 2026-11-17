@@ -1,4 +1,5 @@
 import sanitizeHtmlLib from 'sanitize-html'
+import {CSS_UNSAFE_RULES} from './cssPolicy'
 
 /**
  * Frontend HTML sanitizer for the Custom HTML Section.
@@ -221,11 +222,11 @@ const OPTIONS: sanitizeHtmlLib.IOptions = {
  */
 function cleanStyleBlocks(html: string): string {
   return html.replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gi, (_m, css: string) => {
-    const cleaned = css
-      .replace(/@import[^;]*;?/gi, '')
-      .replace(/expression\s*\(/gi, 'invalid(')
-      .replace(/(javascript|vbscript)\s*:/gi, '')
-      .replace(/url\(\s*(['"]?)\s*(?:javascript|vbscript|data)\s*:/gi, 'url($1')
+    // The rules live in lib/cssPolicy.ts, shared with the Studio's check and the page-wide Custom CSS.
+    const cleaned = CSS_UNSAFE_RULES.reduce(
+      (text, rule) => text.replace(rule.strip, rule.replaceWith),
+      css,
+    )
     return `<style>${cleaned}</style>`
   })
 }

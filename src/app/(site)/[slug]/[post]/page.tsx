@@ -3,6 +3,8 @@ import {notFound} from 'next/navigation'
 import {Suspense} from 'react'
 import {getAllBlogPostPaths, getBlogPostByPath} from '@/sanity/queries'
 import BlogPostView from '@/components/BlogPostView'
+import PageCss from '@/components/PageCss'
+import {pageCssId} from '@/lib/cssPolicy'
 import SanityErrorState from '@/components/SanityErrorState'
 import {seoToMetadata} from '@/lib/seo'
 
@@ -51,21 +53,27 @@ async function PageContent({landingSlug, postSlug}: {landingSlug: string; postSl
     notFound()
   }
 
-  return <BlogPostView post={post} />
+  return (
+    <>
+      <PageCss id={`post-${landingSlug}-${postSlug}`} css={post.customCss} />
+      <BlogPostView post={post} />
+    </>
+  )
 }
 
 export default async function BlogPostPage({params}: {params: Params}) {
-  const {slug, post} = await params
+  const {slug: landingSlug, post: postSlug} = await params
 
   return (
     <div
+      data-page-css={pageCssId(`post-${landingSlug}-${postSlug}`)}
       className="min-h-screen overflow-x-hidden"
       style={{background: 'var(--theme-bg, #121212)', color: 'var(--theme-text, #ffffff)'}}
     >
       <Suspense
         fallback={<p className="text-[var(--theme-muted,#9ca3af)] text-center py-24">Loading...</p>}
       >
-        <PageContent landingSlug={slug} postSlug={post} />
+        <PageContent landingSlug={landingSlug} postSlug={postSlug} />
       </Suspense>
     </div>
   )

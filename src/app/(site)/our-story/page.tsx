@@ -2,6 +2,8 @@ import type {Metadata} from 'next'
 import {getOurStoryPage} from '@/sanity/queries'
 import {Suspense} from 'react'
 import PageSection, {Section} from '@/components/PageSection'
+import PageCss from '@/components/PageCss'
+import {pageCssId} from '@/lib/cssPolicy'
 import SanityErrorState from '@/components/SanityErrorState'
 import RichText from '@/components/RichText'
 import {seoToMetadata} from '@/lib/seo'
@@ -48,6 +50,7 @@ async function PageContent() {
 
   return (
     <div className="w-full">
+      <PageCss id="our-story" css={page.customCss} />
       {page.pageTitle && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-4 text-center">
           <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
@@ -75,6 +78,7 @@ async function PageContent() {
 export default function OurStoryPage() {
   return (
     <div
+      data-page-css={pageCssId('our-story')}
       className="min-h-screen overflow-x-hidden"
       style={{background: 'var(--theme-bg, #121212)', color: 'var(--theme-text, #ffffff)'}}
     >

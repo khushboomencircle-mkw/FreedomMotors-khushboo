@@ -2,6 +2,7 @@ import {defineField, defineType} from 'sanity'
 import {DocumentTextIcon} from '@sanity/icons/DocumentText'
 import {allSectionMembers} from '../sections'
 import {pageChromeFieldsets, pageChromeFields} from '../fields/pageChrome'
+import {pageCssFieldsets, pageCssFields} from '../fields/pageCss'
 import {sectionsArrayValidation} from '../fields/sectionFields'
 import {richTextOf} from '../fields/richText'
 
@@ -15,7 +16,7 @@ export const vehicleDetailPage = defineType({
   title: 'Vehicle Detail Page',
   type: 'document',
   icon: DocumentTextIcon,
-  fieldsets: [...pageChromeFieldsets],
+  fieldsets: [...pageChromeFieldsets, ...pageCssFieldsets],
   fields: [
     defineField({
       name: 'pageTitle',
@@ -32,6 +33,7 @@ export const vehicleDetailPage = defineType({
       of: richTextOf,
     }),
     ...pageChromeFields,
+    ...pageCssFields(),
     defineField({
       name: 'seo',
       title: 'SEO',

@@ -2,6 +2,7 @@ import {defineField, defineType} from 'sanity'
 import {EnvelopeIcon} from '@sanity/icons/Envelope'
 import {allSectionMembers} from '../sections'
 import {pageChromeFieldsets, pageChromeFields} from '../fields/pageChrome'
+import {pageCssFieldsets, pageCssFields} from '../fields/pageCss'
 import {sectionsArrayValidation} from '../fields/sectionFields'
 import {richTextOf} from '../fields/richText'
 
@@ -10,7 +11,7 @@ export const contactPage = defineType({
   title: 'Contact Page',
   type: 'document',
   icon: EnvelopeIcon,
-  fieldsets: [...pageChromeFieldsets],
+  fieldsets: [...pageChromeFieldsets, ...pageCssFieldsets],
   fields: [
     defineField({
       name: 'pageTitle',
@@ -27,6 +28,7 @@ export const contactPage = defineType({
       of: richTextOf,
     }),
     ...pageChromeFields,
+    ...pageCssFields(),
     defineField({
       name: 'seo',
       title: 'SEO',

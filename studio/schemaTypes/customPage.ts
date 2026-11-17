@@ -19,6 +19,7 @@ import {allSectionMembers} from './sections'
 import NavLinkPickerInput from './components/NavLinkPickerInput'
 import {isReservedSlug} from './navConstants'
 import {pageChromeFieldsets} from './fields/pageChrome'
+import {pageCssFieldsets, pageCssFields} from './fields/pageCss'
 import {sectionsArrayValidation} from './fields/sectionFields'
 import {richTextOf} from './fields/richText'
 
@@ -77,7 +78,7 @@ export const customPage = defineType({
     {name: 'navigation', title: 'Navigation'},
     {name: 'seo', title: 'SEO'},
   ],
-  fieldsets: [...pageChromeFieldsets],
+  fieldsets: [...pageChromeFieldsets, ...pageCssFieldsets],
   fields: [
     // ── Content ──
     defineField({
@@ -158,6 +159,8 @@ export const customPage = defineType({
           })
           .warning(),
     }),
+
+    ...pageCssFields('content'),
 
     // ── Navigation ──
 

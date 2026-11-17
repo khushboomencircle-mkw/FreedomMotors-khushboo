@@ -2,6 +2,7 @@ import {defineField, defineType} from 'sanity'
 import {HomeIcon} from '@sanity/icons/Home'
 import {allSectionMembers} from '../sections'
 import {pageChromeFieldsets, pageChromeFields} from '../fields/pageChrome'
+import {pageCssFieldsets, pageCssFields} from '../fields/pageCss'
 import {sectionsArrayValidation} from '../fields/sectionFields'
 import {richTextOf} from '../fields/richText'
 
@@ -14,7 +15,7 @@ export const homePage = defineType({
   title: 'Home Page',
   type: 'document',
   icon: HomeIcon,
-  fieldsets: [...pageChromeFieldsets],
+  fieldsets: [...pageChromeFieldsets, ...pageCssFieldsets],
   fields: [
     defineField({
       name: 'pageTitle',
@@ -31,6 +32,7 @@ export const homePage = defineType({
       fieldset: 'pageInfo',
     }),
     ...pageChromeFields,
+    ...pageCssFields(),
     defineField({
       name: 'seo',
       title: 'SEO',

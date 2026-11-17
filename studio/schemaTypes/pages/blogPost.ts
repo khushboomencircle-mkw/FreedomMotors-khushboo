@@ -8,6 +8,7 @@ import {
 import {ComposeIcon} from '@sanity/icons/Compose'
 import {allSectionMembers} from '../sections'
 import {sectionsArrayValidation} from '../fields/sectionFields'
+import {pageCssFieldsets, pageCssFields} from '../fields/pageCss'
 import {richTextOf} from '../fields/richText'
 
 /**
@@ -58,6 +59,7 @@ export const blogPostType = defineType({
     {name: 'content', title: 'Content', default: true},
     {name: 'seo', title: 'SEO'},
   ],
+  fieldsets: [...pageCssFieldsets],
   fields: [
     defineField({
       name: 'isActive',
@@ -141,6 +143,7 @@ export const blogPostType = defineType({
       of: allSectionMembers,
       validation: sectionsArrayValidation,
     }),
+    ...pageCssFields('content'),
     defineField({
       name: 'seo',
       title: 'SEO',
