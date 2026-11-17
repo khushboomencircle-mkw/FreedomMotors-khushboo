@@ -1,6 +1,7 @@
 'use client'
 
 import {useMemo, useState} from 'react'
+import SiteImage from './SiteImage'
 
 // ─── VEHICLE DETAIL CARD CHANGE — gallery frame/selection border color ───
 // Pick ONE. The live Site Settings theme currently has borderColor set to
@@ -58,7 +59,13 @@ function Thumbnail({
       aria-pressed={selected}
       className={`relative shrink-0 overflow-hidden rounded-md ${className}`}
     >
-      <img src={photo.url} alt={photo.alt || ''} className="w-full h-full object-cover" />
+      <SiteImage
+        src={photo.url}
+        alt={photo.alt || ''}
+        sizes="thumbnail"
+        fill
+        className="object-cover"
+      />
       {selected && (
         <span
           aria-hidden
@@ -74,10 +81,13 @@ export default function VehicleImageGallery({
   mainImage,
   mainImageAlt,
   gallery,
+  preloadMain,
 }: {
   mainImage?: string
   mainImageAlt: string
   gallery?: {url?: string; alt?: string}[]
+  /** Preload the main photo (it is the page's largest above-the-fold image). Only applies while the first photo is shown. */
+  preloadMain?: boolean
 }) {
   const photos = useMemo(
     () => buildPhotoList(mainImage, mainImageAlt, gallery),
@@ -98,6 +108,7 @@ export default function VehicleImageGallery({
   const visiblePhotos = photos.slice(windowStart, windowStart + VISIBLE_THUMBNAILS)
   const canScrollUp = windowStart > 0
   const canScrollDown = windowStart < maxWindowStart
+  const preloadSelected = Boolean(preloadMain) && selectedIndex === 0
 
   return (
     <div className="w-full">
@@ -152,11 +163,14 @@ export default function VehicleImageGallery({
             </div>
           )}
         </div>
-        <div className="flex-1 h-full">
-          <img
+        <div className="relative flex-1 h-full">
+          <SiteImage
             src={selected.url}
             alt={selected.alt || mainImageAlt}
-            className="w-full h-full object-cover"
+            sizes="gallery"
+            fill
+            preload={preloadSelected}
+            className="object-cover"
           />
         </div>
       </div>
@@ -166,11 +180,16 @@ export default function VehicleImageGallery({
         className="flex lg:hidden flex-col rounded-xl overflow-hidden"
         style={{boxShadow: `inset 0 0 0 2px ${GALLERY_BORDER_COLOR}`}}
       >
-        <img
-          src={selected.url}
-          alt={selected.alt || mainImageAlt}
-          className="w-full aspect-video object-cover"
-        />
+        <div className="relative w-full aspect-video">
+          <SiteImage
+            src={selected.url}
+            alt={selected.alt || mainImageAlt}
+            sizes="gallery"
+            fill
+            preload={preloadSelected}
+            className="object-cover"
+          />
+        </div>
         {photos.length > 1 && (
           <div className="flex gap-2 overflow-x-auto p-2">
             {photos.map((photo, index) => (

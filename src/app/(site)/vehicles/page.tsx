@@ -7,6 +7,7 @@ import PageCss from '@/components/PageCss'
 import {pageCssId} from '@/lib/cssPolicy'
 import {splitAroundStaticSection} from '@/lib/staticSection'
 import RichText from '@/components/RichText'
+import SiteImage from '@/components/SiteImage'
 import {seoToMetadata} from '@/lib/seo'
 import VehicleSearchBar, {type ActiveFilter} from '@/components/VehicleSearchBar'
 import VehicleFilterSidebar from '@/components/VehicleFilterSidebar'
@@ -134,7 +135,13 @@ function VehicleCardRow({v}: {v: VehicleCard}) {
     <div className="flex flex-col gap-5 rounded-xl border border-[var(--theme-border,rgba(255,255,255,0.1))] bg-[var(--theme-surface,rgba(255,255,255,0.02))] p-4 sm:flex-row sm:p-5">
       <div className="relative aspect-[4/3] w-full flex-shrink-0 overflow-hidden rounded-lg bg-gray-800 sm:w-64">
         {v.mainImage ? (
-          <img src={v.mainImage} alt={name} className="h-full w-full object-cover" />
+          <SiteImage
+            src={v.mainImage}
+            alt={name}
+            sizes="vehicleListing"
+            fill
+            className="object-cover"
+          />
         ) : (
           <div className="h-full w-full bg-gray-800" />
         )}
@@ -350,8 +357,8 @@ async function PageContent({
       {/* Editor-built sections, split around the Static Section placeholder
           (if any) so the built-in vehicle listing renders at the position —
           and only when active — an editor chose in Sanity. */}
-      {before.map((section: Section) => (
-        <PageSection key={section._key} section={section} />
+      {before.map((section: Section, i: number) => (
+        <PageSection key={section._key} section={section} isFirst={i === 0} />
       ))}
 
       {showStatic && (

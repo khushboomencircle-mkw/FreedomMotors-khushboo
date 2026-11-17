@@ -4,6 +4,7 @@ import React, {useCallback, useEffect, useRef, useState} from 'react'
 import Link from 'next/link'
 import VideoLightbox from './VideoLightbox'
 import RichText from './RichText'
+import SiteImage from './SiteImage'
 
 interface Feature {
   _key: string
@@ -36,6 +37,8 @@ interface Props {
   cardContentPosition?: string
   cardContentPaddingTop?: number
   cardContentPaddingLeft?: number
+  /** Preload the first visible slide's picture (set when this slider is the first thing on the page). */
+  preloadFirst?: boolean
 }
 
 const SLIDE_MS = 750
@@ -84,6 +87,7 @@ export default function FeatureHeroSlider({
   cardContentPosition,
   cardContentPaddingTop,
   cardContentPaddingLeft,
+  preloadFirst,
 }: Props) {
   const n = features.length
   const loop = n > 1
@@ -180,12 +184,15 @@ export default function FeatureHeroSlider({
     const inner = (
       <div className="group relative h-full w-full overflow-hidden bg-gray-900">
         {bgUrl && (
-          <img
+          <SiteImage
             src={bgUrl}
             alt={(isVideo ? f.videoThumbnail?.alt : f.image?.alt) || f.title || ''}
-            className="absolute inset-0 h-full w-full object-cover"
+            sizes="hero"
+            fill
+            className="object-cover"
             draggable={false}
-            loading={i <= 1 ? 'eager' : 'lazy'}
+            // Only the slide that is on screen first is preloaded; the rest load lazily as they near the viewport.
+            preload={Boolean(preloadFirst) && i === (loop ? 1 : 0)}
           />
         )}
         {overlay !== 'transparent' && (
@@ -202,7 +209,14 @@ export default function FeatureHeroSlider({
               style={{background: playButtonImageUrl ? 'transparent' : accent}}
             >
               {playButtonImageUrl ? (
-                <img src={playButtonImageUrl} alt="" className="h-full w-full object-cover" />
+                <SiteImage
+                  src={playButtonImageUrl}
+                  alt=""
+                  sizes="icon"
+                  width={96}
+                  height={96}
+                  className="h-full w-full object-cover"
+                />
               ) : (
                 <span className="pl-1">▶</span>
               )}

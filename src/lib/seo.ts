@@ -1,5 +1,6 @@
 import type {Metadata} from 'next'
 import type {Seo} from '@/sanity/queries'
+import {ogImageUrl} from '@/lib/imageUrl'
 
 /**
  * Converts a page's `seo` field into Next.js `Metadata`, omitting any key
@@ -20,6 +21,7 @@ export function seoToMetadata(seo: Seo | undefined): Metadata {
     ...(seo?.description ? {description: seo.description} : {}),
     ...(seo?.noIndex ? {robots: {index: false, follow: false}} : {}),
     ...(seo?.canonicalUrl ? {alternates: {canonical: seo.canonicalUrl}} : {}),
-    ...(seo?.image ? {openGraph: {images: [{url: seo.image}]}} : {}),
+    // Social-share image: an absolute URL that bypasses /_next/image (crawlers need a stable public URL), capped at 1200px wide.
+    ...(seo?.image ? {openGraph: {images: [{url: ogImageUrl(seo.image)}]}} : {}),
   }
 }

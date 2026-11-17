@@ -6,6 +6,7 @@ import {getAllEducationalArticleSlugs, getEducationalArticleBySlug} from '@/sani
 import RichText from '@/components/RichText'
 import SanityErrorState from '@/components/SanityErrorState'
 import {NO_IMAGE_FALLBACK_URL} from '@/components/PageSection'
+import SiteImage from '@/components/SiteImage'
 import {seoToMetadata} from '@/lib/seo'
 
 // Independent of /[slug]'s own generateStaticParams — a separate document
@@ -71,11 +72,17 @@ async function PageContent({slug}: {slug: string}) {
         </ol>
       </nav>
       <article className="w-full max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <img
-          src={article.image?.url || NO_IMAGE_FALLBACK_URL}
-          alt={article.image?.alt || article.title || ''}
-          className="w-full aspect-video object-cover rounded-xl mb-8"
-        />
+        {/* The lead picture is the largest thing above the fold, so it is the one preloaded image on this page. */}
+        <div className="relative w-full aspect-video overflow-hidden rounded-xl mb-8">
+          <SiteImage
+            src={article.image?.url || NO_IMAGE_FALLBACK_URL}
+            alt={article.image?.alt || article.title || ''}
+            sizes="article"
+            fill
+            preload
+            className="object-cover"
+          />
+        </div>
 
         {article.eyebrow && (
           <span className="inline-block mb-2 text-xs font-semibold uppercase tracking-wider text-green-400">

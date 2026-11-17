@@ -8,6 +8,7 @@ import {
   FaTiktok,
   FaPinterest,
 } from 'react-icons/fa6'
+import SiteImage from './SiteImage'
 
 interface NavLink {
   label: string
@@ -67,7 +68,12 @@ export default function Footer({
             {/* Left: Logo + Contact Info */}
             <div>
               {settings.footerLogo && (
-                <img src={settings.footerLogo} alt="Logo" className="h-12 mb-8" />
+                <SiteImage
+                  src={settings.footerLogo}
+                  alt="Logo"
+                  sizes="logo"
+                  className="h-12 w-auto mb-8"
+                />
               )}
 
               {settings.footerContactTitle && (

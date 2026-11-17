@@ -67,8 +67,8 @@ async function PageContent() {
       )}
 
       <div className="w-full">
-        {page.sections?.map((section: Section) => (
-          <PageSection key={section._key} section={section} />
+        {page.sections?.map((section: Section, i: number) => (
+          <PageSection key={section._key} section={section} isFirst={i === 0} />
         ))}
       </div>
     </div>

@@ -4,6 +4,7 @@ import {Suspense} from 'react'
 import Link from 'next/link'
 import {getAllCategorySlugs, getCategoryBySlug} from '@/sanity/queries'
 import SanityErrorState from '@/components/SanityErrorState'
+import SiteImage from '@/components/SiteImage'
 import {seoToMetadata} from '@/lib/seo'
 
 // Independent of /[slug]'s own generateStaticParams, and of /educational/
@@ -80,11 +81,13 @@ async function PageContent({slug}: {slug: string}) {
           {items.map((article) => (
             <Link key={article.href} href={article.href} className="group block">
               {article.image?.url && (
-                <div className="overflow-hidden rounded-xl mb-4">
-                  <img
+                <div className="relative aspect-video overflow-hidden rounded-xl mb-4">
+                  <SiteImage
                     src={article.image.url}
                     alt={article.image.alt || article.title || ''}
-                    className="w-full aspect-video object-cover transition-transform duration-500 group-hover:scale-105"
+                    sizes="articleCard"
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 </div>
               )}

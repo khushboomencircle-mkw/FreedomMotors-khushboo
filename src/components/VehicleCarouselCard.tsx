@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import {Gauge} from 'lucide-react'
 import {CONVERSION_LABEL, getVehiclePrice, vehicleName} from '@/lib/vehicleDisplay'
+import SiteImage from './SiteImage'
 
 /** One vehicle as returned by the Vehicle Carousel part of SECTION_PROJECTION (sanity/vehicleQueries.ts). */
 export interface CarouselVehicle {
@@ -24,11 +25,6 @@ const SURFACE = 'var(--theme-surface, color-mix(in srgb, currentColor 5%, transp
 const BORDER = 'var(--theme-border, color-mix(in srgb, currentColor 15%, transparent))'
 const MUTED = 'var(--theme-muted, color-mix(in srgb, currentColor 65%, transparent))'
 
-/** The Sanity CDN resizes on request — a card is never wider than ~640px, so don't send the original. */
-function cardImageSrc(url: string): string {
-  return url.includes('cdn.sanity.io') ? `${url}?w=640&auto=format` : url
-}
-
 /**
  * A vehicle card for the carousel. Name, price and MSRP-strike rules come from the same helpers
  * as the /vehicles listing (lib/vehicleDisplay.ts). The whole card is one link, so a tap or click
@@ -49,15 +45,16 @@ export default function VehicleCarouselCard({
   const body = (
     <>
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-black/10">
-        <img
-          src={v.image ? cardImageSrc(v.image) : fallbackImageUrl}
+        <SiteImage
+          src={v.image}
+          fallbackSrc={fallbackImageUrl}
           // The vehicle's name is right below as the link text, so the photo adds nothing for
           // screen readers.
           alt=""
-          loading="lazy"
-          decoding="async"
+          sizes="vehicleCard"
+          fill
           draggable={false}
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+          className="object-cover transition-transform duration-500 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
         />
         {conversionLabel && (
           // A badge on top of a photo needs contrast against any photo, so it is a dark

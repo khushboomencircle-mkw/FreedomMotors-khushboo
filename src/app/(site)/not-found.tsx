@@ -1,7 +1,7 @@
 'use client'
 
 import BackButton from '@/components/BackButton'
-import Image from 'next/image'
+import SiteImage from '@/components/SiteImage'
 import Link from 'next/link'
 
 export default function NotFound() {
@@ -36,12 +36,14 @@ export default function NotFound() {
           <div className="relative flex justify-center items-center order-1 md:order-2">
             <div className="absolute w-[80%] aspect-square rounded-full bg-blue-200/10 blur-[90px]" />
 
-            <Image
-              src="https://www.freedommotors.com/wp-content/themes/digitalsilk/assets/_dist/images/error.png"
+            {/* Our own copy of the illustration (public/images) — no request to the old website. */}
+            <SiteImage
+              src="/images/error.png"
               alt="Freedom Motors 404 error illustration"
+              sizes="half"
               width={780}
               height={780}
-              priority
+              preload
               className="relative w-full max-w-[650px] h-auto object-contain"
             />
           </div>

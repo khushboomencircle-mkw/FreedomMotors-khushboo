@@ -4,6 +4,7 @@ import React, {useRef, useState, useEffect, useCallback} from 'react'
 import Link from 'next/link'
 import VideoLightbox from './VideoLightbox'
 import RichText from './RichText'
+import SiteImage from './SiteImage'
 
 interface Feature {
   _key: string
@@ -67,7 +68,14 @@ function PlayButton({accent, label, imageUrl}: {accent: string; label: string; i
         style={{background: imageUrl ? 'transparent' : accent || '#dc2626'}}
       >
         {imageUrl ? (
-          <img src={imageUrl} alt="Play" className="w-full h-full object-cover" />
+          <SiteImage
+            src={imageUrl}
+            alt="Play"
+            sizes="icon"
+            width={96}
+            height={96}
+            className="w-full h-full object-cover"
+          />
         ) : (
           <span className="pl-1">▶</span>
         )}
@@ -207,10 +215,12 @@ export default function FeatureGridScroller({
         }}
       >
         {bgUrl && (
-          <img
+          <SiteImage
             src={bgUrl}
             alt={(isVideo ? f.videoThumbnail?.alt : f.image?.alt) || f.title || 'Feature'}
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            sizes="scroller"
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
             draggable={false}
           />
         )}

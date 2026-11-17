@@ -4,6 +4,7 @@ import Link from 'next/link'
 import {usePathname} from 'next/navigation'
 import {useEffect, useRef, useState} from 'react'
 import type {NavLink, MegaMenuConfig, MegaMenuFeature, MegaMenuLogoItem} from '@/sanity/queries'
+import SiteImage from './SiteImage'
 
 const FALLBACK_NAV_ITEMS: NavLink[] = [
   {label: 'VEHICLES', href: '/vehicles'},
@@ -83,10 +84,12 @@ function MegaFeatureCard({
     >
       {/* Background image */}
       {item.image ? (
-        <img
+        <SiteImage
           src={item.image}
           alt={item.imageAlt || item.title || ''}
-          className="absolute inset-0 w-full h-full object-cover"
+          sizes="megaMenu"
+          fill
+          className="object-cover"
           style={{
             transform: hovered ? 'scale(1.06)' : 'scale(1)',
             transition: 'transform 0.35s ease',
@@ -345,9 +348,10 @@ function MegaMenuPanel({
                   }}
                 >
                   {item.logo && (
-                    <img
+                    <SiteImage
                       src={item.logo}
                       alt={item.label ?? ''}
+                      sizes="logo"
                       style={{height: 28, width: 'auto', objectFit: 'contain'}}
                     />
                   )}
@@ -563,7 +567,13 @@ export default function Header({
           {/* Logo */}
           <Link href={homeLink} className="shrink-0">
             {settings?.siteLogo ? (
-              <img src={settings.siteLogo} alt={settings.siteTitle || 'Logo'} className="h-10" />
+              // `w-auto`: the height is fixed (h-10) and the width follows the logo's own proportions.
+              <SiteImage
+                src={settings.siteLogo}
+                alt={settings.siteTitle || 'Logo'}
+                sizes="logo"
+                className="h-10 w-auto"
+              />
             ) : (
               <span className="text-xl font-bold">{settings?.siteTitle || 'Site'}</span>
             )}

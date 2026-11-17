@@ -1,4 +1,5 @@
 import type {NextConfig} from 'next'
+import {buildImagesConfig} from './src/lib/imageConfig'
 
 const nextConfig: NextConfig = {
   /* config options here */
@@ -14,15 +15,8 @@ const nextConfig: NextConfig = {
   // machine's LAN IP here if it changes.
   // https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
   allowedDevOrigins: ['192.168.10.37', 'localhost:3333'],
-  images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'www.freedommotors.com',
-        pathname: '/wp-content/**',
-      },
-    ],
-  },
+  // Image optimizer: which hosts it may fetch, widths, formats and cache lifetime — all in src/lib/imageConfig.ts.
+  images: buildImagesConfig(process.env),
   // The embedded Studio (/studio) reads these in the browser. Next only exposes
   // NEXT_PUBLIC_* there by default, so forward them here. TRUSTED_SCRIPT_HOSTS is
   // shared with the website's sanitizer (one list for both; hostnames, not a secret).
@@ -30,6 +24,10 @@ const nextConfig: NextConfig = {
     SANITY_STUDIO_TITLE: process.env.SANITY_STUDIO_TITLE ?? '',
     SANITY_STUDIO_PREVIEW_URL: process.env.SANITY_STUDIO_PREVIEW_URL ?? '',
     TRUSTED_SCRIPT_HOSTS: process.env.TRUSTED_SCRIPT_HOSTS ?? '',
+    // The Supabase project URL and bucket NAME are public (they appear in every photo URL), so they are shared
+    // with browser code that builds photo URLs (src/lib/imageUrl.ts). The service-role key is NEVER exposed here.
+    NEXT_PUBLIC_SUPABASE_URL: process.env.SUPABASE_URL ?? '',
+    NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET: process.env.SUPABASE_STORAGE_BUCKET ?? '',
   },
   cacheComponents: true,
   partialPrefetching: true,

@@ -66,8 +66,8 @@ async function VehicleContent({slug}: {slug: string}) {
       <PageCss id="vehicle-detail" css={detailPage?.customCss} />
       {/* Editor-built sections placed before the vehicle specs (Static Section
           placeholder), if an editor chose to position any there. */}
-      {before.map((section: Section) => (
-        <PageSection key={section._key} section={section} />
+      {before.map((section: Section, i: number) => (
+        <PageSection key={section._key} section={section} isFirst={i === 0} />
       ))}
 
       {/* Header */}
@@ -80,6 +80,8 @@ async function VehicleContent({slug}: {slug: string}) {
                 mainImage={vehicle.mainImage}
                 mainImageAlt={name}
                 gallery={vehicle.gallery}
+                // Preloaded only when no editor section sits above it (otherwise that section's image is the first one).
+                preloadMain={before.length === 0}
               />
 
               {/* Summary */}

@@ -96,8 +96,8 @@ async function StaticSectionContent({sections}: {sections?: Section[]}) {
 
   return (
     <div className="w-full">
-      {before.map((section: Section) => (
-        <PageSection key={section._key} section={section} />
+      {before.map((section: Section, i: number) => (
+        <PageSection key={section._key} section={section} isFirst={i === 0} />
       ))}
 
       {filterGrid}

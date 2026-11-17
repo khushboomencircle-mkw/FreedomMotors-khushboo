@@ -1,6 +1,7 @@
 'use client'
 
 import {useEffect, useState} from 'react'
+import SiteImage from './SiteImage'
 
 interface Props {
   trigger: React.ReactNode
@@ -59,7 +60,14 @@ export default function ImageLightbox({trigger, src, alt}: Props) {
             >
               ×
             </button>
-            <img src={src} alt={alt || ''} className="max-w-full max-h-[85vh] object-contain" />
+            {/* Optimized, capped size — never the raw original. `auto` size + max-* keeps the photo's proportions. */}
+            <SiteImage
+              src={src}
+              alt={alt || ''}
+              sizes="lightbox"
+              className="max-w-full max-h-[85vh] object-contain"
+              style={{width: 'auto', height: 'auto'}}
+            />
           </div>
         </div>
       )}
