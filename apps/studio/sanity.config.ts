@@ -5,6 +5,7 @@ import { schemaTypes } from './schemaTypes'
 import { presentation } from './presentation'
 import { pageTemplates } from './pageTemplates'
 import { DuplicateLandingPageAction } from './schemaTypes/actions/DuplicateLandingPageAction'
+import { guardLandingPageAction } from './schemaTypes/actions/LandingPageGuardActions'
 import { sectionCopyPasteFieldActionsResolver } from './schemaTypes/fieldActions/sectionCopyPasteFieldActions'
 const dynamicPages = [
   { type: 'convertVehicle2Page', title: 'Convert Your Vehicle' },
@@ -69,6 +70,10 @@ export default defineConfig({
                             pageTemplates.map((t) => S.initialValueTemplateItem(t.id)),
                           )
                       ),
+                    // Each post belongs to one Landing Page and lives at /<landing page>/<slug>.
+                    S.listItem()
+                      .title('Blog Posts')
+                      .child(S.documentTypeList('blogPost').title('Blog Posts')),
                   ]),
               ),
               // Vehicle inventory — a separate schema from the Pages list.
@@ -114,11 +119,20 @@ export default defineConfig({
   },
 
   document: {
-    // Scoped to customPage only — every other document type keeps the
-    // built-in Duplicate action unchanged.
+    // Scoped to customPage only — every other document type keeps its built-in
+    // actions unchanged. Duplicate is replaced; Delete and both Unpublish actions
+    // (plain, and the Releases one) are wrapped so they stay disabled while any
+    // Blog Post is attached to the landing page.
     actions: (prev, context) =>
       context.schemaType === 'customPage'
-        ? prev.map((action) => (action.action === 'duplicate' ? DuplicateLandingPageAction : action))
+        ? prev.map((action) => {
+            if (action.action === 'duplicate') return DuplicateLandingPageAction
+            if (action.action === 'delete') return guardLandingPageAction(action, 'delete')
+            if (action.action === 'unpublish' || action.action === 'unpublishVersion') {
+              return guardLandingPageAction(action, 'unpublish')
+            }
+            return action
+          })
         : prev,
     // Always-visible Copy/Paste icon buttons on every page type's `sections`
     // field — wraps Sanity's own built-in copyField/pasteField field actions.

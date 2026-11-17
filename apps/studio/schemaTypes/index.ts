@@ -35,6 +35,7 @@ import { ourStoryPage } from './pages/ourStoryPage'
 import { contactPage } from './pages/contactPage'
 import { educationalPage } from './pages/educationalPage'
 import { educationalArticleType } from './pages/educationalArticle'
+import { blogPostType } from './pages/blogPost'
 import { vehiclesPage } from './pages/vehiclesPage'
 import { vehicleDetailPage } from './pages/vehicleDetailPage'
 import { homePage } from './pages/homePage'
@@ -80,6 +81,7 @@ export const schemaTypes = [
   customPage,
   vehicleType,
   educationalArticleType,
+  blogPostType,
   megaMenuConfigType,
   redirectType,
   categoryType,

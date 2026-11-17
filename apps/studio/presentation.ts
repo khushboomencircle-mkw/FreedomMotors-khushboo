@@ -58,6 +58,14 @@ export const presentation = presentationTool({
           ],
         }),
       }),
+      // A post lives under its landing page: /<landing page slug>/<post slug>.
+      blogPost: defineLocations({
+        select: {title: 'title', slug: 'slug.current', landingSlug: 'landingPage.slug.current'},
+        resolve: (doc) =>
+          doc?.slug && doc?.landingSlug
+            ? {locations: [{title: doc.title || 'Untitled Post', href: `/${doc.landingSlug}/${doc.slug}`}]}
+            : {locations: []},
+      }),
       vehicle: defineLocations({
         select: {year: 'year', make: 'make', model: 'model', slug: 'slug.current'},
         resolve: (doc) => ({

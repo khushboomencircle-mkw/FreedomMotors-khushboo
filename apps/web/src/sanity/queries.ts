@@ -1,5 +1,6 @@
 import {sanityFetch} from './client'
 import {LANDING_PAGE_VISIBLE, NAV_LINK_HAS_PAGE} from './navQueries'
+import {BLOG_POST_VISIBLE} from './blogQueries'
 
 const SECTION_PROJECTION = `{
   _key,
@@ -619,6 +620,37 @@ export async function getAllEducationalArticleSlugs() {
 }
 
 /**
+ * A blog post by its full address (/<landing slug>/<post slug>). The landing page must match the
+ * URL's first segment, so a wrong landing slug finds nothing. Visibility rule: see blogQueries.ts.
+ */
+export async function getBlogPostByPath(landingSlug: string, postSlug: string) {
+  return sanityFetch(
+    `*[_type == "blogPost" && slug.current == $postSlug && landingPage->slug.current == $landingSlug && ${BLOG_POST_VISIBLE}][0]{
+      title,
+      eyebrow,
+      "landingTitle": landingPage->title,
+      "landingSlug": landingPage->slug.current,
+      categories[]->{title, "slug": slug.current}[defined(slug)],
+      image{"url": image.asset->url, "alt": alt},
+      description,
+      ${SEO_PROJECTION},
+      "sections": sections[] | order(sequence asc)${SECTION_PROJECTION}
+    }`,
+    {landingSlug, postSlug},
+  )
+}
+
+/** Every visible blog post's address, for static generation (always the live rule at build time). */
+export async function getAllBlogPostPaths() {
+  return sanityFetch<{landing: string; post: string}[]>(
+    `*[_type == "blogPost" && defined(slug.current) && ${BLOG_POST_VISIBLE}]{
+      "landing": landingPage->slug.current,
+      "post": slug.current
+    }`,
+  )
+}
+
+/**
  * A category and every active article tagged with it, in one round trip —
  * `references(^._id)` walks back from each article to this category's own
  * `_id` rather than requiring a second query. Article fields here are a
@@ -638,6 +670,18 @@ export async function getCategoryBySlug(slug: string) {
       ]{
         title,
         "slug": slug.current,
+        eyebrow,
+        image{"url": image.asset->url, "alt": alt}
+      },
+      "posts": *[
+        _type == "blogPost" &&
+        defined(slug.current) &&
+        references(^._id) &&
+        ${BLOG_POST_VISIBLE}
+      ]{
+        title,
+        "slug": slug.current,
+        "landingSlug": landingPage->slug.current,
         eyebrow,
         image{"url": image.asset->url, "alt": alt}
       }

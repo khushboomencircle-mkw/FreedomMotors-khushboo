@@ -46,8 +46,15 @@ async function PageContent({slug}: {slug: string}) {
     notFound()
   }
 
-  const articles: {slug: string; title?: string; eyebrow?: string; image?: {url?: string; alt?: string}}[] =
-    category.articles ?? []
+  type Teaser = {slug: string; title?: string; eyebrow?: string; image?: {url?: string; alt?: string}}
+  const articles: Teaser[] = category.articles ?? []
+  const posts: (Teaser & {landingSlug: string})[] = category.posts ?? []
+
+  // Educational articles first, then blog posts (each at its own /<landing page>/<slug> address).
+  const items = [
+    ...articles.map((article) => ({...article, href: `/educational/${article.slug}`})),
+    ...posts.map((post) => ({...post, href: `/${post.landingSlug}/${post.slug}`})),
+  ]
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -63,10 +70,10 @@ async function PageContent({slug}: {slug: string}) {
         </p>
       )}
 
-      {articles.length > 0 ? (
+      {items.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {articles.map((article) => (
-            <Link key={article.slug} href={`/educational/${article.slug}`} className="group block">
+          {items.map((article) => (
+            <Link key={article.href} href={article.href} className="group block">
               {article.image?.url && (
                 <div className="overflow-hidden rounded-xl mb-4">
                   <img
