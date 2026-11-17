@@ -1,6 +1,7 @@
 # ---------------------------------------------------------------
-# Root .gitignore — applies to the whole repo (apps/web + apps/studio).
-# Each app also has its own .gitignore; this one is the safety net.
+# .gitignore for the whole repo — the Next.js site and the embedded
+# Sanity Studio both live at the root (formerly apps/web + apps/studio,
+# whose own .gitignore rules are merged in here).
 # ---------------------------------------------------------------
 
 # Dependencies
@@ -22,6 +23,8 @@ npm-shrinkwrap.json
 # Environment files / secrets — never commit. Keep the *.example templates.
 .env
 .env.*
+# (from the old apps/web/.gitignore: any other .env-prefixed file, e.g. .envrc)
+.env*
 *.local
 !.env.example
 !.env.*.example
@@ -69,3 +72,6 @@ Thumbs.db
 
 # Stray dev-time screenshot, not part of the app
 /image.png
+
+# Local dev-only tool (audits the code against the client proposal), not part of the app
+/audit-page-builder-commitments.mjs
