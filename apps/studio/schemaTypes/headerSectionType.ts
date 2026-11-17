@@ -1,9 +1,9 @@
-import { defineArrayMember, defineField, defineType } from 'sanity'
-import { BellIcon } from '@sanity/icons/Bell'
-import { MenuIcon } from '@sanity/icons/Menu'
-import { SparkleIcon } from '@sanity/icons/Sparkle'
-import { DocumentTextIcon } from '@sanity/icons/DocumentText'
-import { UserIcon } from '@sanity/icons/User'
+import {defineArrayMember, defineField, defineType} from 'sanity'
+import {BellIcon} from '@sanity/icons/Bell'
+import {MenuIcon} from '@sanity/icons/Menu'
+import {SparkleIcon} from '@sanity/icons/Sparkle'
+import {DocumentTextIcon} from '@sanity/icons/DocumentText'
+import {UserIcon} from '@sanity/icons/User'
 import CompactImageInput from './components/CompactImageInput'
 
 export const announcementBarType = defineType({
@@ -40,10 +40,10 @@ export const announcementBarType = defineType({
       type: 'string',
       options: {
         list: [
-          { title: 'Default Dark', value: 'dark' },
-          { title: 'Primary Brand Accent', value: 'primary' },
-          { title: 'Light / Subtle', value: 'light' },
-          { title: 'Warning / Highlight', value: 'warning' },
+          {title: 'Default Dark', value: 'dark'},
+          {title: 'Primary Brand Accent', value: 'primary'},
+          {title: 'Light / Subtle', value: 'light'},
+          {title: 'Warning / Highlight', value: 'warning'},
         ],
       },
       initialValue: 'dark',
@@ -55,7 +55,7 @@ export const announcementBarType = defineType({
       badge: 'badgeText',
       enabled: 'enabled',
     },
-    prepare({ title, badge, enabled }) {
+    prepare({title, badge, enabled}) {
       return {
         title: title || 'Untitled Announcement',
         subtitle: `Announcement Bar (${enabled ? 'Active' : 'Disabled'}) ${badge ? `[${badge}]` : ''}`,
@@ -80,7 +80,7 @@ export const headerNavigationMenuType = defineType({
       name: 'links',
       title: 'Navigation Links',
       type: 'array',
-      of: [defineArrayMember({ type: 'linkEndpoint' })],
+      of: [defineArrayMember({type: 'linkEndpoint'})],
       description: 'Header navigation links (e.g. Home, About, Contact).',
     }),
   ],
@@ -89,7 +89,7 @@ export const headerNavigationMenuType = defineType({
       title: 'title',
       links: 'links',
     },
-    prepare({ title, links }) {
+    prepare({title, links}) {
       const count = links?.length || 0
       return {
         title: title || 'Navigation Menu',
@@ -123,7 +123,7 @@ export const userProfileMenuType = defineType({
       title: 'Account Dropdown Options',
       type: 'array',
       description: 'Account dropdown links (e.g. Profile, Settings).',
-      of: [defineArrayMember({ type: 'linkEndpoint' })],
+      of: [defineArrayMember({type: 'linkEndpoint'})],
     }),
   ],
   preview: {
@@ -132,7 +132,7 @@ export const userProfileMenuType = defineType({
       links: 'accountLinks',
       showAvatar: 'showAvatar',
     },
-    prepare({ title, links, showAvatar }) {
+    prepare({title, links, showAvatar}) {
       const count = links?.length || 0
       return {
         title: title || 'User Account Menu',
@@ -166,9 +166,9 @@ export const headerCtaType = defineType({
       type: 'string',
       options: {
         list: [
-          { title: 'Primary Filled', value: 'primary' },
-          { title: 'Secondary Outline', value: 'secondary' },
-          { title: 'Ghost / Subtle', value: 'ghost' },
+          {title: 'Primary Filled', value: 'primary'},
+          {title: 'Secondary Outline', value: 'secondary'},
+          {title: 'Ghost / Subtle', value: 'ghost'},
         ],
       },
       initialValue: 'primary',
@@ -179,7 +179,7 @@ export const headerCtaType = defineType({
       title: 'buttonLabel',
       style: 'style',
     },
-    prepare({ title, style }) {
+    prepare({title, style}) {
       return {
         title: title || 'Call to Action Button',
         subtitle: `CTA Button (${style || 'primary'})`,
@@ -203,7 +203,7 @@ export const headerCustomContentType = defineType({
       name: 'richText',
       title: 'Content',
       type: 'array',
-      of: [defineArrayMember({ type: 'block' })],
+      of: [defineArrayMember({type: 'block'})],
     }),
     defineField({
       name: 'image',
@@ -219,7 +219,7 @@ export const headerCustomContentType = defineType({
     select: {
       title: 'title',
     },
-    prepare({ title }) {
+    prepare({title}) {
       return {
         title: title || 'Custom Header Content',
         subtitle: 'Rich text content section',

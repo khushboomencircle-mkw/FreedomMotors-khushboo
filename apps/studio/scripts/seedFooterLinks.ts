@@ -15,7 +15,7 @@ const HEADER_FOOTER_KEYS = new Set([
   'nav-commercial',
   'nav-our-story',
   'nav-contact',
-  'nav-careers'
+  'nav-careers',
 ])
 
 // Footer-only links to insert if missing
@@ -54,9 +54,7 @@ async function patchDoc(client: ReturnType<typeof getCliClient>, docId: string) 
   const existingKeys = new Set(existingLinks.map((l) => l._key))
 
   // 1. Flip showInFooter on built-in header links that still have it false
-  const keysToFlip = existingLinks.filter(
-    (l) => HEADER_FOOTER_KEYS.has(l._key) && !l.showInFooter,
-  )
+  const keysToFlip = existingLinks.filter((l) => HEADER_FOOTER_KEYS.has(l._key) && !l.showInFooter)
 
   // 2. Footer-only links not yet in the document
   const linksToAdd = FOOTER_ONLY_LINKS.filter((l) => !existingKeys.has(l._key))

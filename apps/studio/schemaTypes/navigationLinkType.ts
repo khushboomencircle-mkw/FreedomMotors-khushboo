@@ -1,9 +1,13 @@
 import {defineField, defineType} from 'sanity'
 import {LinkIcon} from '@sanity/icons/Link'
+import NavLinkItemInput from './components/NavLinkItemInput'
 import ProtectedNavLinkHrefInput from './components/ProtectedNavLinkHrefInput'
 
 const normalizeHref = (href: string) =>
-  (href || '').trim().replace(/^\/+|\/+$/g, '').toLowerCase()
+  (href || '')
+    .trim()
+    .replace(/^\/+|\/+$/g, '')
+    .toLowerCase()
 
 /**
  * navigationLink — a single nav link item used in both the header nav bar
@@ -15,6 +19,8 @@ export const navigationLinkType = defineType({
   title: 'Navigation Link',
   type: 'object',
   icon: LinkIcon,
+  // Auto-fills Link Path from Nav Label for new links (see the component).
+  components: {input: NavLinkItemInput},
   fieldsets: [
     {
       name: 'linkDetails',

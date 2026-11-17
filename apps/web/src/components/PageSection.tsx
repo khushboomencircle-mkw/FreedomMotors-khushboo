@@ -43,7 +43,7 @@ export interface StepCard {
     url?: string
     alt?: string
   }
-  description?: string | any[]
+  description?: string | unknown[]
   mediaType?: 'image' | 'video' | 'none'
   videoFileUrl?: string
   videoUrl?: string
@@ -177,7 +177,7 @@ interface CardStyleConfig {
 export interface LinkListItem {
   _key: string
   title?: string
-  description?: string | any[]
+  description?: string | unknown[]
   linkUrl?: string
   openInNewTab?: boolean
   buttonLabel?: string
@@ -188,7 +188,7 @@ export interface LinkListItem {
 export interface FeatureCard {
   _key: string
   title?: string
-  description?: string | any[]
+  description?: string | unknown[]
   mediaType?: 'image' | 'video'
   image?: {url?: string; alt?: string}
   videoFileUrl?: string
@@ -213,7 +213,7 @@ export interface Section {
   darkTheme?: ThemeConfig | null
   sectionType?: 'cardsGrid' | 'faqAccordion' | 'accordionSection' | 'standard'
   sectionHeading?: string
-  sectionDescription?: string | any[]
+  sectionDescription?: string | unknown[]
   cards?: StepCard[]
   features?: FeatureCard[]
   showFooter?: boolean
@@ -258,7 +258,7 @@ export interface Section {
   eyebrow?: string
   headerStyle?: string
   heading?: string
-  description?: string | any[]
+  description?: string | unknown[]
   images?: SectionImage[]
   imageLayout?: string
   textPosition?: string
@@ -430,9 +430,7 @@ function resolveButtonColors(
   fallbackFg: string = '#ffffff',
 ) {
   const style = styleVal || ''
-  const bg = /^#|^transparent$/i.test(style)
-    ? style
-    : LEGACY_BG[style] || fallbackBg
+  const bg = /^#|^transparent$/i.test(style) ? style : LEGACY_BG[style] || fallbackBg
   const fg = textVal || LEGACY_FG[style] || fallbackFg
   const isOutline = bg.toLowerCase() === 'transparent'
   return {bg, fg, isOutline}
@@ -488,7 +486,8 @@ function SecondaryButton({section}: {section: Section}) {
   if (!hasConfigured && !isFreedomHero) return null
 
   const label = section.secondaryButtonLabel || 'Learn More'
-  const href = section.secondaryButtonLinkUrl || section.secondaryButtonLink?.endpoint || '#learn-more'
+  const href =
+    section.secondaryButtonLinkUrl || section.secondaryButtonLink?.endpoint || '#learn-more'
   const {bg, fg, isOutline} = resolveButtonColors(
     section.secondaryButtonStyle || 'outlineWhite',
     section.secondaryButtonTextColor,
@@ -496,7 +495,8 @@ function SecondaryButton({section}: {section: Section}) {
     '#ffffff',
   )
 
-  const radius = section.secondaryButtonRadius != null ? `${section.secondaryButtonRadius}px` : '0px'
+  const radius =
+    section.secondaryButtonRadius != null ? `${section.secondaryButtonRadius}px` : '0px'
 
   // Outline-style secondary buttons keep their own border/bg, but still adopt the
   // theme's button font, size, weight, padding, and corner rounding.
@@ -543,8 +543,10 @@ function CardButton({card}: {card: StepCard}) {
 const CARD_OVERLAY_MAP: Record<string, string> = {
   none: 'transparent',
   light: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.15) 55%, rgba(0,0,0,0) 100%)',
-  medium: 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.35) 55%, rgba(0,0,0,0.05) 100%)',
-  strong: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 55%, rgba(0,0,0,0.25) 100%)',
+  medium:
+    'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.35) 55%, rgba(0,0,0,0.05) 100%)',
+  strong:
+    'linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 55%, rgba(0,0,0,0.25) 100%)',
 }
 
 function LinkListSection({section}: {section: Section}) {
@@ -618,10 +620,7 @@ function LinkListSection({section}: {section: Section}) {
         />
       )}
 
-      <ul
-        className="divide-y"
-        style={{borderColor: rowDivider, color: rowTextColor}}
-      >
+      <ul className="divide-y" style={{borderColor: rowDivider, color: rowTextColor}}>
         {items.map((item, i) => (
           <LinkListRow
             key={item._key}
@@ -680,7 +679,7 @@ function LinkListRow({
   const href = item.linkUrl
   // CSS-only hover via a CSS variable + rule in globals.css (.link-list-row:hover).
   // No event handlers → server-component safe.
-  const rowStyle = {['--hl' as any]: highlight} as React.CSSProperties
+  const rowStyle = {'--hl': highlight} as React.CSSProperties
 
   const row = (
     <div
@@ -749,17 +748,29 @@ const CARD_WIDTH_MAP: Record<string, string> = {
   full: '90vw',
 }
 
-function FeaturePlayButton({accent, label, imageUrl}: {accent: string; label: string; imageUrl?: string}) {
+function FeaturePlayButton({
+  accent,
+  label,
+  imageUrl,
+}: {
+  accent: string
+  label: string
+  imageUrl?: string
+}) {
   return (
-    <div className="absolute bottom-0 left-0 p-6 sm:p-7 flex items-center gap-3 pointer-events-none" aria-hidden>
+    <div
+      className="absolute bottom-0 left-0 p-6 sm:p-7 flex items-center gap-3 pointer-events-none"
+      aria-hidden
+    >
       <span
         className="w-14 h-14 rounded-full flex items-center justify-center text-white text-xl shadow-xl flex-shrink-0 overflow-hidden"
-        style={{background: imageUrl ? 'transparent' : (accent || '#dc2626')}}
+        style={{background: imageUrl ? 'transparent' : accent || '#dc2626'}}
       >
-        {imageUrl
-          ? <img src={imageUrl} alt="Play" className="w-full h-full object-cover" />
-          : <span className="pl-1">▶</span>
-        }
+        {imageUrl ? (
+          <img src={imageUrl} alt="Play" className="w-full h-full object-cover" />
+        ) : (
+          <span className="pl-1">▶</span>
+        )}
       </span>
       {label && (
         <span className="text-white font-bold text-sm sm:text-base uppercase tracking-widest drop-shadow">
@@ -834,17 +845,29 @@ function FeatureGridSection({section}: {section: Section}) {
     <div className="mt-14 sm:mt-16">
       {section.footerHeading && (
         <div className="flex items-center gap-6 mb-9">
-          <span className="flex-1 h-px" style={{background: section.footerDividerColor || '#4b5563'}} aria-hidden />
+          <span
+            className="flex-1 h-px"
+            style={{background: section.footerDividerColor || '#4b5563'}}
+            aria-hidden
+          />
           <span
             className="text-sm sm:text-base font-bold uppercase tracking-[0.2em] text-center"
             style={{color: section.footerHeadingColor || '#ffffff'}}
           >
             {section.footerHeading}
           </span>
-          <span className="flex-1 h-px" style={{background: section.footerDividerColor || '#4b5563'}} aria-hidden />
+          <span
+            className="flex-1 h-px"
+            style={{background: section.footerDividerColor || '#4b5563'}}
+            aria-hidden
+          />
         </div>
       )}
-      {section.showButton && <div className="text-center"><PrimaryButton section={section} /></div>}
+      {section.showButton && (
+        <div className="text-center">
+          <PrimaryButton section={section} />
+        </div>
+      )}
     </div>
   )
 
@@ -853,9 +876,7 @@ function FeatureGridSection({section}: {section: Section}) {
   if (isHScroll && section.cardWidthPreset === 'full') {
     return (
       <div className="w-full">
-        {header && (
-          <div className="max-w-7xl mx-auto px-5 sm:px-8 pt-16 sm:pt-20">{header}</div>
-        )}
+        {header && <div className="max-w-7xl mx-auto px-5 sm:px-8 pt-16 sm:pt-20">{header}</div>}
         <FeatureHeroSlider
           features={features}
           cardHeight={cardH}
@@ -873,9 +894,7 @@ function FeatureGridSection({section}: {section: Section}) {
           cardContentPaddingTop={section.cardContentPaddingTop}
           cardContentPaddingLeft={section.cardContentPaddingLeft}
         />
-        {footer && (
-          <div className="max-w-7xl mx-auto px-5 sm:px-8 pb-16 sm:pb-20">{footer}</div>
-        )}
+        {footer && <div className="max-w-7xl mx-auto px-5 sm:px-8 pb-16 sm:pb-20">{footer}</div>}
       </div>
     )
   }
@@ -883,11 +902,7 @@ function FeatureGridSection({section}: {section: Section}) {
   if (isHScroll) {
     return (
       <div className="w-full py-16 sm:py-20">
-        {header && (
-          <div className="max-w-7xl mx-auto px-5 sm:px-8">
-            {header}
-          </div>
-        )}
+        {header && <div className="max-w-7xl mx-auto px-5 sm:px-8">{header}</div>}
         <div className="w-full px-4 sm:px-6">
           <FeatureGridScroller
             features={features}
@@ -909,11 +924,7 @@ function FeatureGridSection({section}: {section: Section}) {
             cardContentPaddingLeft={section.cardContentPaddingLeft}
           />
         </div>
-        {footer && (
-          <div className="max-w-7xl mx-auto px-5 sm:px-8">
-            {footer}
-          </div>
-        )}
+        {footer && <div className="max-w-7xl mx-auto px-5 sm:px-8">{footer}</div>}
       </div>
     )
   }
@@ -951,7 +962,12 @@ function FeatureGridSection({section}: {section: Section}) {
           const paddingTop = section.cardContentPaddingTop ?? 24
           const paddingLeft = section.cardContentPaddingLeft ?? 24
           const contentStyle: React.CSSProperties = contentIsTop
-            ? {position: 'absolute', top: `${paddingTop}px`, left: `${paddingLeft}px`, right: `${paddingLeft}px`}
+            ? {
+                position: 'absolute',
+                top: `${paddingTop}px`,
+                left: `${paddingLeft}px`,
+                right: `${paddingLeft}px`,
+              }
             : {position: 'absolute', bottom: 0, left: 0, right: 0, padding: `24px ${paddingLeft}px`}
 
           // `!== false`, not `=== true` or a truthy check: every document
@@ -964,7 +980,10 @@ function FeatureGridSection({section}: {section: Section}) {
           const cardInner = overImage ? (
             <div
               className="relative overflow-hidden w-full group"
-              style={{height: effectiveCardHeight, borderRadius: `${section.featureCardRadius ?? 0}px`}}
+              style={{
+                height: effectiveCardHeight,
+                borderRadius: `${section.featureCardRadius ?? 0}px`,
+              }}
             >
               {bgUrl && (
                 <img
@@ -982,17 +1001,18 @@ function FeatureGridSection({section}: {section: Section}) {
                 style={{background: hoverTint}}
               />
               {/* Play button overlay for video cards */}
-              {isVideo && <FeaturePlayButton accent={accent} label={section.playButtonText ?? 'Play Video'} imageUrl={section.playButtonImageUrl} />}
+              {isVideo && (
+                <FeaturePlayButton
+                  accent={accent}
+                  label={section.playButtonText ?? 'Play Video'}
+                  imageUrl={section.playButtonImageUrl}
+                />
+              )}
               {/* Title / description content */}
               <div className="flex flex-col gap-3" style={contentStyle}>
                 {f.title && (
                   <div className="flex items-stretch gap-4">
-                    {showBar && (
-                      <span
-                        aria-hidden
-                        className="shrink-0 self-stretch"
-                      />
-                    )}
+                    {showBar && <span aria-hidden className="shrink-0 self-stretch" />}
                     <h3 className="text-white font-extrabold leading-tight text-2xl sm:text-[28px] min-w-0">
                       {f.title}
                     </h3>
@@ -1010,103 +1030,105 @@ function FeatureGridSection({section}: {section: Section}) {
                 )}
               </div>
             </div>
-          ) : (() => {
-            // Image and content as separate, non-overlapping blocks — the
-            // gradient tint (`overlay`) still doesn't apply, since that's
-            // meant to darken the image for text legibility and there's no
-            // text sitting on it here. But the hover zoom AND the hover
-            // tint are image-hover feedback, not overlay-positioning
-            // effects, so both keep working identically to the overImage
-            // branch above.
-            const titleElement = f.title && (
-              <div className="flex items-stretch gap-4">
-                {showBar && (
-                  <span
+          ) : (
+            (() => {
+              // Image and content as separate, non-overlapping blocks — the
+              // gradient tint (`overlay`) still doesn't apply, since that's
+              // meant to darken the image for text legibility and there's no
+              // text sitting on it here. But the hover zoom AND the hover
+              // tint are image-hover feedback, not overlay-positioning
+              // effects, so both keep working identically to the overImage
+              // branch above.
+              const titleElement = f.title && (
+                <div className="flex items-stretch gap-4">
+                  {showBar && (
+                    <span
+                      aria-hidden
+                      className="shrink-0 self-stretch"
+                      style={{width: '4px', background: barColor, borderRadius: '2px'}}
+                    />
+                  )}
+                  <h3
+                    className="font-extrabold leading-tight text-2xl sm:text-[28px] min-w-0"
+                    style={{color: 'var(--theme-text, #ffffff)'}}
+                  >
+                    {f.title}
+                  </h3>
+                </div>
+              )
+
+              const mediaElement = (
+                <div className="relative w-full shrink-0 overflow-hidden" style={{height: cardH}}>
+                  {bgUrl && (
+                    <img
+                      src={bgUrl}
+                      alt={(isVideo ? f.videoThumbnail?.alt : f.image?.alt) || f.title || 'Feature'}
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  )}
+                  <div
                     aria-hidden
-                    className="shrink-0 self-stretch"
-                    style={{width: '4px', background: barColor, borderRadius: '2px'}}
+                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
+                    style={{background: hoverTint}}
                   />
-                )}
-                <h3
-                  className="font-extrabold leading-tight text-2xl sm:text-[28px] min-w-0"
-                  style={{color: 'var(--theme-text, #ffffff)'}}
-                >
-                  {f.title}
-                </h3>
-              </div>
-            )
-
-            const mediaElement = (
-              <div className="relative w-full shrink-0 overflow-hidden" style={{height: cardH}}>
-                {bgUrl && (
-                  <img
-                    src={bgUrl}
-                    alt={(isVideo ? f.videoThumbnail?.alt : f.image?.alt) || f.title || 'Feature'}
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                )}
-                <div
-                  aria-hidden
-                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
-                  style={{background: hoverTint}}
-                />
-                {isVideo && (
-                  <FeaturePlayButton
-                    accent={accent}
-                    label={section.playButtonText ?? 'Play Video'}
-                    imageUrl={section.playButtonImageUrl}
-                  />
-                )}
-              </div>
-            )
-
-            // Colors here read the Site Theme (var(--theme-*), set on :root
-            // whenever Site Settings' Theme is enabled), with a fallback
-            // matching this card's old overlay-mode colors — this text sits
-            // on the page's own background now, not on the image, so it can
-            // no longer assume a dark backdrop the way the hardcoded
-            // white/gray-200 overlay text could.
-            const descElement = f.description && (
-              <RichText
-                value={f.description}
-                className="text-sm sm:text-base leading-relaxed"
-                style={{color: 'var(--theme-muted, #d1d5db)'}}
-              />
-            )
-
-            const contentOrder = section.cardContentOrder || 'titleImageDesc'
-
-            return (
-              <div
-                className={`w-full overflow-hidden group${isMosaicHero ? ' h-full' : ''}`}
-                style={{borderRadius: `${section.featureCardRadius ?? 0}px`}}
-              >
-                <div className={`flex flex-col gap-3 p-6${isMosaicHero ? ' h-full' : ''}`}>
-                  {contentOrder === 'titleImageDesc' && (
-                    <>
-                      {titleElement}
-                      {mediaElement}
-                      {descElement}
-                    </>
-                  )}
-                  {contentOrder === 'imageTitleDesc' && (
-                    <>
-                      {mediaElement}
-                      {titleElement}
-                      {descElement}
-                    </>
-                  )}
-                  {contentOrder === 'titleDescImage' && (
-                    <>
-                      {titleElement}
-                      {descElement}
-                      {mediaElement}
-                    </>
+                  {isVideo && (
+                    <FeaturePlayButton
+                      accent={accent}
+                      label={section.playButtonText ?? 'Play Video'}
+                      imageUrl={section.playButtonImageUrl}
+                    />
                   )}
                 </div>
-              </div>
-            )
-          })()
+              )
+
+              // Colors here read the Site Theme (var(--theme-*), set on :root
+              // whenever Site Settings' Theme is enabled), with a fallback
+              // matching this card's old overlay-mode colors — this text sits
+              // on the page's own background now, not on the image, so it can
+              // no longer assume a dark backdrop the way the hardcoded
+              // white/gray-200 overlay text could.
+              const descElement = f.description && (
+                <RichText
+                  value={f.description}
+                  className="text-sm sm:text-base leading-relaxed"
+                  style={{color: 'var(--theme-muted, #d1d5db)'}}
+                />
+              )
+
+              const contentOrder = section.cardContentOrder || 'titleImageDesc'
+
+              return (
+                <div
+                  className={`w-full overflow-hidden group${isMosaicHero ? ' h-full' : ''}`}
+                  style={{borderRadius: `${section.featureCardRadius ?? 0}px`}}
+                >
+                  <div className={`flex flex-col gap-3 p-6${isMosaicHero ? ' h-full' : ''}`}>
+                    {contentOrder === 'titleImageDesc' && (
+                      <>
+                        {titleElement}
+                        {mediaElement}
+                        {descElement}
+                      </>
+                    )}
+                    {contentOrder === 'imageTitleDesc' && (
+                      <>
+                        {mediaElement}
+                        {titleElement}
+                        {descElement}
+                      </>
+                    )}
+                    {contentOrder === 'titleDescImage' && (
+                      <>
+                        {titleElement}
+                        {descElement}
+                        {mediaElement}
+                      </>
+                    )}
+                  </div>
+                </div>
+              )
+            })()
+          )
 
           const href = f.linkUrl || f.link?.endpoint
           const mosaicWrapperClass = mosaicView
@@ -1115,7 +1137,11 @@ function FeatureGridSection({section}: {section: Section}) {
           if (isVideo && (f.videoUrl || f.videoFileUrl)) {
             return (
               <div key={f._key} className={mosaicWrapperClass}>
-                <VideoLightbox trigger={cardInner} videoUrl={f.videoUrl} videoFileUrl={f.videoFileUrl} />
+                <VideoLightbox
+                  trigger={cardInner}
+                  videoUrl={f.videoUrl}
+                  videoFileUrl={f.videoFileUrl}
+                />
               </div>
             )
           }
@@ -1201,13 +1227,7 @@ function CardMedia({card, imgStyle}: {card: StepCard; imgStyle: React.CSSPropert
   )
 }
 
-function CardWithAction({
-  card,
-  children,
-}: {
-  card: StepCard
-  children: React.ReactNode
-}) {
+function CardWithAction({card, children}: {card: StepCard; children: React.ReactNode}) {
   const action = card.cardAction || 'none'
 
   if (action === 'videoLightbox' && (card.actionVideoUrl || card.actionVideoFileUrl)) {
@@ -1260,7 +1280,12 @@ function CardsGridSection({section}: {section: Section}) {
   // across the site the moment this ships.
   const cardBorderConfig = cs?.border
   const cardBorderVisible = cardBorderConfig?.show !== false
-  const cardBorderSides = cardBorderConfig?.sides || {top: true, right: true, bottom: true, left: true}
+  const cardBorderSides = cardBorderConfig?.sides || {
+    top: true,
+    right: true,
+    bottom: true,
+    left: true,
+  }
   const cardBorderWidth = cardBorderConfig?.width || '1px'
 
   const cardStyleObj: React.CSSProperties = {
@@ -1390,10 +1415,7 @@ function CardsGridSection({section}: {section: Section}) {
           const buttonElement = <CardButton card={card} />
 
           const cardBody = (
-            <div
-              className="flex flex-col justify-between h-full"
-              style={cardStyleObj}
-            >
+            <div className="flex flex-col justify-between h-full" style={cardStyleObj}>
               <div>
                 {order === 'titleImageDesc' && (
                   <>
@@ -1430,15 +1452,18 @@ function CardsGridSection({section}: {section: Section}) {
               // can wrap the card in a plain block-level <Link> that doesn't
               // propagate that stretched height to the card inside it — this
               // only matters once a hero tile is actually 2 rows tall.
-              className={mosaicView ? `h-full ${isMosaicHero ? 'col-span-2 row-span-2' : ''}`.trim() : undefined}
+              className={
+                mosaicView
+                  ? `h-full ${isMosaicHero ? 'col-span-2 row-span-2' : ''}`.trim()
+                  : undefined
+              }
             >
               <CardWithAction card={card}>{cardBody}</CardWithAction>
             </div>
           )
         })
 
-        const isOneColSlider =
-          colCount === '1' && section.oneColumnDisplayMode === 'slider'
+        const isOneColSlider = colCount === '1' && section.oneColumnDisplayMode === 'slider'
 
         if (isOneColSlider) {
           return (
@@ -1555,7 +1580,8 @@ function PhotoGallerySection({section}: {section: Section}) {
   }
 
   // Grid (default)
-  const colClass = PHOTO_GALLERY_COL_CLASSES[section.columns || '3'] || PHOTO_GALLERY_COL_CLASSES['3']
+  const colClass =
+    PHOTO_GALLERY_COL_CLASSES[section.columns || '3'] || PHOTO_GALLERY_COL_CLASSES['3']
   return (
     <div className={`grid ${colClass} gap-4`}>
       {photos.map((photo) => (
@@ -1647,7 +1673,10 @@ function CallToActionSection({section}: {section: Section}) {
         <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4">{heading}</h2>
       )}
       {description && (
-        <RichText value={description} className="text-base sm:text-lg leading-relaxed mb-8 opacity-90" />
+        <RichText
+          value={description}
+          className="text-base sm:text-lg leading-relaxed mb-8 opacity-90"
+        />
       )}
       {(showPrimary || showSecondary) && (
         <div className="flex flex-wrap items-center justify-center gap-4">
@@ -1696,20 +1725,19 @@ function HeroBannerSection({
   const hasBannerAccordion = bannerAccordion.length > 0
   const cont = section.container
   const isWhiteTheme =
-    cont?.sectionTheme === 'light' ||
-    cont?.bgColor === '#ffffff' ||
-    cont?.bgColor === 'white'
+    cont?.sectionTheme === 'light' || cont?.bgColor === '#ffffff' || cont?.bgColor === 'white'
 
   const focal = section.imageFocalPoint || 'right center'
   const bannerHeightClass =
     section.bannerHeight === 'medium'
       ? 'min-h-[500px]'
       : section.bannerHeight === 'small'
-      ? 'min-h-[380px]'
-      : 'min-h-[580px] sm:min-h-[640px] lg:min-h-[720px]'
+        ? 'min-h-[380px]'
+        : 'min-h-[580px] sm:min-h-[640px] lg:min-h-[720px]'
 
   const objectPositionStyle: React.CSSProperties = {
-    objectPosition: focal === 'center' ? 'center' : focal === 'leftCenter' ? 'left center' : 'right center',
+    objectPosition:
+      focal === 'center' ? 'center' : focal === 'leftCenter' ? 'left center' : 'right center',
   }
 
   const gradientMode = section.overlayGradient || 'none'
@@ -1738,7 +1766,10 @@ function HeroBannerSection({
         <div className="relative z-20 max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 w-full py-16 sm:py-20">
           <div
             className="max-w-2xl"
-            style={{textAlign: (section.typography?.headingAlignment || 'left') as React.CSSProperties['textAlign']}}
+            style={{
+              textAlign: (section.typography?.headingAlignment ||
+                'left') as React.CSSProperties['textAlign'],
+            }}
           >
             {section.heading && (
               <h1
@@ -1771,7 +1802,9 @@ function HeroBannerSection({
                   textShadow: resolveTextShadow(section.typography?.descriptionShadow),
                   ...getTextBorderStyles(section.typography?.descriptionStroke, 'description'),
                   ...resolveFontBorder(section.typography?.descriptionFontBorder),
-                  textAlign: (section.typography?.descriptionAlignment || section.typography?.headingAlignment || 'left') as React.CSSProperties['textAlign'],
+                  textAlign: (section.typography?.descriptionAlignment ||
+                    section.typography?.headingAlignment ||
+                    'left') as React.CSSProperties['textAlign'],
                 }}
               />
             )}
@@ -1812,7 +1845,9 @@ function resolveImageStyle(img: SectionImage): React.CSSProperties {
   const r = img.imageRadius
   const borderRadius =
     r !== undefined && r !== null && r !== 0 && r !== '0'
-      ? typeof r === 'number' ? `${r}px` : r
+      ? typeof r === 'number'
+        ? `${r}px`
+        : r
       : undefined
   const objectFit = img.imageFit as React.CSSProperties['objectFit'] | undefined
   return {
@@ -1828,7 +1863,10 @@ function resolveImageStyle(img: SectionImage): React.CSSProperties {
  * guarantees they're visible — padding creates a visible frame, and border-radius
  * on an overflow:hidden wrapper reliably clips rounded corners.
  */
-function splitImageStyles(img: SectionImage): {wrapper: React.CSSProperties; image: React.CSSProperties} {
+function splitImageStyles(img: SectionImage): {
+  wrapper: React.CSSProperties
+  image: React.CSSProperties
+} {
   const s = resolveImageStyle(img)
   const wrapper: React.CSSProperties = {}
   const image: React.CSSProperties = {}
@@ -1888,7 +1926,10 @@ function BannerImageCard({
           <div
             aria-hidden
             className="absolute inset-0 pointer-events-none"
-            style={{background: 'linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.25) 45%, rgba(0,0,0,0) 70%)'}}
+            style={{
+              background:
+                'linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.25) 45%, rgba(0,0,0,0) 70%)',
+            }}
           />
           <div className="absolute left-0 right-0 bottom-0 p-5 sm:p-6 text-white">
             {img.overlayTitle && (
@@ -1934,8 +1975,10 @@ function BannerImageCard({
 function SplitLayoutSection({section}: {section: Section}) {
   const images = section.images || []
   const imageSide: 'left' | 'right' = section.accordionSide
-  ? (section.accordionSide === 'left' ? 'right' : 'left')
-  : section.imageSide || 'left'
+    ? section.accordionSide === 'left'
+      ? 'right'
+      : 'left'
+    : section.imageSide || 'left'
   const imgWidthPct = parseInt(section.imageWidth || '50', 10)
   const contentWidthPct = 100 - imgWidthPct
   const vAlign = section.splitContentVerticalAlign || 'center'
@@ -1948,8 +1991,7 @@ function SplitLayoutSection({section}: {section: Section}) {
   const accordionItems = section.items || []
   const hasAccordion = accordionItems.length > 0
 
-  const alignItems =
-    vAlign === 'top' ? 'flex-start' : vAlign === 'bottom' ? 'flex-end' : 'center'
+  const alignItems = vAlign === 'top' ? 'flex-start' : vAlign === 'bottom' ? 'flex-end' : 'center'
 
   const heightStyle: React.CSSProperties =
     rowHeight === 'auto'
@@ -1959,9 +2001,7 @@ function SplitLayoutSection({section}: {section: Section}) {
         : {minHeight: `${rowHeight}px`}
 
   const isWhiteTheme =
-    cont?.sectionTheme === 'light' ||
-    contentBg === '#ffffff' ||
-    cont?.bgColor === '#ffffff'
+    cont?.sectionTheme === 'light' || contentBg === '#ffffff' || cont?.bgColor === '#ffffff'
 
   const headingColor = typo?.headingColor || (isWhiteTheme ? '#111827' : '#ffffff')
   const descColor = typo?.descriptionColor || (isWhiteTheme ? '#374151' : '#d1d5db')
@@ -1997,39 +2037,34 @@ function SplitLayoutSection({section}: {section: Section}) {
             />
           </div>
         )
+      ) : section.imageLayout === 'fullWidth' ? (
+        <div className="flex flex-col gap-4 w-full">
+          {images.map((img) =>
+            img.url ? (
+              <div key={img._key} style={{width: '100%', minHeight: '260px'}}>
+                <BannerImageCard
+                  img={img}
+                  fallbackAlt={section.heading}
+                  enableHover={section.enableImageHover !== false}
+                />
+              </div>
+            ) : null,
+          )}
+        </div>
       ) : (
-        section.imageLayout === 'fullWidth' ? (
-          <div className="flex flex-col gap-4 w-full">
-            {images.map((img) =>
-              img.url ? (
-                <div key={img._key} style={{width: '100%', minHeight: '260px'}}>
-                  <BannerImageCard
-                    img={img}
-                    fallbackAlt={section.heading}
-                    enableHover={section.enableImageHover !== false}
-                  />
-                </div>
-              ) : null,
-            )}
-          </div>
-        ) : (
-          <div className="flex flex-row flex-wrap gap-4 w-full items-stretch">
-            {images.map((img) =>
-              img.url ? (
-                <div
-                  key={img._key}
-                  style={{flex: '1 1 0', minWidth: '220px', minHeight: '260px'}}
-                >
-                  <BannerImageCard
-                    img={img}
-                    fallbackAlt={section.heading}
-                    enableHover={section.enableImageHover !== false}
-                  />
-                </div>
-              ) : null,
-            )}
-          </div>
-        )
+        <div className="flex flex-row flex-wrap gap-4 w-full items-stretch">
+          {images.map((img) =>
+            img.url ? (
+              <div key={img._key} style={{flex: '1 1 0', minWidth: '220px', minHeight: '260px'}}>
+                <BannerImageCard
+                  img={img}
+                  fallbackAlt={section.heading}
+                  enableHover={section.enableImageHover !== false}
+                />
+              </div>
+            ) : null,
+          )}
+        </div>
       )}
     </div>
   )
@@ -2168,8 +2203,7 @@ function StandardSectionContent({
   const typo = section.typography
   const images = section.images || []
   const hasImages = images.length > 0
-  const isHeroBanner =
-    section.textPosition === 'overImage' || section.imageLayout === 'fullWidth'
+  const isHeroBanner = section.textPosition === 'overImage' || section.imageLayout === 'fullWidth'
   const isSplitLayout = section.textPosition === 'besideImage'
 
   if (isSplitLayout) {
@@ -2215,8 +2249,8 @@ function StandardSectionContent({
                 headingAlign === 'center'
                   ? 'text-center'
                   : headingAlign === 'right'
-                  ? 'text-right'
-                  : 'text-left'
+                    ? 'text-right'
+                    : 'text-left'
               } ${isWhiteTheme ? 'text-gray-700' : 'text-gray-400'}`}
             >
               {eyebrowText}
@@ -2229,8 +2263,8 @@ function StandardSectionContent({
                 headingAlign === 'center'
                   ? 'text-center'
                   : headingAlign === 'right'
-                  ? 'text-right'
-                  : 'text-left'
+                    ? 'text-right'
+                    : 'text-left'
               }`}
               style={{
                 fontSize: HEADING_SIZE_MAP[typo?.headingSize || '2xl'] || '44px',
@@ -2253,8 +2287,8 @@ function StandardSectionContent({
                 descAlign === 'center'
                   ? 'text-center'
                   : descAlign === 'right'
-                  ? 'text-right'
-                  : 'text-left'
+                    ? 'text-right'
+                    : 'text-left'
               }`}
               style={{
                 // The border (if any) is drawn on the <p> below, not here, so
@@ -2308,7 +2342,9 @@ function StandardSectionContent({
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-6 max-w-6xl mx-auto">
               {images.map((img) => {
-                const hasOverlay = Boolean(img.overlayTitle || img.overlayDescription || img.linkUrl)
+                const hasOverlay = Boolean(
+                  img.overlayTitle || img.overlayDescription || img.linkUrl,
+                )
                 if (hasOverlay) {
                   return (
                     <div key={img._key} className="w-full relative" style={{minHeight: '320px'}}>
@@ -2321,10 +2357,7 @@ function StandardSectionContent({
                   )
                 }
                 return (
-                  <div
-                    key={img._key}
-                    className="flex flex-col items-center"
-                  >
+                  <div key={img._key} className="flex flex-col items-center">
                     <img
                       src={img.url}
                       alt={img.alt || ''}
@@ -2496,7 +2529,7 @@ export default function PageSection({section}: {section: Section}) {
 
   const isHScrollFeature = isFeatureGrid && section.featureDisplayMode === 'horizontalScroll'
   const isFullBleed = isHeroBanner || isSplitLayout || isHScrollFeature
-  
+
   const isWhiteTheme =
     cont?.sectionTheme === 'light' ||
     cont?.bgColor === '#ffffff' ||
@@ -2602,12 +2635,12 @@ export default function PageSection({section}: {section: Section}) {
   const containerClass = isFullBleed
     ? 'w-full'
     : cont?.containerWidth === 'narrow'
-    ? 'max-w-4xl mx-auto'
-    : cont?.containerWidth === 'wide'
-    ? 'max-w-[1400px] mx-auto'
-    : cont?.containerWidth === 'full'
-    ? 'w-full'
-    : 'max-w-7xl mx-auto'
+      ? 'max-w-4xl mx-auto'
+      : cont?.containerWidth === 'wide'
+        ? 'max-w-[1400px] mx-auto'
+        : cont?.containerWidth === 'full'
+          ? 'w-full'
+          : 'max-w-7xl mx-auto'
 
   const innerStyle: React.CSSProperties = isFullBleed
     ? {}

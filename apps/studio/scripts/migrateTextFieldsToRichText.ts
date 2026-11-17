@@ -83,7 +83,8 @@ function findPatches(doc: Record<string, JSONValue>): Patch[] {
   function walk(node: JSONValue, path: string, parentType?: string) {
     if (Array.isArray(node)) {
       node.forEach((item, i) => {
-        const key = isPlainObject(item) && typeof item._key === 'string' ? `[_key=="${item._key}"]` : `[${i}]`
+        const key =
+          isPlainObject(item) && typeof item._key === 'string' ? `[_key=="${item._key}"]` : `[${i}]`
         walk(item, `${path}${key}`)
       })
       return
@@ -98,7 +99,8 @@ function findPatches(doc: Record<string, JSONValue>): Patch[] {
 
       if (typeof value === 'string') {
         const isUnambiguous = key === 'pageDescription' || key === 'sectionDescription'
-        const isScopedDescription = key === 'description' && thisType != null && DESCRIPTION_TYPES.has(thisType)
+        const isScopedDescription =
+          key === 'description' && thisType != null && DESCRIPTION_TYPES.has(thisType)
         if (isUnambiguous || isScopedDescription) {
           patches.push({
             docId: doc._id as string,
@@ -150,7 +152,10 @@ async function main() {
 
   let fixedDocs = 0
   for (const [docId, patches] of byDoc) {
-    const setFields = Object.assign({}, ...patches.map((p) => ({[p.path]: toPortableText(p.before)})))
+    const setFields = Object.assign(
+      {},
+      ...patches.map((p) => ({[p.path]: toPortableText(p.before)})),
+    )
     await client.patch(docId).set(setFields).commit()
     fixedDocs += 1
     console.log(`Patched ${docId} (${patches.length} field${patches.length === 1 ? '' : 's'}).`)

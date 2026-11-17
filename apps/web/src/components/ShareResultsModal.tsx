@@ -16,12 +16,18 @@ export default function ShareResultsModal({open, onClose}: {open: boolean; onClo
   const [url, setUrl] = useState('')
   const [copied, setCopied] = useState(false)
 
-  useEffect(() => {
+  // Each time the modal opens: capture the current address and clear any
+  // leftover "Copied" state. Done during render (tracking the previous `open`)
+  // rather than in an effect, so there's no extra render pass with stale values.
+  // `open` can only flip to true from a click on the client, so `window` exists.
+  const [wasOpen, setWasOpen] = useState(open)
+  if (open !== wasOpen) {
+    setWasOpen(open)
     if (open) {
       setUrl(window.location.href)
       setCopied(false)
     }
-  }, [open])
+  }
 
   // Close on Escape, same as any other modal.
   useEffect(() => {

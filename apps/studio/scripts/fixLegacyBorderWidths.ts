@@ -64,14 +64,18 @@ function findPatches(doc: Record<string, JSONValue>): Patch[] {
   function walk(node: JSONValue, path: string) {
     if (Array.isArray(node)) {
       node.forEach((item, i) => {
-        const key = isPlainObject(item) && typeof item._key === 'string' ? `[_key=="${item._key}"]` : `[${i}]`
+        const key =
+          isPlainObject(item) && typeof item._key === 'string' ? `[_key=="${item._key}"]` : `[${i}]`
         walk(item, `${path}${key}`)
       })
       return
     }
     if (!isPlainObject(node)) return
 
-    if (typeof node.width === 'number' && ('enabled' in node || 'show' in node || 'color' in node)) {
+    if (
+      typeof node.width === 'number' &&
+      ('enabled' in node || 'show' in node || 'color' in node)
+    ) {
       const setFields: Record<string, JSONValue> = {[`${path}.width`]: widthBucket(node.width)}
       const unsetPaths: string[] = []
       if (!('show' in node) && 'enabled' in node) {
@@ -108,7 +112,9 @@ async function main() {
     return
   }
 
-  console.log(`Found ${allPatches.length} legacy border field(s) across ${new Set(allPatches.map((p) => p.docId)).size} document(s):\n`)
+  console.log(
+    `Found ${allPatches.length} legacy border field(s) across ${new Set(allPatches.map((p) => p.docId)).size} document(s):\n`,
+  )
   for (const p of allPatches) {
     console.log(`[${p.docType} ${p.docId}] ${p.path}`)
     console.log(`  before: ${JSON.stringify(p.before)}`)

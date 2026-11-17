@@ -1,31 +1,27 @@
 'use client'
 
 import {useState} from 'react'
-import {PortableText, type PortableTextComponents} from '@portabletext/react'
+import {
+  PortableText,
+  type PortableTextBlock,
+  type PortableTextComponents,
+} from '@portabletext/react'
 
 export interface FaqItem {
   _key: string
   question: string
   /** Rich text (block content array) or legacy plain string */
-  answer: any[] | string
+  answer: PortableTextBlock[] | string
   isExpandedByDefault?: boolean
   expandedByDefault?: boolean
 }
 
-function AnswerBody({
-  answer,
-  textColorClass,
-}: {
-  answer: FaqItem['answer']
-  textColorClass: string
-}) {
+function AnswerBody({answer, textColorClass}: {answer: FaqItem['answer']; textColorClass: string}) {
   if (!answer) return null
 
   if (typeof answer === 'string') {
     return (
-      <p className={`text-base leading-relaxed whitespace-pre-line ${textColorClass}`}>
-        {answer}
-      </p>
+      <p className={`text-base leading-relaxed whitespace-pre-line ${textColorClass}`}>{answer}</p>
     )
   }
 
@@ -47,8 +43,12 @@ function AnswerBody({
       ),
     },
     listItem: {
-      bullet: ({children}) => <li className={`text-base leading-relaxed ${textColorClass}`}>{children}</li>,
-      number: ({children}) => <li className={`text-base leading-relaxed ${textColorClass}`}>{children}</li>,
+      bullet: ({children}) => (
+        <li className={`text-base leading-relaxed ${textColorClass}`}>{children}</li>
+      ),
+      number: ({children}) => (
+        <li className={`text-base leading-relaxed ${textColorClass}`}>{children}</li>
+      ),
     },
     marks: {
       strong: ({children}) => <strong className="font-semibold">{children}</strong>,
@@ -214,13 +214,17 @@ export default function FaqAccordionList({
               <span
                 className={`ml-4 text-2xl font-light shrink-0 transition-transform duration-200 select-none ${iconColor}`}
               >
-                {iconType === 'chevron' ? (
-                  isOpen ? '▲' : '▼'
-                ) : iconType === 'arrow' ? (
-                  isOpen ? '↑' : '↓'
-                ) : (
-                  isOpen ? '−' : '+'
-                )}
+                {iconType === 'chevron'
+                  ? isOpen
+                    ? '▲'
+                    : '▼'
+                  : iconType === 'arrow'
+                    ? isOpen
+                      ? '↑'
+                      : '↓'
+                    : isOpen
+                      ? '−'
+                      : '+'}
               </span>
             </button>
 

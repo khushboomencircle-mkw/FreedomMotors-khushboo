@@ -29,7 +29,9 @@ async function run() {
       .set({[targetField]: siteSettings.siteTheme})
       .unset(['siteTheme'])
       .commit()
-    console.log(`siteSettings: migrated siteTheme -> ${targetField} (defaultMode was "${siteSettings.defaultMode}")`)
+    console.log(
+      `siteSettings: migrated siteTheme -> ${targetField} (defaultMode was "${siteSettings.defaultMode}")`,
+    )
   } else {
     console.log('siteSettings: no siteTheme content to migrate.')
   }
@@ -39,7 +41,14 @@ async function run() {
   // found by scanning every document with a `sections` array (same pattern used
   // to seed/verify this content earlier) rather than hardcoding each page type.
   const docsWithSectionThemes = await client.fetch<
-    {docId: string; sections: {_key: string; sectionThemeMode?: 'light' | 'dark'; sectionTheme?: Record<string, unknown>}[]}[]
+    {
+      docId: string
+      sections: {
+        _key: string
+        sectionThemeMode?: 'light' | 'dark'
+        sectionTheme?: Record<string, unknown>
+      }[]
+    }[]
   >(
     `*[defined(sections)]{
       "docId": _id,

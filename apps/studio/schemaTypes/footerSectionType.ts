@@ -1,9 +1,9 @@
-import { defineArrayMember, defineField, defineType } from 'sanity'
-import { UlistIcon } from '@sanity/icons/Ulist'
-import { EnvelopeIcon } from '@sanity/icons/Envelope'
-import { ShareIcon } from '@sanity/icons/Share'
-import { InfoOutlineIcon } from '@sanity/icons/InfoOutline'
-import { DocumentTextIcon } from '@sanity/icons/DocumentText'
+import {defineArrayMember, defineField, defineType} from 'sanity'
+import {UlistIcon} from '@sanity/icons/Ulist'
+import {EnvelopeIcon} from '@sanity/icons/Envelope'
+import {ShareIcon} from '@sanity/icons/Share'
+import {InfoOutlineIcon} from '@sanity/icons/InfoOutline'
+import {DocumentTextIcon} from '@sanity/icons/DocumentText'
 import CompactImageInput from './components/CompactImageInput'
 
 export const footerColumnType = defineType({
@@ -22,7 +22,7 @@ export const footerColumnType = defineType({
       name: 'links',
       title: 'Column Links / Redirect Endpoints',
       type: 'array',
-      of: [defineArrayMember({ type: 'linkEndpoint' })],
+      of: [defineArrayMember({type: 'linkEndpoint'})],
       description: 'Internal or external links.',
     }),
   ],
@@ -31,7 +31,7 @@ export const footerColumnType = defineType({
       title: 'columnTitle',
       links: 'links',
     },
-    prepare({ title, links }) {
+    prepare({title, links}) {
       const count = links?.length || 0
       return {
         title: title || 'Footer Column',
@@ -84,7 +84,7 @@ export const newsletterSectionType = defineType({
       title: 'heading',
       subtitle: 'description',
     },
-    prepare({ title, subtitle }) {
+    prepare({title, subtitle}) {
       return {
         title: title || 'Newsletter Section',
         subtitle: subtitle || 'Newsletter subscription form',
@@ -142,7 +142,7 @@ export const socialLinksSectionType = defineType({
       title: 'title',
       links: 'socialLinks',
     },
-    prepare({ title, links }) {
+    prepare({title, links}) {
       const count = links?.length || 0
       return {
         title: title || 'Social Links',
@@ -169,14 +169,14 @@ export const copyrightSectionType = defineType({
       name: 'legalLinks',
       title: 'Legal Links (Privacy Policy, Terms of Service, etc.)',
       type: 'array',
-      of: [defineArrayMember({ type: 'linkEndpoint' })],
+      of: [defineArrayMember({type: 'linkEndpoint'})],
     }),
   ],
   preview: {
     select: {
       title: 'copyrightText',
     },
-    prepare({ title }) {
+    prepare({title}) {
       return {
         title: title || 'Copyright Bar',
         subtitle: 'Bottom legal section',
@@ -200,7 +200,7 @@ export const footerRichTextType = defineType({
       name: 'content',
       title: 'Content',
       type: 'array',
-      of: [defineArrayMember({ type: 'block' })],
+      of: [defineArrayMember({type: 'block'})],
     }),
     defineField({
       name: 'logo',
@@ -213,7 +213,7 @@ export const footerRichTextType = defineType({
     select: {
       title: 'title',
     },
-    prepare({ title }) {
+    prepare({title}) {
       return {
         title: title || 'Brand / About Block',
         subtitle: 'Rich text content section',

@@ -1,5 +1,5 @@
-import { defineField, defineType } from 'sanity'
-import { LinkIcon } from '@sanity/icons/Link'
+import {defineField, defineType} from 'sanity'
+import {LinkIcon} from '@sanity/icons/Link'
 
 export const linkEndpointType = defineType({
   name: 'linkEndpoint',
@@ -48,9 +48,7 @@ export const linkEndpointType = defineType({
       name: 'internalReference',
       title: 'Document Reference (Optional)',
       type: 'reference',
-      to: [
-        { type: 'convertVehicle2Page' },
-      ],
+      to: [{type: 'convertVehicle2Page'}],
       description: 'Optional: Reference an existing Sanity document instead of entering a path',
     }),
     defineField({
@@ -69,7 +67,7 @@ export const linkEndpointType = defineType({
       externalUrl: 'externalUrl',
       refName: 'internalReference.name',
     },
-    prepare({ title, label, endpoint, internalPath, externalUrl, refName }) {
+    prepare({title, label, endpoint, internalPath, externalUrl, refName}) {
       const displayTitle = title || label || 'Untitled Link'
       const destination =
         endpoint || internalPath || externalUrl || (refName ? `Doc: ${refName}` : '/')

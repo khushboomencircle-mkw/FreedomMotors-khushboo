@@ -68,7 +68,11 @@ export default function VehiclePagination({
     <div className="mt-10 flex flex-col items-center gap-4">
       <nav aria-label="Pagination" className="flex items-center gap-1.5">
         {currentPage > 1 ? (
-          <Link href={getPageHref(currentPage - 1)} aria-label="Previous page" className={arrowClass(true)}>
+          <Link
+            href={getPageHref(currentPage - 1)}
+            aria-label="Previous page"
+            className={arrowClass(true)}
+          >
             <ChevronLeft className="h-4 w-4" />
           </Link>
         ) : (
@@ -83,14 +87,23 @@ export default function VehiclePagination({
               ...
             </span>
           ) : (
-            <Link key={p} href={getPageHref(p)} aria-current={p === currentPage ? 'page' : undefined} className={pageLinkClass(p === currentPage)}>
+            <Link
+              key={p}
+              href={getPageHref(p)}
+              aria-current={p === currentPage ? 'page' : undefined}
+              className={pageLinkClass(p === currentPage)}
+            >
               {p}
             </Link>
           ),
         )}
 
         {currentPage < totalPages ? (
-          <Link href={getPageHref(currentPage + 1)} aria-label="Next page" className={arrowClass(true)}>
+          <Link
+            href={getPageHref(currentPage + 1)}
+            aria-label="Next page"
+            className={arrowClass(true)}
+          >
             <ChevronRight className="h-4 w-4" />
           </Link>
         ) : (

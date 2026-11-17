@@ -129,7 +129,10 @@ export default function VehicleImageGallery({
                 disabled={!canScrollUp}
                 aria-label="Show earlier photos"
                 className="rounded-full py-1 text-xs disabled:opacity-30 transition"
-                style={{boxShadow: `inset 0 0 0 1px ${GALLERY_BORDER_COLOR}`, color: GALLERY_BORDER_COLOR}}
+                style={{
+                  boxShadow: `inset 0 0 0 1px ${GALLERY_BORDER_COLOR}`,
+                  color: GALLERY_BORDER_COLOR,
+                }}
               >
                 ▲
               </button>
@@ -139,7 +142,10 @@ export default function VehicleImageGallery({
                 disabled={!canScrollDown}
                 aria-label="Show more photos"
                 className="rounded-full py-1 text-xs disabled:opacity-30 transition"
-                style={{boxShadow: `inset 0 0 0 1px ${GALLERY_BORDER_COLOR}`, color: GALLERY_BORDER_COLOR}}
+                style={{
+                  boxShadow: `inset 0 0 0 1px ${GALLERY_BORDER_COLOR}`,
+                  color: GALLERY_BORDER_COLOR,
+                }}
               >
                 ▼
               </button>
@@ -147,7 +153,11 @@ export default function VehicleImageGallery({
           )}
         </div>
         <div className="flex-1 h-full">
-          <img src={selected.url} alt={selected.alt || mainImageAlt} className="w-full h-full object-cover" />
+          <img
+            src={selected.url}
+            alt={selected.alt || mainImageAlt}
+            className="w-full h-full object-cover"
+          />
         </div>
       </div>
 
@@ -156,7 +166,11 @@ export default function VehicleImageGallery({
         className="flex lg:hidden flex-col rounded-xl overflow-hidden"
         style={{boxShadow: `inset 0 0 0 2px ${GALLERY_BORDER_COLOR}`}}
       >
-        <img src={selected.url} alt={selected.alt || mainImageAlt} className="w-full aspect-video object-cover" />
+        <img
+          src={selected.url}
+          alt={selected.alt || mainImageAlt}
+          className="w-full aspect-video object-cover"
+        />
         {photos.length > 1 && (
           <div className="flex gap-2 overflow-x-auto p-2">
             {photos.map((photo, index) => (

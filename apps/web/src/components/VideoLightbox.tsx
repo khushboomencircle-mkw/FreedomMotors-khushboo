@@ -1,7 +1,11 @@
 'use client'
 
-import {useEffect, useState} from 'react'
+import {useEffect, useState, useSyncExternalStore} from 'react'
 import {createPortal} from 'react-dom'
+
+// Nothing to subscribe to — useSyncExternalStore is used below only because
+// it reports `false` during server render/hydration and `true` afterwards.
+const subscribeNoop = () => () => {}
 
 interface Props {
   trigger: React.ReactNode
@@ -33,11 +37,13 @@ function toEmbedUrl(url: string): string {
 
 export default function VideoLightbox({trigger, videoUrl, videoFileUrl}: Props) {
   const [open, setOpen] = useState(false)
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  // False on the server and during hydration, true once on the client —
+  // `document.body` (the portal target) only exists from then on.
+  const mounted = useSyncExternalStore(
+    subscribeNoop,
+    () => true,
+    () => false,
+  )
 
   useEffect(() => {
     if (!open) return
@@ -80,12 +86,7 @@ export default function VideoLightbox({trigger, videoUrl, videoFileUrl}: Props) 
           ×
         </button>
         {isFile ? (
-          <video
-            src={embedSrc}
-            controls
-            autoPlay
-            className="w-full h-full object-contain"
-          />
+          <video src={embedSrc} controls autoPlay className="w-full h-full object-contain" />
         ) : (
           <iframe
             src={embedSrc}

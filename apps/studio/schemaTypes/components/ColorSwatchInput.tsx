@@ -26,7 +26,11 @@ export default function ColorSwatchInput(props: StringInputProps) {
                 swatchColor === 'transparent'
                   ? 'repeating-conic-gradient(#d1d5db 0% 25%, #fff 0% 50%) 50% / 10px 10px'
                   : swatchColor,
-              border: selected ? '2px solid #2563eb' : isLight ? '1px solid #d1d5db' : '1px solid transparent',
+              border: selected
+                ? '2px solid #2563eb'
+                : isLight
+                  ? '1px solid #d1d5db'
+                  : '1px solid transparent',
               boxShadow: selected ? '0 0 0 2px #fff, 0 0 0 4px #2563eb' : 'none',
               display: 'flex',
               alignItems: 'center',

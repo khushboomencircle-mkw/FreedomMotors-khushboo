@@ -1,6 +1,6 @@
-import { defineField, defineType } from 'sanity'
-import { StarIcon } from '@sanity/icons/Star'
-import { sequenceField, activeField } from '../fields/sectionFields'
+import {defineField, defineType} from 'sanity'
+import {StarIcon} from '@sanity/icons/Star'
+import {sequenceField, activeField} from '../fields/sectionFields'
 
 /**
  * Google Reviews Section — embeds the Trustindex widget already used on the
@@ -20,8 +20,8 @@ export const googleReviewsSectionType = defineType({
   icon: StarIcon,
   description: 'Shows your Google reviews in a slider, via your Trustindex widget.',
   groups: [
-    { name: 'content', title: 'Content', default: true },
-    { name: 'behavior', title: 'Behavior' },
+    {name: 'content', title: 'Content', default: true},
+    {name: 'behavior', title: 'Behavior'},
   ],
   fields: [
     sequenceField('content'),
@@ -32,13 +32,14 @@ export const googleReviewsSectionType = defineType({
       group: 'content',
       description:
         'From Trustindex dashboard → widget → Get Code → the data-pid value only (e.g. "d30d0d728098843d03365408186"), not the whole snippet.',
-      validation: (Rule) => Rule.required().error('Paste the data-pid value from your Trustindex embed code.'),
+      validation: (Rule) =>
+        Rule.required().error('Paste the data-pid value from your Trustindex embed code.'),
     }),
     activeField('behavior'),
   ],
   preview: {
-    select: { pid: 'trustindexWidgetId', sequence: 'sequence' },
-    prepare({ pid, sequence }: { pid?: string; sequence?: number }) {
+    select: {pid: 'trustindexWidgetId', sequence: 'sequence'},
+    prepare({pid, sequence}: {pid?: string; sequence?: number}) {
       return {
         title: 'Google Reviews',
         subtitle: `#${sequence ?? '—'} · ${pid ? `Widget ${pid}` : 'No widget ID set yet'}`,

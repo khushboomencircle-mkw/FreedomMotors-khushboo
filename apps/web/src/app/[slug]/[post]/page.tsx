@@ -62,7 +62,9 @@ export default async function BlogPostPage({params}: {params: Params}) {
       className="min-h-screen overflow-x-hidden"
       style={{background: 'var(--theme-bg, #121212)', color: 'var(--theme-text, #ffffff)'}}
     >
-      <Suspense fallback={<p className="text-[var(--theme-muted,#9ca3af)] text-center py-24">Loading...</p>}>
+      <Suspense
+        fallback={<p className="text-[var(--theme-muted,#9ca3af)] text-center py-24">Loading...</p>}
+      >
         <PageContent landingSlug={slug} postSlug={post} />
       </Suspense>
     </div>

@@ -64,8 +64,12 @@ export default function RichText({
       },
     },
     list: {
-      bullet: ({children}) => <ul className={`list-disc list-inside mb-2 ${className}`}>{children}</ul>,
-      number: ({children}) => <ol className={`list-decimal list-inside mb-2 ${className}`}>{children}</ol>,
+      bullet: ({children}) => (
+        <ul className={`list-disc list-inside mb-2 ${className}`}>{children}</ul>
+      ),
+      number: ({children}) => (
+        <ol className={`list-decimal list-inside mb-2 ${className}`}>{children}</ol>
+      ),
     },
     listItem: {
       bullet: ({children}) => <li className={className}>{children}</li>,

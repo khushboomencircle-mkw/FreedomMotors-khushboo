@@ -20,14 +20,45 @@
  */
 
 export const ALLOWED_TAGS = new Set<string>([
-  'div', 'section', 'article', 'header', 'footer', 'main', 'nav',
-  'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-  'p', 'span', 'strong', 'b', 'i', 'em',
-  'ul', 'ol', 'li',
-  'a', 'img', 'figure', 'figcaption', 'picture', 'source',
-  'br', 'hr',
-  'table', 'thead', 'tbody', 'tr', 'th', 'td',
-  'button', 'label', 'small',
+  'div',
+  'section',
+  'article',
+  'header',
+  'footer',
+  'main',
+  'nav',
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+  'p',
+  'span',
+  'strong',
+  'b',
+  'i',
+  'em',
+  'ul',
+  'ol',
+  'li',
+  'a',
+  'img',
+  'figure',
+  'figcaption',
+  'picture',
+  'source',
+  'br',
+  'hr',
+  'table',
+  'thead',
+  'tbody',
+  'tr',
+  'th',
+  'td',
+  'button',
+  'label',
+  'small',
   // <style> is allowed so a section can carry its own scoped CSS. Its CSS is
   // validated (no @import / expression() / script URLs) below.
   'style',
@@ -37,8 +68,21 @@ export const ALLOWED_TAGS = new Set<string>([
 ])
 
 export const ALLOWED_ATTRS = new Set<string>([
-  'class', 'id', 'title', 'alt', 'href', 'src', 'srcset', 'target',
-  'rel', 'width', 'height', 'style', 'type', 'media', 'for'
+  'class',
+  'id',
+  'title',
+  'alt',
+  'href',
+  'src',
+  'srcset',
+  'target',
+  'rel',
+  'width',
+  'height',
+  'style',
+  'type',
+  'media',
+  'for',
 ])
 
 const URL_ATTRS = new Set<string>(['href', 'src'])
@@ -49,9 +93,23 @@ const URL_ATTRS = new Set<string>(['href', 'src'])
 // blanket block, since that pass can inspect the src/hostname; this fast
 // pass can't tell a trusted <script src> from a dangerous one from text alone.
 const PROHIBITED_TAGS = [
-  'iframe', 'frame', 'frameset', 'object', 'embed',
-  'applet', 'base', 'meta', 'link', 'form', 'input', 'textarea',
-  'select', 'option', 'svg', 'math', 'portal',
+  'iframe',
+  'frame',
+  'frameset',
+  'object',
+  'embed',
+  'applet',
+  'base',
+  'meta',
+  'link',
+  'form',
+  'input',
+  'textarea',
+  'select',
+  'option',
+  'svg',
+  'math',
+  'portal',
 ]
 
 // Only these attributes are ever allowed on <script> — not the general
@@ -125,8 +183,10 @@ function validateCss(css: string): string | null {
   const v = css.toLowerCase()
   if (v.includes('@import')) return '@import is not allowed inside <style> (it loads external CSS).'
   if (v.includes('expression(')) return 'CSS expression() is not allowed inside <style>.'
-  if (/(javascript|vbscript)\s*:/.test(v)) return 'javascript:/vbscript: URLs are not allowed inside <style>.'
-  if (/url\(\s*['"]?\s*(javascript|vbscript|data)\s*:/.test(v)) return 'Unsafe url() scheme inside <style>.'
+  if (/(javascript|vbscript)\s*:/.test(v))
+    return 'javascript:/vbscript: URLs are not allowed inside <style>.'
+  if (/url\(\s*['"]?\s*(javascript|vbscript|data)\s*:/.test(v))
+    return 'Unsafe url() scheme inside <style>.'
   return null
 }
 
@@ -167,7 +227,11 @@ export function validateHtmlContent(value?: string): true | string {
   if (/\son[a-z]+\s*=/i.test(value)) {
     return 'Inline event handlers (onclick, onload, onerror, …) are not allowed.'
   }
-  if (/(href|src|xlink:href|action|formaction|background|poster)\s*=\s*["']?\s*(javascript|vbscript|data)\s*:/i.test(value)) {
+  if (
+    /(href|src|xlink:href|action|formaction|background|poster)\s*=\s*["']?\s*(javascript|vbscript|data)\s*:/i.test(
+      value,
+    )
+  ) {
     return 'javascript:, vbscript:, and data: URLs are not allowed.'
   }
   if (/(javascript|vbscript)\s*:/i.test(value)) {

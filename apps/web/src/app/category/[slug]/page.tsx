@@ -46,7 +46,12 @@ async function PageContent({slug}: {slug: string}) {
     notFound()
   }
 
-  type Teaser = {slug: string; title?: string; eyebrow?: string; image?: {url?: string; alt?: string}}
+  type Teaser = {
+    slug: string
+    title?: string
+    eyebrow?: string
+    image?: {url?: string; alt?: string}
+  }
   const articles: Teaser[] = category.articles ?? []
   const posts: (Teaser & {landingSlug: string})[] = category.posts ?? []
 
@@ -113,7 +118,9 @@ export default async function CategoryPage({params}: {params: Promise<{slug: str
       className="min-h-screen overflow-x-hidden"
       style={{background: 'var(--theme-bg, #121212)', color: 'var(--theme-text, #ffffff)'}}
     >
-      <Suspense fallback={<p className="text-[var(--theme-muted,#9ca3af)] text-center py-24">Loading...</p>}>
+      <Suspense
+        fallback={<p className="text-[var(--theme-muted,#9ca3af)] text-center py-24">Loading...</p>}
+      >
         <PageContent slug={slug} />
       </Suspense>
     </div>

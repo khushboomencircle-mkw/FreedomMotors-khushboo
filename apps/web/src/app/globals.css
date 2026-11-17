@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 :root {
   --background: #ffffff;
@@ -30,7 +30,12 @@ body {
 /* Global Site Theme fonts applied site-wide (header, footer, sections, etc.).
    Each var is set on :root by the global theme, or on a section wrapper by a
    section theme override — the cascade resolves the right one per element. */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--theme-heading-font, inherit);
 }
 button {
@@ -179,7 +184,9 @@ button {
 
 /* Link List Section — CSS-only hover highlight (reads --hl CSS variable set per row). */
 .link-list-row {
-  transition: background-color 150ms ease, color 150ms ease;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
 }
 .link-list-row:hover {
   background-color: var(--hl, var(--theme-primary, #dc2626));
@@ -204,7 +211,7 @@ button {
 
 /* Respect reduced-motion for the full-width feature slider. */
 @media (prefers-reduced-motion: reduce) {
-  [aria-roledescription="carousel"] > div {
+  [aria-roledescription='carousel'] > div {
     transition-duration: 0.01ms !important;
   }
 }

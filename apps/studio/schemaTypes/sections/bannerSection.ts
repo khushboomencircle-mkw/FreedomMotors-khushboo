@@ -2,9 +2,9 @@
  * Banner Section — full-width hero image with heading, text, overlay & buttons.
  * Reusable across any page schema.
  */
-import { defineArrayMember, defineField, defineType } from 'sanity'
-import { sectionThemeFields } from '../fields/sectionTheme'
-import { ImageIcon } from '@sanity/icons/Image'
+import {defineArrayMember, defineField, defineType} from 'sanity'
+import {sectionThemeFields} from '../fields/sectionTheme'
+import {ImageIcon} from '@sanity/icons/Image'
 import {
   sectionHeaderFields,
   buttonFields,
@@ -12,7 +12,7 @@ import {
   sequenceField,
   activeField,
 } from '../fields/sectionFields'
-import { richTextOf } from '../fields/richText'
+import {richTextOf} from '../fields/richText'
 import ScaleInput from '../components/ScaleInput'
 import RadiusInput from '../components/RadiusInput'
 import ColorPaletteInput from '../components/ColorPaletteInput'
@@ -24,40 +24,40 @@ export const bannerSectionType = defineType({
   icon: ImageIcon,
   description: 'A big image at the top of the page with a heading and a button.',
   groups: [
-    { name: 'content', title: 'Content', default: true },
-    { name: 'layout', title: 'Layout' },
-    { name: 'typography', title: 'Typography' },
-    { name: 'sectionStyles', title: 'Section Theme' },
-    { name: 'behavior', title: 'Behavior' },
+    {name: 'content', title: 'Content', default: true},
+    {name: 'layout', title: 'Layout'},
+    {name: 'typography', title: 'Typography'},
+    {name: 'sectionStyles', title: 'Section Theme'},
+    {name: 'behavior', title: 'Behavior'},
   ],
   fieldsets: [
     {
       name: 'primaryButton',
       title: 'Primary Button',
-      options: { columns: 2, collapsible: true, collapsed: true },
+      options: {columns: 2, collapsible: true, collapsed: true},
     },
     {
       name: 'secondaryButton',
       title: 'Secondary Button',
-      options: { columns: 2, collapsible: true, collapsed: false },
+      options: {columns: 2, collapsible: true, collapsed: false},
     },
-    { name: 'header', title: '1. Header', options: { collapsible: true, collapsed: true } },
+    {name: 'header', title: '1. Header', options: {collapsible: true, collapsed: true}},
     {
       name: 'layoutBase',
       title: '1. Image & Text Layout',
-      options: { collapsible: true, collapsed: true },
+      options: {collapsible: true, collapsed: true},
     },
     {
       name: 'sideBySide',
       title: '2. Side-by-Side Layout',
       description: 'Only used when Text Position is "Side by Side".',
-      options: { collapsible: true, collapsed: true },
+      options: {collapsible: true, collapsed: true},
     },
     {
       name: 'overlay',
       title: '3. Image Overlay',
       description: 'Only used when Text Position is "Over Image".',
-      options: { collapsible: true, collapsed: true },
+      options: {collapsible: true, collapsed: true},
     },
   ],
   fields: [
@@ -99,8 +99,8 @@ export const bannerSectionType = defineType({
       description: 'Two ways to present the heading and text together.',
       options: {
         list: [
-          { title: 'Heading + Paragraph', value: 'standard' },
-          { title: 'Eyebrow + Big Headline', value: 'eyebrowHeadline' },
+          {title: 'Heading + Paragraph', value: 'standard'},
+          {title: 'Eyebrow + Big Headline', value: 'eyebrowHeadline'},
         ],
       },
       initialValue: 'standard',
@@ -144,16 +144,16 @@ export const bannerSectionType = defineType({
               name: 'openInNewTab',
               title: 'Open in New Tab',
               type: 'boolean',
-              options: { layout: 'switch' },
+              options: {layout: 'switch'},
               initialValue: false,
-              hidden: ({ parent }) => !parent?.linkUrl,
+              hidden: ({parent}) => !parent?.linkUrl,
             }),
             defineField({
               name: 'imageRadius',
               title: 'Corner Radius',
               type: 'number',
               description: 'Enter a value or drag the slider to round the image corners.',
-              components: { input: RadiusInput },
+              components: {input: RadiusInput},
               validation: (rule) => rule.min(0).max(60),
               initialValue: 0,
             }),
@@ -181,7 +181,7 @@ export const bannerSectionType = defineType({
       type: 'array',
       group: 'content',
       description: 'Click-to-expand questions shown below the banner content.',
-      of: [defineArrayMember({ type: 'accordionItem' })],
+      of: [defineArrayMember({type: 'accordionItem'})],
     }),
 
     // ── Layout ──
@@ -194,10 +194,10 @@ export const bannerSectionType = defineType({
       description: 'How multiple images are arranged, if more than one is added.',
       options: {
         list: [
-          { title: 'Grid', value: 'grid' },
-          { title: 'Stacked List', value: 'list' },
-          { title: 'Full Width', value: 'fullWidth' },
-          { title: 'Padded', value: 'padded' },
+          {title: 'Grid', value: 'grid'},
+          {title: 'Stacked List', value: 'list'},
+          {title: 'Full Width', value: 'fullWidth'},
+          {title: 'Padded', value: 'padded'},
         ],
         layout: 'radio',
       },
@@ -218,8 +218,8 @@ export const bannerSectionType = defineType({
       description:
         'Every first image in each group of 5 becomes a larger featured tile, instead of a uniform grid. ' +
         'Needs the Grid image layout above — not yet visually implemented; this toggle has no effect yet.',
-      hidden: ({ parent }) => parent?.imageLayout !== 'grid',
-      options: { layout: 'switch' },
+      hidden: ({parent}) => parent?.imageLayout !== 'grid',
+      options: {layout: 'switch'},
       initialValue: false,
     }),
     defineField({
@@ -229,7 +229,7 @@ export const bannerSectionType = defineType({
       group: 'layout',
       fieldset: 'layoutBase',
       description: 'Highlights images in red on hover. Turn off for a static look.',
-      options: { layout: 'switch' },
+      options: {layout: 'switch'},
       initialValue: true,
     }),
     defineField({
@@ -241,11 +241,11 @@ export const bannerSectionType = defineType({
       description: 'Where the heading and text sit relative to the image.',
       options: {
         list: [
-          { title: 'Above Image', value: 'aboveImage' },
-          { title: 'Over Image', value: 'overImage' },
-          { title: 'Below Image', value: 'belowImage' },
-          { title: 'Boxed (Title → Image → Text)', value: 'boxLayout' },
-          { title: 'Side by Side', value: 'besideImage' },
+          {title: 'Above Image', value: 'aboveImage'},
+          {title: 'Over Image', value: 'overImage'},
+          {title: 'Below Image', value: 'belowImage'},
+          {title: 'Boxed (Title → Image → Text)', value: 'boxLayout'},
+          {title: 'Side by Side', value: 'besideImage'},
         ],
         layout: 'radio',
       },
@@ -260,11 +260,11 @@ export const bannerSectionType = defineType({
       group: 'layout',
       fieldset: 'sideBySide',
       description: 'Content (heading, text, buttons) sits on the opposite side.',
-      hidden: ({ parent }) => parent?.textPosition !== 'besideImage',
+      hidden: ({parent}) => parent?.textPosition !== 'besideImage',
       options: {
         list: [
-          { title: 'Image Left · Content Right', value: 'left' },
-          { title: 'Image Right · Content Left', value: 'right' },
+          {title: 'Image Left · Content Right', value: 'left'},
+          {title: 'Image Right · Content Left', value: 'right'},
         ],
         layout: 'radio',
       },
@@ -277,11 +277,11 @@ export const bannerSectionType = defineType({
       group: 'layout',
       fieldset: 'sideBySide',
       description: 'Optional alternative to the field above. Leave blank to use that instead.',
-      hidden: ({ parent }) => parent?.textPosition !== 'besideImage',
+      hidden: ({parent}) => parent?.textPosition !== 'besideImage',
       options: {
         list: [
-          { title: 'Accordion Left · Image Right', value: 'left' },
-          { title: 'Accordion Right · Image Left', value: 'right' },
+          {title: 'Accordion Left · Image Right', value: 'left'},
+          {title: 'Accordion Right · Image Left', value: 'right'},
         ],
         layout: 'radio',
       },
@@ -293,15 +293,15 @@ export const bannerSectionType = defineType({
       group: 'layout',
       fieldset: 'sideBySide',
       description: 'How much of the row the image takes up.',
-      hidden: ({ parent }) => parent?.textPosition !== 'besideImage',
-      components: { input: ScaleInput },
+      hidden: ({parent}) => parent?.textPosition !== 'besideImage',
+      components: {input: ScaleInput},
       options: {
         list: [
-          { title: '30%', value: '30' },
-          { title: '40%', value: '40' },
-          { title: 'Equal Split', value: '50' },
-          { title: '60%', value: '60' },
-          { title: '70%', value: '70' },
+          {title: '30%', value: '30'},
+          {title: '40%', value: '40'},
+          {title: 'Equal Split', value: '50'},
+          {title: '60%', value: '60'},
+          {title: '70%', value: '70'},
         ],
       },
       initialValue: '50',
@@ -313,12 +313,12 @@ export const bannerSectionType = defineType({
       group: 'layout',
       fieldset: 'sideBySide',
       description: 'Where the text sits top-to-bottom next to the image.',
-      hidden: ({ parent }) => parent?.textPosition !== 'besideImage',
+      hidden: ({parent}) => parent?.textPosition !== 'besideImage',
       options: {
         list: [
-          { title: 'Top', value: 'top' },
-          { title: 'Center', value: 'center' },
-          { title: 'Bottom', value: 'bottom' },
+          {title: 'Top', value: 'top'},
+          {title: 'Center', value: 'center'},
+          {title: 'Bottom', value: 'bottom'},
         ],
         layout: 'radio',
         direction: 'horizontal',
@@ -332,9 +332,9 @@ export const bannerSectionType = defineType({
       group: 'layout',
       fieldset: 'sideBySide',
       description: 'Background behind the text. "Transparent" matches the section.',
-      hidden: ({ parent }) => parent?.textPosition !== 'besideImage',
-      components: { input: ColorPaletteInput },
-      options: { allowTransparent: true } as any,
+      hidden: ({parent}) => parent?.textPosition !== 'besideImage',
+      components: {input: ColorPaletteInput},
+      options: {allowTransparent: true} as any,
       initialValue: 'transparent',
     }),
     defineField({
@@ -344,15 +344,15 @@ export const bannerSectionType = defineType({
       group: 'layout',
       fieldset: 'sideBySide',
       description: 'How tall the image/text row is.',
-      hidden: ({ parent }) => parent?.textPosition !== 'besideImage',
-      components: { input: ScaleInput },
+      hidden: ({parent}) => parent?.textPosition !== 'besideImage',
+      components: {input: ScaleInput},
       options: {
         list: [
-          { title: 'Auto', value: 'auto' },
-          { title: 'Short', value: '300' },
-          { title: 'Medium', value: '450' },
-          { title: 'Tall', value: '600' },
-          { title: 'Full Screen', value: '100vh' },
+          {title: 'Auto', value: 'auto'},
+          {title: 'Short', value: '300'},
+          {title: 'Medium', value: '450'},
+          {title: 'Tall', value: '600'},
+          {title: 'Full Screen', value: '100vh'},
         ],
       },
       initialValue: 'auto',
@@ -365,18 +365,18 @@ export const bannerSectionType = defineType({
       group: 'layout',
       fieldset: 'overlay',
       description: 'Where the heading sits on top of the image.',
-      hidden: ({ parent }) => parent?.textPosition !== 'overImage',
+      hidden: ({parent}) => parent?.textPosition !== 'overImage',
       options: {
         list: [
-          { title: 'Center Left', value: 'centerLeft' },
-          { title: 'Top Left', value: 'topLeft' },
-          { title: 'Top Center', value: 'topCenter' },
-          { title: 'Top Right', value: 'topRight' },
-          { title: 'Center', value: 'center' },
-          { title: 'Center Right', value: 'centerRight' },
-          { title: 'Bottom Left', value: 'bottomLeft' },
-          { title: 'Bottom Center', value: 'bottomCenter' },
-          { title: 'Bottom Right', value: 'bottomRight' },
+          {title: 'Center Left', value: 'centerLeft'},
+          {title: 'Top Left', value: 'topLeft'},
+          {title: 'Top Center', value: 'topCenter'},
+          {title: 'Top Right', value: 'topRight'},
+          {title: 'Center', value: 'center'},
+          {title: 'Center Right', value: 'centerRight'},
+          {title: 'Bottom Left', value: 'bottomLeft'},
+          {title: 'Bottom Center', value: 'bottomCenter'},
+          {title: 'Bottom Right', value: 'bottomRight'},
         ],
       },
       initialValue: 'centerLeft',
@@ -388,14 +388,14 @@ export const bannerSectionType = defineType({
       group: 'layout',
       fieldset: 'overlay',
       description: 'How tall the banner image is.',
-      hidden: ({ parent }) => parent?.textPosition !== 'overImage',
-      components: { input: ScaleInput },
+      hidden: ({parent}) => parent?.textPosition !== 'overImage',
+      components: {input: ScaleInput},
       options: {
         list: [
-          { title: 'Auto', value: 'auto' },
-          { title: 'Compact', value: 'small' },
-          { title: 'Medium', value: 'medium' },
-          { title: 'Tall', value: 'large' },
+          {title: 'Auto', value: 'auto'},
+          {title: 'Compact', value: 'small'},
+          {title: 'Medium', value: 'medium'},
+          {title: 'Tall', value: 'large'},
         ],
       },
       initialValue: 'large',
@@ -407,13 +407,13 @@ export const bannerSectionType = defineType({
       group: 'layout',
       fieldset: 'overlay',
       description: 'Add a dark overlay only if the image is too bright for the text.',
-      hidden: ({ parent }) => parent?.textPosition !== 'overImage',
+      hidden: ({parent}) => parent?.textPosition !== 'overImage',
       options: {
         list: [
-          { title: 'None — clean image (recommended)', value: 'none' },
-          { title: 'Subtle Fade from Left', value: 'darkLeft' },
-          { title: 'Subtle Fade from Bottom', value: 'darkBottom' },
-          { title: 'Light Dark Wash', value: 'darkFull' },
+          {title: 'None — clean image (recommended)', value: 'none'},
+          {title: 'Subtle Fade from Left', value: 'darkLeft'},
+          {title: 'Subtle Fade from Bottom', value: 'darkBottom'},
+          {title: 'Light Dark Wash', value: 'darkFull'},
         ],
       },
       initialValue: 'none',
@@ -427,9 +427,9 @@ export const bannerSectionType = defineType({
       description: 'Which part of the image stays centered when cropped.',
       options: {
         list: [
-          { title: 'Right', value: 'rightCenter' },
-          { title: 'Center', value: 'center' },
-          { title: 'Left', value: 'leftCenter' },
+          {title: 'Right', value: 'rightCenter'},
+          {title: 'Center', value: 'center'},
+          {title: 'Left', value: 'leftCenter'},
         ],
         layout: 'radio',
         direction: 'horizontal',
@@ -452,22 +452,22 @@ export const bannerSectionType = defineType({
       title: 'Section Background & Width (Fallback Theme)',
       type: 'containerConfig',
       group: 'sectionStyles',
-      hidden: ({ parent }) => parent?.enableSectionTheme,
+      hidden: ({parent}) => parent?.enableSectionTheme,
     }),
     defineField({
       name: 'border',
       title: 'Section Border',
       type: 'borderConfig',
       group: 'sectionStyles',
-      hidden: ({ parent }) => parent?.enableSectionTheme,
+      hidden: ({parent}) => parent?.enableSectionTheme,
     }),
 
     // ── Behavior ──
-    ...expandableFields({ group: 'behavior', includeFaqOptions: true }),
+    ...expandableFields({group: 'behavior', includeFaqOptions: true}),
   ],
   preview: {
-    select: { heading: 'sectionHeading', title: 'heading', sequence: 'sequence', media: 'images.0' },
-    prepare({ heading, title, sequence, media }) {
+    select: {heading: 'sectionHeading', title: 'heading', sequence: 'sequence', media: 'images.0'},
+    prepare({heading, title, sequence, media}) {
       return {
         title: heading || title || 'Banner Section',
         subtitle: `#${sequence ?? '—'} · Banner / Hero`,

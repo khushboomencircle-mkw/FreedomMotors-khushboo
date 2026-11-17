@@ -54,7 +54,9 @@ async function main() {
     return
   }
 
-  console.log(`Found ${hits.length} section(s) to backfill across ${new Set(hits.map((h) => h.docId)).size} document(s):\n`)
+  console.log(
+    `Found ${hits.length} section(s) to backfill across ${new Set(hits.map((h) => h.docId)).size} document(s):\n`,
+  )
   for (const h of hits) {
     console.log(`[${h.docType} ${h.docId}] sections[_key=="${h.sectionKey}"] (${h.sectionType})`)
   }
@@ -70,7 +72,9 @@ async function main() {
   for (const [docId, docHits] of byDoc) {
     const setFields = Object.assign(
       {},
-      ...docHits.map((h) => ({[`sections[_key=="${h.sectionKey}"].container.enableBackgroundImage`]: true})),
+      ...docHits.map((h) => ({
+        [`sections[_key=="${h.sectionKey}"].container.enableBackgroundImage`]: true,
+      })),
     )
     await client.patch(docId).set(setFields).commit()
     console.log(`Patched ${docId} (${docHits.length} section${docHits.length === 1 ? '' : 's'}).`)

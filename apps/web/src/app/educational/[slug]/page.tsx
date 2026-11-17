@@ -1,27 +1,27 @@
-import type { Metadata } from 'next'
-import { notFound } from 'next/navigation'
-import { Fragment, Suspense } from 'react'
+import type {Metadata} from 'next'
+import {notFound} from 'next/navigation'
+import {Fragment, Suspense} from 'react'
 import Link from 'next/link'
-import { getAllEducationalArticleSlugs, getEducationalArticleBySlug } from '@/sanity/queries'
+import {getAllEducationalArticleSlugs, getEducationalArticleBySlug} from '@/sanity/queries'
 import RichText from '@/components/RichText'
 import SanityErrorState from '@/components/SanityErrorState'
-import { NO_IMAGE_FALLBACK_URL } from '@/components/PageSection'
-import { seoToMetadata } from '@/lib/seo'
+import {NO_IMAGE_FALLBACK_URL} from '@/components/PageSection'
+import {seoToMetadata} from '@/lib/seo'
 
 // Independent of /[slug]'s own generateStaticParams — a separate document
 // type with its own slug namespace, so there's no shared list to merge and
 // no collision risk with customPage (the route paths never overlap).
 export async function generateStaticParams() {
-  const slugs: { slug: string }[] = await getAllEducationalArticleSlugs()
-  return slugs.map(({ slug }) => ({ slug }))
+  const slugs: {slug: string}[] = await getAllEducationalArticleSlugs()
+  return slugs.map(({slug}) => ({slug}))
 }
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>
+  params: Promise<{slug: string}>
 }): Promise<Metadata> {
-  const { slug } = await params
+  const {slug} = await params
 
   try {
     const article = await getEducationalArticleBySlug(slug)
@@ -33,7 +33,7 @@ export async function generateMetadata({
   }
 }
 
-async function PageContent({ slug }: { slug: string }) {
+async function PageContent({slug}: {slug: string}) {
   let article
 
   try {
@@ -49,10 +49,7 @@ async function PageContent({ slug }: { slug: string }) {
 
   return (
     <Fragment>
-      <nav
-        aria-label="Breadcrumb"
-        className="w-full mb-14 px-6 py-5"
-      >
+      <nav aria-label="Breadcrumb" className="w-full mb-14 px-6 py-5">
         <ol className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
           <li>
             <Link href="/" className="hover:text-black">
@@ -70,9 +67,7 @@ async function PageContent({ slug }: { slug: string }) {
 
           <li aria-hidden="true">/</li>
 
-          <li className="font-bold text-gray-700">
-            {article.title}
-          </li>
+          <li className="font-bold text-gray-700">{article.title}</li>
         </ol>
       </nav>
       <article className="w-full max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -95,7 +90,10 @@ async function PageContent({ slug }: { slug: string }) {
         )}
 
         {article.description && (
-          <RichText value={article.description} className="text-lg text-[var(--theme-muted,#d1d5db)] leading-relaxed" />
+          <RichText
+            value={article.description}
+            className="text-lg text-[var(--theme-muted,#d1d5db)] leading-relaxed"
+          />
         )}
 
         {article.categories && article.categories.length > 0 && (
@@ -105,7 +103,7 @@ async function PageContent({ slug }: { slug: string }) {
             </h2>
 
             <div className="flex flex-wrap gap-2">
-              {article.categories.map((cat: { slug: string; title?: string }) => (
+              {article.categories.map((cat: {slug: string; title?: string}) => (
                 <Link
                   key={cat.slug}
                   href={`/category/${cat.slug}`}
@@ -122,15 +120,17 @@ async function PageContent({ slug }: { slug: string }) {
   )
 }
 
-export default async function EducationalArticlePage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params
+export default async function EducationalArticlePage({params}: {params: Promise<{slug: string}>}) {
+  const {slug} = await params
 
   return (
     <div
       className="min-h-screen overflow-x-hidden"
       style={{background: 'var(--theme-bg, #121212)', color: 'var(--theme-text, #ffffff)'}}
     >
-      <Suspense fallback={<p className="text-[var(--theme-muted,#9ca3af)] text-center py-24">Loading...</p>}>
+      <Suspense
+        fallback={<p className="text-[var(--theme-muted,#9ca3af)] text-center py-24">Loading...</p>}
+      >
         <PageContent slug={slug} />
       </Suspense>
     </div>

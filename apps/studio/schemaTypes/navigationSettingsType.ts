@@ -2,6 +2,7 @@ import {defineArrayMember, defineField, defineType} from 'sanity'
 import {MenuIcon} from '@sanity/icons/Menu'
 import ProtectedNavLinksInput from './components/ProtectedNavLinksInput'
 import ProtectedNavLinkItem from './components/ProtectedNavLinkItem'
+import NavLinkItemInput from './components/NavLinkItemInput'
 import {validateProtectedLinks, type NavLinkValue} from './navLinkProtection'
 
 /**
@@ -20,15 +21,87 @@ export const navigationSettingsType = defineType({
   // All built-in pages default to header-only; editors can toggle footer per link.
   initialValue: {
     links: [
-      {_type: 'navigationLink', _key: 'nav-vehicles',         label: 'VEHICLES',             href: '/vehicles',                                        openInNewTab: false, showInHeader: true,  showInFooter: false},
-      {_type: 'navigationLink', _key: 'nav-drivers',          label: 'DRIVERS',              href: '/drivers',                                         openInNewTab: false, showInHeader: true,  showInFooter: false},
-      {_type: 'navigationLink', _key: 'nav-vehicle',          label: 'CONVERT YOUR VEHICLE', href: '/convert-your-vehicle',                            openInNewTab: false, showInHeader: true,  showInFooter: false},
-      {_type: 'navigationLink', _key: 'nav-commercial',       label: 'COMMERCIAL',           href: '/commercial',                                      openInNewTab: false, showInHeader: true,  showInFooter: false},
-      {_type: 'navigationLink', _key: 'nav-our-story',        label: 'OUR STORY',            href: '/our-story',                                       openInNewTab: false, showInHeader: true,  showInFooter: true},
-      {_type: 'navigationLink', _key: 'nav-contact',          label: 'CONTACT',              href: '/contact',                                         openInNewTab: false, showInHeader: true,  showInFooter: true},
-      {_type: 'navigationLink', _key: 'nav-careers',          label: 'CAREERS',              href: 'https://freedom-motors-usa.careerplug.com/',       openInNewTab: false, showInHeader: true,  showInFooter: true},
-      {_type: 'navigationLink', _key: 'nav-privacy-policy',   label: 'PRIVACY POLICY',       href: '/privacy-policy',                                  openInNewTab: false, showInHeader: false, showInFooter: true},
-      {_type: 'navigationLink', _key: 'nav-educational',      label: 'EDUCATIONAL',          href: '/educational',                                     openInNewTab: false, showInHeader: false, showInFooter: true},
+      {
+        _type: 'navigationLink',
+        _key: 'nav-vehicles',
+        label: 'VEHICLES',
+        href: '/vehicles',
+        openInNewTab: false,
+        showInHeader: true,
+        showInFooter: false,
+      },
+      {
+        _type: 'navigationLink',
+        _key: 'nav-drivers',
+        label: 'DRIVERS',
+        href: '/drivers',
+        openInNewTab: false,
+        showInHeader: true,
+        showInFooter: false,
+      },
+      {
+        _type: 'navigationLink',
+        _key: 'nav-vehicle',
+        label: 'CONVERT YOUR VEHICLE',
+        href: '/convert-your-vehicle',
+        openInNewTab: false,
+        showInHeader: true,
+        showInFooter: false,
+      },
+      {
+        _type: 'navigationLink',
+        _key: 'nav-commercial',
+        label: 'COMMERCIAL',
+        href: '/commercial',
+        openInNewTab: false,
+        showInHeader: true,
+        showInFooter: false,
+      },
+      {
+        _type: 'navigationLink',
+        _key: 'nav-our-story',
+        label: 'OUR STORY',
+        href: '/our-story',
+        openInNewTab: false,
+        showInHeader: true,
+        showInFooter: true,
+      },
+      {
+        _type: 'navigationLink',
+        _key: 'nav-contact',
+        label: 'CONTACT',
+        href: '/contact',
+        openInNewTab: false,
+        showInHeader: true,
+        showInFooter: true,
+      },
+      {
+        _type: 'navigationLink',
+        _key: 'nav-careers',
+        label: 'CAREERS',
+        href: 'https://freedom-motors-usa.careerplug.com/',
+        openInNewTab: false,
+        showInHeader: true,
+        showInFooter: true,
+      },
+      {
+        _type: 'navigationLink',
+        _key: 'nav-privacy-policy',
+        label: 'PRIVACY POLICY',
+        href: '/privacy-policy',
+        openInNewTab: false,
+        showInHeader: false,
+        showInFooter: true,
+      },
+      {
+        _type: 'navigationLink',
+        _key: 'nav-educational',
+        label: 'EDUCATIONAL',
+        href: '/educational',
+        openInNewTab: false,
+        showInHeader: false,
+        showInFooter: true,
+      },
     ],
   },
   fields: [
@@ -40,10 +113,19 @@ export const navigationSettingsType = defineType({
         'All nav links in one list — toggle where each one shows (header, footer, or both). ' +
         'A link only appears on the site while a published page is behind it.',
       components: {input: ProtectedNavLinksInput},
-      of: [defineArrayMember({type: 'navigationLink', components: {item: ProtectedNavLinkItem}})],
+      // `components` here replaces (not merges with) the link type's own, so `input` must be
+      // repeated: it auto-fills Link Path from Nav Label.
+      of: [
+        defineArrayMember({
+          type: 'navigationLink',
+          components: {item: ProtectedNavLinkItem, input: NavLinkItemInput},
+        }),
+      ],
       // Protection must not depend on initialValue: existing documents never receive it.
       validation: (Rule) =>
-        Rule.custom<NavLinkValue[]>((links, context) => validateProtectedLinks(links, context.getClient)),
+        Rule.custom<NavLinkValue[]>((links, context) =>
+          validateProtectedLinks(links, context.getClient),
+        ),
     }),
   ],
   preview: {

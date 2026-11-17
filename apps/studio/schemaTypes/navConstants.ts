@@ -1,8 +1,3 @@
-/**
- * Single source of truth for "built-in": pages built in code (apps/web/src/app), as nav hrefs.
- * Their nav links can never be removed or re-pointed, and no Landing Page may take their URL.
- * Keep in sync with BUILT_IN_NAV_HREFS in apps/web/src/sanity/queries.ts (separate app, own copy).
- */
 export const BUILT_IN_NAV_HREFS = new Set([
   '/vehicles',
   '/drivers',

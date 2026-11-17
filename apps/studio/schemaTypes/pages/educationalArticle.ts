@@ -54,7 +54,7 @@ export const educationalArticleType = defineType({
       title: 'URL Slug',
       type: 'slug',
       group: 'content',
-      description: 'The article\'s address: /educational/<slug>.',
+      description: "The article's address: /educational/<slug>.",
       options: {source: 'title', maxLength: 96, isUnique: isUniqueAcrossArticles},
       validation: (rule) => rule.required(),
     }),
@@ -63,7 +63,8 @@ export const educationalArticleType = defineType({
       title: 'Eyebrow / Category Label',
       type: 'string',
       group: 'content',
-      description: 'Short category label shown above the title (e.g. "Accessible SUVs," "Lifestyle").',
+      description:
+        'Short category label shown above the title (e.g. "Accessible SUVs," "Lifestyle").',
     }),
     defineField({
       name: 'categories',
@@ -95,7 +96,13 @@ export const educationalArticleType = defineType({
     }),
   ],
   preview: {
-    select: {title: 'title', eyebrow: 'eyebrow', slug: 'slug.current', media: 'image.image', isActive: 'isActive'},
+    select: {
+      title: 'title',
+      eyebrow: 'eyebrow',
+      slug: 'slug.current',
+      media: 'image.image',
+      isActive: 'isActive',
+    },
     prepare({title, eyebrow, slug, media, isActive}) {
       return {
         title: title || 'Untitled Article',

@@ -1,13 +1,12 @@
-import type { Metadata } from 'next'
-import { getOurStoryPage } from '@/sanity/queries'
-import { Suspense } from 'react'
-import PageSection, { Section } from '@/components/PageSection'
+import type {Metadata} from 'next'
+import {getOurStoryPage} from '@/sanity/queries'
+import {Suspense} from 'react'
+import PageSection, {Section} from '@/components/PageSection'
 import SanityErrorState from '@/components/SanityErrorState'
 import RichText from '@/components/RichText'
-import { seoToMetadata } from '@/lib/seo'
+import {seoToMetadata} from '@/lib/seo'
 
 export async function generateMetadata(): Promise<Metadata> {
-
   try {
     const page = await getOurStoryPage()
 
@@ -39,9 +38,7 @@ async function PageContent() {
   if (!page) {
     return (
       <div className="text-center py-24">
-        <p className="text-gray-400 text-lg">
-          Page not configured yet.
-        </p>
+        <p className="text-gray-400 text-lg">Page not configured yet.</p>
         <p className="text-gray-500 text-sm mt-2">
           Create an &quot;Our Story Page&quot; document in Sanity Studio.
         </p>
@@ -58,7 +55,10 @@ async function PageContent() {
           </h1>
 
           {page.pageDescription && (
-            <RichText value={page.pageDescription} className="mt-4 text-lg text-gray-300 max-w-3xl mx-auto" />
+            <RichText
+              value={page.pageDescription}
+              className="mt-4 text-lg text-gray-300 max-w-3xl mx-auto"
+            />
           )}
         </div>
       )}
@@ -78,13 +78,7 @@ export default function OurStoryPage() {
       className="min-h-screen overflow-x-hidden"
       style={{background: 'var(--theme-bg, #121212)', color: 'var(--theme-text, #ffffff)'}}
     >
-      <Suspense
-        fallback={
-          <p className="text-gray-400 text-center py-24">
-            Loading...
-          </p>
-        }
-      >
+      <Suspense fallback={<p className="text-gray-400 text-center py-24">Loading...</p>}>
         <PageContent />
       </Suspense>
     </div>

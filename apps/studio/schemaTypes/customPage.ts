@@ -13,14 +13,14 @@
  * and renaming the type would break all of them until a dataset migration
  * runs (same class of risk as any live-field rename).
  */
-import { defineField, defineType, type SlugIsUniqueValidator, type ValidationContext } from 'sanity'
-import { DocumentTextIcon } from '@sanity/icons/DocumentText'
-import { allSectionMembers } from './sections'
+import {defineField, defineType, type SlugIsUniqueValidator, type ValidationContext} from 'sanity'
+import {DocumentTextIcon} from '@sanity/icons/DocumentText'
+import {allSectionMembers} from './sections'
 import NavLinkPickerInput from './components/NavLinkPickerInput'
-import { isReservedSlug } from './navConstants'
-import { pageChromeFieldsets } from './fields/pageChrome'
-import { sectionsArrayValidation } from './fields/sectionFields'
-import { richTextOf } from './fields/richText'
+import {isReservedSlug} from './navConstants'
+import {pageChromeFieldsets} from './fields/pageChrome'
+import {sectionsArrayValidation} from './fields/sectionFields'
+import {richTextOf} from './fields/richText'
 
 /**
  * Walks a page template's seeded `sections` value and collects every string
@@ -43,7 +43,11 @@ function findPlaceholderStrings(value: unknown, path = ''): string[] {
   return []
 }
 
-const normalizeSlug = (slug?: string) => (slug || '').trim().replace(/^\/+|\/+$/g, '').toLowerCase()
+const normalizeSlug = (slug?: string) =>
+  (slug || '')
+    .trim()
+    .replace(/^\/+|\/+$/g, '')
+    .toLowerCase()
 
 // True when no OTHER custom page (draft or published) already uses this slug.
 async function isSlugFreeAcrossCustomPages(
@@ -52,9 +56,9 @@ async function isSlugFreeAcrossCustomPages(
   getClient: ValidationContext['getClient'],
 ) {
   const id = (documentId || '').replace(/^drafts\./, '')
-  const count = await getClient({ apiVersion: '2024-01-01' }).fetch(
+  const count = await getClient({apiVersion: '2024-01-01'}).fetch(
     `count(*[_type == "customPage" && lower(slug.current) == $slug && !(_id in [$draft, $published])])`,
-    { slug: normalizeSlug(slug), draft: `drafts.${id}`, published: id },
+    {slug: normalizeSlug(slug), draft: `drafts.${id}`, published: id},
   )
   return count === 0
 }
@@ -67,11 +71,11 @@ export const customPage = defineType({
   title: 'Landing Page',
   type: 'document',
   icon: DocumentTextIcon,
-  components: { input: NavLinkPickerInput },
+  components: {input: NavLinkPickerInput},
   groups: [
-    { name: 'content', title: 'Content', default: true },
-    { name: 'navigation', title: 'Navigation' },
-    { name: 'seo', title: 'SEO' },
+    {name: 'content', title: 'Content', default: true},
+    {name: 'navigation', title: 'Navigation'},
+    {name: 'seo', title: 'SEO'},
   ],
   fieldsets: [...pageChromeFieldsets],
   fields: [
@@ -82,7 +86,7 @@ export const customPage = defineType({
       type: 'boolean',
       group: 'content',
       description: 'Show this page in header/footer navigation.',
-      options: { layout: 'switch' },
+      options: {layout: 'switch'},
       initialValue: true,
     }),
     defineField({
@@ -115,7 +119,9 @@ export const customPage = defineType({
           if (isReservedSlug(slug)) {
             return `"/${slug}" is already a built-in page on the website. Please choose a different URL.`
           }
-          if (!(await isSlugFreeAcrossCustomPages(slug, context.document?._id, context.getClient))) {
+          if (
+            !(await isSlugFreeAcrossCustomPages(slug, context.document?._id, context.getClient))
+          ) {
             return `"/${slug}" is already used by another page. Please choose a different URL.`
           }
           return true
@@ -161,7 +167,7 @@ export const customPage = defineType({
       type: 'boolean',
       group: 'navigation',
       description: 'Adds this page as a link in the site header.',
-      options: { layout: 'switch' },
+      options: {layout: 'switch'},
       initialValue: false,
     }),
     defineField({
@@ -170,7 +176,7 @@ export const customPage = defineType({
       type: 'string',
       group: 'navigation',
       description: 'Label shown in the header menu. Defaults to the page title.',
-      hidden: ({ parent }) => !parent?.showInNavigation,
+      hidden: ({parent}) => !parent?.showInNavigation,
     }),
     defineField({
       name: 'navOrder',
@@ -179,16 +185,16 @@ export const customPage = defineType({
       group: 'navigation',
       description: 'Lower numbers appear first in the header menu.',
       initialValue: 0,
-      hidden: ({ parent }) => !parent?.showInNavigation,
+      hidden: ({parent}) => !parent?.showInNavigation,
     }),
     defineField({
       name: 'openInNewTab',
       title: 'Open in New Tab',
       type: 'boolean',
       group: 'navigation',
-      options: { layout: 'switch' },
+      options: {layout: 'switch'},
       initialValue: false,
-      hidden: ({ parent }) => !parent?.showInNavigation,
+      hidden: ({parent}) => !parent?.showInNavigation,
     }),
 
     // ── Header & Footer ──
@@ -199,7 +205,7 @@ export const customPage = defineType({
       group: 'navigation',
       fieldset: 'chrome',
       description: 'Show the site header (navigation bar) on this page.',
-      options: { layout: 'switch' },
+      options: {layout: 'switch'},
       initialValue: true,
     }),
     defineField({
@@ -209,7 +215,7 @@ export const customPage = defineType({
       group: 'navigation',
       fieldset: 'chrome',
       description: 'Show the site footer on this page.',
-      options: { layout: 'switch' },
+      options: {layout: 'switch'},
       initialValue: true,
     }),
 
@@ -230,12 +236,13 @@ export const customPage = defineType({
       showInNavigation: 'showInNavigation',
       isActive: 'isActive',
     },
-    prepare({ title, slug, sections, showInNavigation, isActive }) {
+    prepare({title, slug, sections, showInNavigation, isActive}) {
       const count = sections?.length || 0
       return {
         title: title || 'Untitled Page',
-        subtitle: `/${slug || ''} · ${count} section${count === 1 ? '' : 's'}${showInNavigation ? ' · In Nav' : ''
-          }${isActive ? '' : ' · Inactive'}`,
+        subtitle: `/${slug || ''} · ${count} section${count === 1 ? '' : 's'}${
+          showInNavigation ? ' · In Nav' : ''
+        }${isActive ? '' : ' · Inactive'}`,
         media: DocumentTextIcon,
       }
     },

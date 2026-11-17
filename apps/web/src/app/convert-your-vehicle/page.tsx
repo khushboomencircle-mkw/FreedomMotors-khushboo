@@ -14,13 +14,15 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 async function PageContent() {
-  const response = await fetch("https://content.homenetiol.com/2003316/2228166/0x0/422bc78ada164f5dab980b2c56866188.jpg");
-  
-    if (!response.ok) {
-      throw new Error('Unable to download source image');
-    }
-    console.log("response : ", response)
-    const imageBuffer = Buffer.from(await response.arrayBuffer());
+  const response = await fetch(
+    'https://content.homenetiol.com/2003316/2228166/0x0/422bc78ada164f5dab980b2c56866188.jpg',
+  )
+
+  if (!response.ok) {
+    throw new Error('Unable to download source image')
+  }
+  console.log('response : ', response)
+  const imageBuffer = Buffer.from(await response.arrayBuffer())
   const page = await getConvertVehicle2()
 
   if (!page) {
@@ -42,7 +44,10 @@ async function PageContent() {
             {page.pageTitle}
           </h1>
           {page.pageDescription && (
-            <RichText value={page.pageDescription} className="mt-4 text-lg text-gray-300 max-w-3xl mx-auto" />
+            <RichText
+              value={page.pageDescription}
+              className="mt-4 text-lg text-gray-300 max-w-3xl mx-auto"
+            />
           )}
         </div>
       )}

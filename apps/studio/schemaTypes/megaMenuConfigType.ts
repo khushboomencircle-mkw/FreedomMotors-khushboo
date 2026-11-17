@@ -3,9 +3,7 @@
  * embedded inside a navigation link's mega menu configuration.
  */
 import {defineArrayMember, defineField, defineType} from 'sanity'
-import {
-  buttonFields,
-} from './fields/sectionFields'
+import {buttonFields} from './fields/sectionFields'
 import ScaleInput from './components/ScaleInput'
 import ScaleField from './components/ScaleField'
 import ColorPaletteInput from './components/ColorPaletteInput'
@@ -25,13 +23,37 @@ export const megaMenuConfigType = defineType({
   ],
   fieldsets: [
     {name: 'footer', title: 'Footer CTA', options: {collapsible: true, collapsed: true}},
-    {name: 'primaryButton', title: 'CTA Button', options: {columns: 2, collapsible: true, collapsed: true}},
-    {name: 'displaySetup', title: '1. Display Mode', options: {collapsible: true, collapsed: false}},
-    {name: 'scrollNav', title: '2. Scroll Navigation', options: {collapsible: true, collapsed: true}},
-    {name: 'cardSizing', title: '3. Card Size', options: {columns: 3, collapsible: true, collapsed: true}},
-    {name: 'cardStyle', title: '4. Card Style', options: {columns: 1, collapsible: true, collapsed: true}},
+    {
+      name: 'primaryButton',
+      title: 'CTA Button',
+      options: {columns: 2, collapsible: true, collapsed: true},
+    },
+    {
+      name: 'displaySetup',
+      title: '1. Display Mode',
+      options: {collapsible: true, collapsed: false},
+    },
+    {
+      name: 'scrollNav',
+      title: '2. Scroll Navigation',
+      options: {collapsible: true, collapsed: true},
+    },
+    {
+      name: 'cardSizing',
+      title: '3. Card Size',
+      options: {columns: 3, collapsible: true, collapsed: true},
+    },
+    {
+      name: 'cardStyle',
+      title: '4. Card Style',
+      options: {columns: 1, collapsible: true, collapsed: true},
+    },
     {name: 'playBtn', title: '5. Play Button', options: {collapsible: true, collapsed: true}},
-    {name: 'contentPos', title: '6. Content Position', options: {columns: 2, collapsible: true, collapsed: true}},
+    {
+      name: 'contentPos',
+      title: '6. Content Position',
+      options: {columns: 2, collapsible: true, collapsed: true},
+    },
   ],
 
   fields: [
@@ -203,7 +225,8 @@ export const megaMenuConfigType = defineType({
       type: 'number',
       group: 'layout',
       fieldset: 'scrollNav',
-      hidden: ({parent}) => parent?.featureDisplayMode !== 'horizontalScroll' || !parent?.sliderAutoPlay,
+      hidden: ({parent}) =>
+        parent?.featureDisplayMode !== 'horizontalScroll' || !parent?.sliderAutoPlay,
       initialValue: 3000,
       validation: (rule) => rule.min(500).max(10000),
     }),
@@ -341,7 +364,7 @@ export const megaMenuConfigType = defineType({
       type: 'string',
       group: 'layout',
       fieldset: 'cardStyle',
-      description: 'Tint on hover. Leave blank for each card\'s own accent color.',
+      description: "Tint on hover. Leave blank for each card's own accent color.",
       components: {input: ColorPaletteInput, field: FullWidthDescField},
       options: {allowTransparent: true} as any,
     }),

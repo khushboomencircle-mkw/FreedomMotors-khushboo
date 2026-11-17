@@ -12,9 +12,9 @@
  * Each builder returns an array of defineField() calls (or a single field).
  * Pass `group` to assign all returned fields to a Sanity field group.
  */
-import { defineField } from 'sanity'
+import {defineField} from 'sanity'
 import ColorPaletteInput from '../components/ColorPaletteInput'
-import { richTextOf } from './richText'
+import {richTextOf} from './richText'
 
 // ─── Sequence / Ordering ────────────────────────────
 
@@ -94,7 +94,7 @@ interface ButtonOpts {
 }
 
 export function buttonFields(opts: ButtonOpts = {}) {
-  const { group, includeSecondary = false, includeOverlay = false, includeStyle = true } = opts
+  const {group, includeSecondary = false, includeOverlay = false, includeStyle = true} = opts
 
   return [
     defineField({
@@ -102,7 +102,7 @@ export function buttonFields(opts: ButtonOpts = {}) {
       title: 'Show a Button',
       type: 'boolean',
       group,
-      options: { layout: 'switch' },
+      options: {layout: 'switch'},
       initialValue: false,
     }),
     defineField({
@@ -111,7 +111,7 @@ export function buttonFields(opts: ButtonOpts = {}) {
       type: 'string',
       group,
       fieldset: 'primaryButton',
-      hidden: ({ parent }) => !parent?.showButton,
+      hidden: ({parent}) => !parent?.showButton,
     }),
     defineField({
       name: 'buttonLinkUrl',
@@ -121,7 +121,7 @@ export function buttonFields(opts: ButtonOpts = {}) {
       fieldset: 'primaryButton',
       description: 'Path (/about/) or full URL (https://…).',
       placeholder: '/about/',
-      hidden: ({ parent }) => !parent?.showButton,
+      hidden: ({parent}) => !parent?.showButton,
     }),
     // Legacy — hidden so saved content still renders.
     defineField({
@@ -133,122 +133,122 @@ export function buttonFields(opts: ButtonOpts = {}) {
     }),
     ...(includeStyle
       ? [
-        defineField({
-          name: 'buttonStyle',
-          title: 'Button Background',
-          type: 'string',
-          group,
-          fieldset: 'primaryButton',
-          hidden: ({ parent }) => !parent?.showButton,
-          components: { input: ColorPaletteInput },
-          initialValue: '#dc2626',
-        }),
-        defineField({
-          name: 'buttonTextColor',
-          title: 'Button Text Color',
-          type: 'string',
-          group,
-          fieldset: 'primaryButton',
-          hidden: ({ parent }) => !parent?.showButton,
-          components: { input: ColorPaletteInput },
-          initialValue: '#ffffff',
-        }),
-        defineField({
-          name: 'buttonRadius',
-          title: 'Corner Radius (px)',
-          type: 'number',
-          group,
-          fieldset: 'primaryButton',
-          hidden: ({ parent }) => !parent?.showButton,
-          description: '0 = square, 4 = slightly rounded, 9999 = pill.',
-          validation: (rule) => rule.min(0).max(9999),
-          initialValue: 0,
-        }),
-      ]
+          defineField({
+            name: 'buttonStyle',
+            title: 'Button Background',
+            type: 'string',
+            group,
+            fieldset: 'primaryButton',
+            hidden: ({parent}) => !parent?.showButton,
+            components: {input: ColorPaletteInput},
+            initialValue: '#dc2626',
+          }),
+          defineField({
+            name: 'buttonTextColor',
+            title: 'Button Text Color',
+            type: 'string',
+            group,
+            fieldset: 'primaryButton',
+            hidden: ({parent}) => !parent?.showButton,
+            components: {input: ColorPaletteInput},
+            initialValue: '#ffffff',
+          }),
+          defineField({
+            name: 'buttonRadius',
+            title: 'Corner Radius (px)',
+            type: 'number',
+            group,
+            fieldset: 'primaryButton',
+            hidden: ({parent}) => !parent?.showButton,
+            description: '0 = square, 4 = slightly rounded, 9999 = pill.',
+            validation: (rule) => rule.min(0).max(9999),
+            initialValue: 0,
+          }),
+        ]
       : []),
     ...(includeOverlay
       ? [
-        defineField({
-          name: 'buttonOverlay',
-          title: 'Float Over Image',
-          type: 'boolean',
-          group,
-          fieldset: 'primaryButton',
-          description: 'Places the button on top of the image instead of below it.',
-          options: { layout: 'switch' },
-          hidden: ({ parent }) => !parent?.showButton,
-          initialValue: false,
-        }),
-      ]
+          defineField({
+            name: 'buttonOverlay',
+            title: 'Float Over Image',
+            type: 'boolean',
+            group,
+            fieldset: 'primaryButton',
+            description: 'Places the button on top of the image instead of below it.',
+            options: {layout: 'switch'},
+            hidden: ({parent}) => !parent?.showButton,
+            initialValue: false,
+          }),
+        ]
       : []),
     ...(includeSecondary
       ? [
-        defineField({
-          name: 'showSecondaryButton',
-          title: 'Show a Second Button',
-          type: 'boolean',
-          group,
-          options: { layout: 'switch' },
-          hidden: ({ parent }) => !parent?.showButton,
-          initialValue: false,
-        }),
-        defineField({
-          name: 'secondaryButtonLabel',
-          title: 'Second Button Text',
-          type: 'string',
-          group,
-          fieldset: 'secondaryButton',
-          hidden: ({ parent }) => !parent?.showSecondaryButton,
-        }),
-        defineField({
-          name: 'secondaryButtonLinkUrl',
-          title: 'Second Button Destination',
-          type: 'string',
-          group,
-          fieldset: 'secondaryButton',
-          placeholder: '/about/',
-          hidden: ({ parent }) => !parent?.showSecondaryButton,
-        }),
-        defineField({
-          name: 'secondaryButtonLink',
-          title: 'Second Button Destination (legacy)',
-          type: 'linkEndpoint',
-          group,
-          hidden: true,
-        }),
-        defineField({
-          name: 'secondaryButtonStyle',
-          title: 'Second Button Background',
-          type: 'string',
-          group,
-          fieldset: 'secondaryButton',
-          hidden: ({ parent }) => !parent?.showSecondaryButton,
-          components: { input: ColorPaletteInput },
-          options: {allowTransparent: true} as any,
-          initialValue: 'transparent',
-        }),
-        defineField({
-          name: 'secondaryButtonTextColor',
-          title: 'Second Button Text Color',
-          type: 'string',
-          group,
-          fieldset: 'secondaryButton',
-          hidden: ({ parent }) => !parent?.showSecondaryButton,
-          components: { input: ColorPaletteInput },
-          initialValue: '#ffffff',
-        }),
-        defineField({
-          name: 'secondaryButtonRadius',
-          title: 'Corner Radius (px)',
-          type: 'number',
-          group,
-          fieldset: 'secondaryButton',
-          hidden: ({ parent }) => !parent?.showSecondaryButton,
-          description: '0 = square, 4 = slightly rounded, 9999 = pill.',
-          validation: (rule) => rule.min(0).max(9999),
-          initialValue: 0,
-        }),
-      ]
+          defineField({
+            name: 'showSecondaryButton',
+            title: 'Show a Second Button',
+            type: 'boolean',
+            group,
+            options: {layout: 'switch'},
+            hidden: ({parent}) => !parent?.showButton,
+            initialValue: false,
+          }),
+          defineField({
+            name: 'secondaryButtonLabel',
+            title: 'Second Button Text',
+            type: 'string',
+            group,
+            fieldset: 'secondaryButton',
+            hidden: ({parent}) => !parent?.showSecondaryButton,
+          }),
+          defineField({
+            name: 'secondaryButtonLinkUrl',
+            title: 'Second Button Destination',
+            type: 'string',
+            group,
+            fieldset: 'secondaryButton',
+            placeholder: '/about/',
+            hidden: ({parent}) => !parent?.showSecondaryButton,
+          }),
+          defineField({
+            name: 'secondaryButtonLink',
+            title: 'Second Button Destination (legacy)',
+            type: 'linkEndpoint',
+            group,
+            hidden: true,
+          }),
+          defineField({
+            name: 'secondaryButtonStyle',
+            title: 'Second Button Background',
+            type: 'string',
+            group,
+            fieldset: 'secondaryButton',
+            hidden: ({parent}) => !parent?.showSecondaryButton,
+            components: {input: ColorPaletteInput},
+            options: {allowTransparent: true} as any,
+            initialValue: 'transparent',
+          }),
+          defineField({
+            name: 'secondaryButtonTextColor',
+            title: 'Second Button Text Color',
+            type: 'string',
+            group,
+            fieldset: 'secondaryButton',
+            hidden: ({parent}) => !parent?.showSecondaryButton,
+            components: {input: ColorPaletteInput},
+            initialValue: '#ffffff',
+          }),
+          defineField({
+            name: 'secondaryButtonRadius',
+            title: 'Corner Radius (px)',
+            type: 'number',
+            group,
+            fieldset: 'secondaryButton',
+            hidden: ({parent}) => !parent?.showSecondaryButton,
+            description: '0 = square, 4 = slightly rounded, 9999 = pill.',
+            validation: (rule) => rule.min(0).max(9999),
+            initialValue: 0,
+          }),
+        ]
       : []),
   ]
 }
@@ -261,7 +261,7 @@ interface ExpandableOpts {
 }
 
 export function expandableFields(opts: ExpandableOpts = {}) {
-  const { group, includeFaqOptions = false } = opts
+  const {group, includeFaqOptions = false} = opts
 
   return [
     defineField({
@@ -270,7 +270,7 @@ export function expandableFields(opts: ExpandableOpts = {}) {
       type: 'boolean',
       group,
       description: 'Adds a click-to-expand toggle around this whole section.',
-      options: { layout: 'switch' },
+      options: {layout: 'switch'},
       initialValue: false,
     }),
     defineField({
@@ -278,13 +278,13 @@ export function expandableFields(opts: ExpandableOpts = {}) {
       title: 'Toggle Icon',
       type: 'string',
       group,
-      hidden: ({ parent }) => !parent?.expandable,
+      hidden: ({parent}) => !parent?.expandable,
       options: {
         list: [
-          { title: '+ / −', value: 'plusMinus' },
-          { title: '▼ Chevron', value: 'chevron' },
-          { title: '↓ Arrow', value: 'arrow' },
-          { title: '▸ Caret', value: 'caret' },
+          {title: '+ / −', value: 'plusMinus'},
+          {title: '▼ Chevron', value: 'chevron'},
+          {title: '↓ Arrow', value: 'arrow'},
+          {title: '▸ Caret', value: 'caret'},
         ],
       },
       initialValue: 'plusMinus',
@@ -294,22 +294,22 @@ export function expandableFields(opts: ExpandableOpts = {}) {
       title: 'Open by Default',
       type: 'boolean',
       group,
-      options: { layout: 'switch' },
-      hidden: ({ parent }) => !parent?.expandable,
+      options: {layout: 'switch'},
+      hidden: ({parent}) => !parent?.expandable,
       initialValue: false,
     }),
     ...(includeFaqOptions
       ? [
-        defineField({
-          name: 'allowMultipleOpen',
-          title: 'Allow Multiple Open at Once',
-          type: 'boolean',
-          group,
-          description: "Off: opening one question closes the others.",
-          options: { layout: 'switch' },
-          initialValue: true,
-        }),
-      ]
+          defineField({
+            name: 'allowMultipleOpen',
+            title: 'Allow Multiple Open at Once',
+            type: 'boolean',
+            group,
+            description: 'Off: opening one question closes the others.',
+            options: {layout: 'switch'},
+            initialValue: true,
+          }),
+        ]
       : []),
   ]
 }

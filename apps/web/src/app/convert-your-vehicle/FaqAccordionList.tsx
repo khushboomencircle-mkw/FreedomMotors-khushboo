@@ -82,13 +82,17 @@ export default function FaqAccordionList({
               <span
                 className={`ml-4 text-2xl font-light shrink-0 transition-transform duration-200 select-none ${iconColor}`}
               >
-                {iconType === 'chevron' ? (
-                  isOpen ? '▲' : '▼'
-                ) : iconType === 'arrow' ? (
-                  isOpen ? '↑' : '↓'
-                ) : (
-                  isOpen ? '−' : '+'
-                )}
+                {iconType === 'chevron'
+                  ? isOpen
+                    ? '▲'
+                    : '▼'
+                  : iconType === 'arrow'
+                    ? isOpen
+                      ? '↑'
+                      : '↓'
+                    : isOpen
+                      ? '−'
+                      : '+'}
               </span>
             </button>
 

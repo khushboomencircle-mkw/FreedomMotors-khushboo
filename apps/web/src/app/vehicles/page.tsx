@@ -53,7 +53,9 @@ const FILTER_PARAM_LABELS: Record<string, string> = {
   drivetrain: 'Drivetrain',
 }
 
-function parseActiveFilters(searchParams: {[key: string]: string | string[] | undefined}): ActiveFilter[] {
+function parseActiveFilters(searchParams: {
+  [key: string]: string | string[] | undefined
+}): ActiveFilter[] {
   const filters: ActiveFilter[] = []
   for (const [key, label] of Object.entries(FILTER_PARAM_LABELS)) {
     const raw = searchParams[key]
@@ -108,7 +110,9 @@ function moneyOrNull(value?: number): number | null {
 function SpecRow({label, value}: {label: string; value: string}) {
   return (
     <div>
-      <dt className="text-[11px] uppercase tracking-wide text-[var(--theme-muted,#6b7280)]">{label}</dt>
+      <dt className="text-[11px] uppercase tracking-wide text-[var(--theme-muted,#6b7280)]">
+        {label}
+      </dt>
       <dd className="font-medium text-[var(--theme-text,#ffffff)]">{value}</dd>
     </div>
   )
@@ -156,7 +160,9 @@ function VehicleCardRow({v}: {v: VehicleCard}) {
 
       <div className="flex flex-1 flex-col">
         <div>
-          <h3 className="text-lg font-bold leading-tight text-[var(--theme-text,#ffffff)]">{name}</h3>
+          <h3 className="text-lg font-bold leading-tight text-[var(--theme-text,#ffffff)]">
+            {name}
+          </h3>
           <div className="mt-1.5 h-0.5 w-10 bg-[var(--theme-primary,#dc2626)]" aria-hidden />
         </div>
 
@@ -172,7 +178,9 @@ function VehicleCardRow({v}: {v: VehicleCard}) {
           {v.drivetrain && <SpecRow label="Drivetrain" value={v.drivetrain} />}
           {v.miles != null && <SpecRow label="Mileage" value={`${v.miles.toLocaleString()} mi`} />}
           {transLabel && <SpecRow label="Trans" value={transLabel} />}
-          {v.conversionWarranty && <SpecRow label="Conversion Warranty" value={v.conversionWarranty} />}
+          {v.conversionWarranty && (
+            <SpecRow label="Conversion Warranty" value={v.conversionWarranty} />
+          )}
         </dl>
 
         <div className="mt-4 flex flex-wrap gap-2">
@@ -252,7 +260,9 @@ function VehicleListing({
   if (!vehicles.length) {
     return (
       <div className="py-16 text-center">
-        <p className="text-[var(--theme-muted,#9ca3af)]">No vehicles available right now. Check back soon.</p>
+        <p className="text-[var(--theme-muted,#9ca3af)]">
+          No vehicles available right now. Check back soon.
+        </p>
       </div>
     )
   }
@@ -270,7 +280,9 @@ function VehicleListing({
           Home
         </Link>
         <span className="mx-1.5">/</span>
-        <span className="text-[var(--theme-text,#d1d5db)]">Wheelchair Accessible Vehicles for Sale</span>
+        <span className="text-[var(--theme-text,#d1d5db)]">
+          Wheelchair Accessible Vehicles for Sale
+        </span>
       </nav>
 
       <div className="flex flex-col gap-8 lg:flex-row">
@@ -295,7 +307,9 @@ function VehicleListing({
             totalPages={totalPages}
             perPage={perPage}
             getPageHref={(p) => buildVehiclesHref(rawParams, {page: String(p)})}
-            getPerPageHref={(size) => buildVehiclesHref(rawParams, {perPage: String(size), page: undefined})}
+            getPerPageHref={(size) =>
+              buildVehiclesHref(rawParams, {perPage: String(size), page: undefined})
+            }
           />
         </div>
       </div>
@@ -308,14 +322,20 @@ async function PageContent({
 }: {
   searchParams: Promise<{[key: string]: string | string[] | undefined}>
 }) {
-  const [page, vehicles, params] = await Promise.all([getVehiclesPage(), getAllVehicles(), searchParams])
+  const [page, vehicles, params] = await Promise.all([
+    getVehiclesPage(),
+    getAllVehicles(),
+    searchParams,
+  ])
   const activeFilters = parseActiveFilters(params)
 
   const rawPage = Array.isArray(params.page) ? params.page[0] : params.page
   const currentPage = Math.max(1, parseInt(rawPage ?? '1', 10) || 1)
   const rawPerPage = Array.isArray(params.perPage) ? params.perPage[0] : params.perPage
   const requestedPerPage = parseInt(rawPerPage ?? '', 10)
-  const perPage = PAGE_SIZE_OPTIONS.includes(requestedPerPage) ? requestedPerPage : DEFAULT_PAGE_SIZE
+  const perPage = PAGE_SIZE_OPTIONS.includes(requestedPerPage)
+    ? requestedPerPage
+    : DEFAULT_PAGE_SIZE
 
   const {before, after, showStatic} = splitAroundStaticSection<Section>(page?.sections)
 

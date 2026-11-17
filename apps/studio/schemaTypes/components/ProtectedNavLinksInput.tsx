@@ -9,12 +9,6 @@ import {
   type NavLinkValue,
 } from '../navLinkProtection'
 
-/**
- * Input for the navigation `links` list. Works out which links are protected (see
- * navLinkProtection.ts) and shares that with the rows and the href field through context.
- * Rows remove themselves (ProtectedNavLinkItem is their gate); the guards below only cover
- * removals that are routed through this input.
- */
 export default function ProtectedNavLinksInput(props: ArrayOfObjectsInputProps) {
   const {value, onItemRemove, onChange, renderDefault} = props
   const client = useClient({apiVersion: '2024-01-01'})
@@ -46,7 +40,10 @@ export default function ProtectedNavLinksInput(props: ArrayOfObjectsInputProps) 
     }
   }, [client])
 
-  const protectedKeys = useMemo(() => protectedKeysOf(snapshot, landingHrefs), [snapshot, landingHrefs])
+  const protectedKeys = useMemo(
+    () => protectedKeysOf(snapshot, landingHrefs),
+    [snapshot, landingHrefs],
+  )
   const contextValue = useMemo(() => ({protectedKeys}), [protectedKeys])
 
   const guardedItemRemove = useCallback(

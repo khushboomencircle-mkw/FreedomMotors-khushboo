@@ -112,7 +112,8 @@ export const typographyConfigType = defineType({
       title: 'Heading Font Border',
       fieldset: 'headingEffects',
       type: 'object',
-      description: 'Outlines each letter of the heading text — separate from the Heading Border box above.',
+      description:
+        'Outlines each letter of the heading text — separate from the Heading Border box above.',
       options: {columns: 3} as any,
       fields: [
         defineField({
@@ -187,7 +188,7 @@ export const typographyConfigType = defineType({
       },
       initialValue: '1.65',
     }),
-   
+
     defineField({
       name: 'descriptionAlignment',
       title: 'Align',
@@ -203,7 +204,7 @@ export const typographyConfigType = defineType({
       },
       initialValue: 'left',
     }),
-     defineField({
+    defineField({
       name: 'descriptionColor',
       title: 'Color',
       type: 'string',
@@ -229,7 +230,8 @@ export const typographyConfigType = defineType({
       title: 'Description Font Border',
       fieldset: 'descriptionEffects',
       type: 'object',
-      description: 'Outlines each letter of the description text — separate from the Description Border box above.',
+      description:
+        'Outlines each letter of the description text — separate from the Description Border box above.',
       options: {columns: 3} as any,
       fields: [
         defineField({

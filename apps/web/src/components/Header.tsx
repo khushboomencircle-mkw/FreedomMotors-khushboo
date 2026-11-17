@@ -221,7 +221,9 @@ function MegaMenuPanel({
   // hardcoded), not to "full width", or an already-published menu would
   // suddenly span edge to edge the moment this ships.
   const panelMaxWidth =
-    config.panelMaxWidth === 'full' ? undefined : `${parseInt(config.panelMaxWidth ?? '1280', 10)}px`
+    config.panelMaxWidth === 'full'
+      ? undefined
+      : `${parseInt(config.panelMaxWidth ?? '1280', 10)}px`
   const panelHPad = parseInt(config.panelHorizontalPadding ?? '32', 10)
 
   return (
@@ -251,8 +253,8 @@ function MegaMenuPanel({
         }}
       >
         {/* Feature grid / scroll */}
-        {features.length > 0 && (
-          isScroll ? (
+        {features.length > 0 &&
+          (isScroll ? (
             <div
               style={{
                 display: 'flex',
@@ -272,10 +274,10 @@ function MegaMenuPanel({
                       config.cardWidthPreset === 'narrow'
                         ? '200px'
                         : config.cardWidthPreset === 'wide'
-                        ? '340px'
-                        : config.cardWidthPreset === 'full'
-                        ? '100%'
-                        : '260px',
+                          ? '340px'
+                          : config.cardWidthPreset === 'full'
+                            ? '100%'
+                            : '260px',
                     scrollSnapAlign: 'start',
                   }}
                 >
@@ -295,8 +297,7 @@ function MegaMenuPanel({
                 <MegaFeatureCard key={item._key} item={item} cfg={config} onClose={onClose} />
               ))}
             </div>
-          )
-        )}
+          ))}
 
         {/* Footer row */}
         {config.showFooter && (
@@ -310,13 +311,15 @@ function MegaMenuPanel({
               />
             )}
             {config.footerHeading && (
-              <p className="text-sm font-semibold uppercase tracking-widest text-center" style={{marginBottom: 12}}>
+              <p
+                className="text-sm font-semibold uppercase tracking-widest text-center"
+                style={{marginBottom: 12}}
+              >
                 {config.footerHeading}
               </p>
             )}
           </div>
         )}
-
 
         {/* Logo strip */}
         {config.logoStrip && config.logoStrip.length > 0 && (
@@ -349,7 +352,14 @@ function MegaMenuPanel({
                     />
                   )}
                   {item.label && (
-                    <span style={{fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.08em', color: '#111827'}}>
+                    <span
+                      style={{
+                        fontSize: '0.72rem',
+                        fontWeight: 700,
+                        letterSpacing: '0.08em',
+                        color: '#111827',
+                      }}
+                    >
                       {item.label.toUpperCase()}
                     </span>
                   )}
@@ -394,7 +404,9 @@ function MegaMenuPanel({
                 gap: 8,
                 transition: 'filter 0.15s ease',
               }}
-              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.filter = 'brightness(0.88)')}
+              onMouseEnter={(e) =>
+                ((e.currentTarget as HTMLElement).style.filter = 'brightness(0.88)')
+              }
               onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.filter = '')}
             >
               {config.buttonLabel} <span aria-hidden>→</span>
@@ -452,12 +464,6 @@ export default function Header({
     return () => ro.disconnect()
   }, [navItems.length])
 
-  // Close on route change
-  useEffect(() => {
-    setMenuOpen(false)
-    setActiveMega(null)
-  }, [pathname])
-
   // Close hamburger on outside click
   const headerRef = useRef<HTMLElement>(null)
   useEffect(() => {
@@ -475,6 +481,17 @@ export default function Header({
   const [activeMega, setActiveMega] = useState<string | null>(null)
   const [megaVisible, setMegaVisible] = useState(false)
   const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Close the hamburger menu and any open mega panel on route change. Done
+  // during render (tracking the previous pathname) rather than in an effect,
+  // so the stale open menu never paints for a frame after navigation. Sits
+  // here, after both states are declared, because it sets them.
+  const [prevPathname, setPrevPathname] = useState(pathname)
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname)
+    setMenuOpen(false)
+    setActiveMega(null)
+  }
 
   const openMega = (href: string) => {
     if (leaveTimer.current) clearTimeout(leaveTimer.current)
@@ -502,16 +519,11 @@ export default function Header({
     setMegaVisible(true)
   }
 
-  const activeMegaItem = navItems.find(
-    (item) => item.href === activeMega && item.showMegaMenu,
-  )
+  const activeMegaItem = navItems.find((item) => item.href === activeMega && item.showMegaMenu)
 
-  console.log("settings : ", settings)
+  console.log('settings : ', settings)
   return (
-    <header
-      ref={headerRef}
-      className={settings?.stickyHeader ? 'sticky top-0 z-50' : 'relative'}
-    >
+    <header ref={headerRef} className={settings?.stickyHeader ? 'sticky top-0 z-50' : 'relative'}>
       {/* Top Bar */}
       {settings?.topBarEnabled && (
         <div className="chrome-topbar text-sm">
@@ -570,8 +582,7 @@ export default function Header({
               }
             >
               {navItems.map((item) => {
-                const isActive =
-                  pathname === item.href || pathname.startsWith(item.href + '/')
+                const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
                 const hasMega = !!item.showMegaMenu
                 const isMegaOpen = megaVisible && activeMega === item.href
 
@@ -610,9 +621,15 @@ export default function Header({
               onClick={() => setMenuOpen((o) => !o)}
               className="shrink-0 flex flex-col justify-center items-center w-9 h-9 gap-1.5 rounded hover:bg-[color-mix(in_srgb,currentColor_12%,transparent)] transition-colors"
             >
-              <span className={`block h-0.5 w-5 bg-current transition-all duration-200 ${menuOpen ? 'translate-y-2 rotate-45' : ''}`} />
-              <span className={`block h-0.5 w-5 bg-current transition-all duration-200 ${menuOpen ? 'opacity-0' : ''}`} />
-              <span className={`block h-0.5 w-5 bg-current transition-all duration-200 ${menuOpen ? '-translate-y-2 -rotate-45' : ''}`} />
+              <span
+                className={`block h-0.5 w-5 bg-current transition-all duration-200 ${menuOpen ? 'translate-y-2 rotate-45' : ''}`}
+              />
+              <span
+                className={`block h-0.5 w-5 bg-current transition-all duration-200 ${menuOpen ? 'opacity-0' : ''}`}
+              />
+              <span
+                className={`block h-0.5 w-5 bg-current transition-all duration-200 ${menuOpen ? '-translate-y-2 -rotate-45' : ''}`}
+              />
             </button>
           )}
         </div>

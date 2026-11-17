@@ -10,7 +10,7 @@ export interface BlogPost {
   landingSlug?: string
   categories?: {slug: string; title?: string}[]
   image?: {url?: string; alt?: string}
-  description?: any
+  description?: unknown
   sections?: Section[]
 }
 
@@ -68,9 +68,11 @@ export default function BlogPostView({post}: {post: BlogPost}) {
           </h1>
         )}
 
-        {post.description && (
-          <RichText value={post.description} className="text-lg text-[var(--theme-muted,#d1d5db)] leading-relaxed" />
-        )}
+        {/* RichText renders nothing for an empty value, so no guard is needed. */}
+        <RichText
+          value={post.description}
+          className="text-lg text-[var(--theme-muted,#d1d5db)] leading-relaxed"
+        />
       </article>
 
       {sections.length > 0 && (
@@ -83,7 +85,9 @@ export default function BlogPostView({post}: {post: BlogPost}) {
 
       {post.categories && post.categories.length > 0 && (
         <div className="w-full max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pb-10 mt-12">
-          <h2 className="text-3xl font-bold tracking-tight text-[var(--theme-text,#ffffff)] mb-4">Categories (tags):</h2>
+          <h2 className="text-3xl font-bold tracking-tight text-[var(--theme-text,#ffffff)] mb-4">
+            Categories (tags):
+          </h2>
 
           <div className="flex flex-wrap gap-2">
             {post.categories.map((cat) => (

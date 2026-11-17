@@ -37,7 +37,8 @@ export const commercialPage = defineType({
       name: 'sections',
       title: 'Page Sections',
       type: 'array',
-      description: 'Add banner, cards grid, accordion, or feature grid sections — they render in order.',
+      description:
+        'Add banner, cards grid, accordion, or feature grid sections — they render in order.',
       of: allSectionMembers,
       validation: sectionsArrayValidation,
     }),

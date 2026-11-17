@@ -42,7 +42,8 @@ export const vehicleDetailPage = defineType({
       name: 'sections',
       title: 'Page Sections',
       type: 'array',
-      description: 'Shown on every vehicle detail page. Add a Static Section to place the vehicle specs block among them.',
+      description:
+        'Shown on every vehicle detail page. Add a Static Section to place the vehicle specs block among them.',
       of: allSectionMembers,
       validation: sectionsArrayValidation,
     }),

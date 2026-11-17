@@ -1,4 +1,5 @@
 import {sanityFetch} from './client'
+import type {ThemeConfig, ThemeMode} from '@/lib/theme'
 import {LANDING_PAGE_VISIBLE, NAV_LINK_HAS_PAGE} from './navQueries'
 import {BLOG_POST_VISIBLE} from './blogQueries'
 
@@ -224,7 +225,8 @@ export interface ChromeRule {
  * A route ending in "/*" (vehicle detail pages) matches by prefix.
  */
 export async function getChromeVisibility() {
-  return sanityFetch<ChromeRule[]>(`[
+  return sanityFetch<ChromeRule[]>(
+    `[
     ...*[_id == "homePage"]{"route": "/", showHeader, showFooter},
     ...*[_type == "commercialPage"]{"route": "/commercial", showHeader, showFooter},
     ...*[_type == "contactPage"]{"route": "/contact", showHeader, showFooter},
@@ -234,13 +236,65 @@ export async function getChromeVisibility() {
     ...*[_type == "driver"]{"route": "/drivers", showHeader, showFooter},
     ...*[_type == "customPage" && defined(slug.current)]{"route": "/" + slug.current, showHeader, showFooter},
     ...*[_type == "vehicleDetailPage"]{"route": "/vehicles/*", showHeader, showFooter}
-  ]`, {}, {fallback: []})
+  ]`,
+    {},
+    {fallback: []},
+  )
+}
+
+/** Result shape of getSiteSettings() — mirrors the projection below, field for field. */
+export interface SiteSettings {
+  siteTitle?: string
+  siteLogo?: string
+  favicon?: string
+
+  // Header
+  stickyHeader?: boolean
+  headerLogoRedirect?: string
+  topBarEnabled?: boolean
+  businessHours?: string
+  phoneLabel?: string
+  phoneNumber?: string
+  headerCta?: {label?: string; endpoint?: string; openInNewTab?: boolean}
+
+  // Footer contact
+  footerLogo?: string
+  footerContactTitle?: string
+  addressLine1?: string
+  addressLine2?: string
+  addressMapUrl?: string
+  footerPhoneLabel?: string
+  footerPhone?: string
+  footerTextLabel?: string
+  footerTextNumber?: string
+  footerEmail?: string
+
+  // Social media links
+  facebookUrl?: string
+  instagramUrl?: string
+  twitterUrl?: string
+  linkedinUrl?: string
+  youtubeUrl?: string
+  tiktokUrl?: string
+  pinterestUrl?: string
+
+  copyright?: string
+
+  // Other
+  seo?: Seo | null
+
+  // Theme
+  enableSiteTheme?: boolean
+  defaultMode?: ThemeMode
+  lightTheme?: ThemeConfig | null
+  darkTheme?: ThemeConfig | null
 }
 
 export async function getSiteSettings() {
   // Target the Studio singleton by _id — a stray second siteSettings document
   // exists in the dataset, and `*[_type == "siteSettings"][0]` would grab it.
-  return sanityFetch<any>(`*[_id == "siteSettings"][0]{
+  return sanityFetch<SiteSettings | null>(
+    `*[_id == "siteSettings"][0]{
     siteTitle,
     "siteLogo": siteLogo.asset->url,
     "favicon": favicon.asset->url,
@@ -285,7 +339,10 @@ export async function getSiteSettings() {
     defaultMode,
     lightTheme,
     darkTheme
-  }`, {}, {fallback: null})
+  }`,
+    {},
+    {fallback: null},
+  )
 }
 
 export async function getDriverPage() {
@@ -404,24 +461,29 @@ export async function getConvertVehicle2() {
   }`)
 }
 
-/**
- * Nav-eligible custom pages, for building the header menu (the fallback when the Navigation list
- * has no visible links). Same visibility rule as the nav links, so an unpublished or inactive
- * page can't leak into the header through this path.
- */
+/** Result shape of getCustomPagesForNav() — one entry per nav-eligible custom page. */
+export interface CustomNavPage {
+  title?: string
+  navLabel?: string
+  slug?: string
+  navOrder?: number
+  openInNewTab?: boolean
+}
+
 export async function getCustomPagesForNav() {
-  return sanityFetch<any[]>(`*[_type == "customPage" && showInNavigation == true && ${LANDING_PAGE_VISIBLE}] | order(navOrder asc){
+  return sanityFetch<CustomNavPage[]>(
+    `*[_type == "customPage" && showInNavigation == true && ${LANDING_PAGE_VISIBLE}] | order(navOrder asc){
     title,
     navLabel,
     "slug": slug.current,
     navOrder,
     openInNewTab
-  }`, {}, {fallback: []})
+  }`,
+    {},
+    {fallback: []},
+  )
 }
 
-/** Header nav links from navigationSettings (showInHeader == true), ordered as saved. */
-// Built-in hrefs are code-routed pages that always exist on the site.
-// Keep in sync with BUILT_IN_NAV_HREFS in apps/studio/schemaTypes/navConstants.ts (separate app, own copy).
 const BUILT_IN_NAV_HREFS = [
   '/vehicles',
   '/drivers',
@@ -650,13 +712,6 @@ export async function getAllBlogPostPaths() {
   )
 }
 
-/**
- * A category and every active article tagged with it, in one round trip —
- * `references(^._id)` walks back from each article to this category's own
- * `_id` rather than requiring a second query. Article fields here are a
- * teaser subset of getEducationalArticleBySlug's own (title, slug, eyebrow,
- * image), not its full body/seo.
- */
 export async function getCategoryBySlug(slug: string) {
   return sanityFetch(
     `*[_type == "category" && slug.current == $slug][0]{

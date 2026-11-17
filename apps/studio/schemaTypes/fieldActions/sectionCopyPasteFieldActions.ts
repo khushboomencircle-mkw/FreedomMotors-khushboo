@@ -24,7 +24,12 @@
  * for it.
  */
 import {defineDocumentFieldAction, isKeySegment} from 'sanity'
-import type {DocumentFieldAction, DocumentFieldActionItem, DocumentFieldActionsResolver, Path} from 'sanity'
+import type {
+  DocumentFieldAction,
+  DocumentFieldActionItem,
+  DocumentFieldActionsResolver,
+  Path,
+} from 'sanity'
 
 /** Every document type whose `sections` field this applies to. */
 const SECTION_BEARING_DOCUMENT_TYPES = new Set([
@@ -55,10 +60,18 @@ function withVisibleCopyButton(action: DocumentFieldAction): DocumentFieldAction
       const base = action.useAction(props)
       if (base.type !== 'action') return base
       if (isSectionItemPath(props.path)) {
-        return {...base, renderAsButton: true, title: 'Copy Section'} satisfies DocumentFieldActionItem
+        return {
+          ...base,
+          renderAsButton: true,
+          title: 'Copy Section',
+        } satisfies DocumentFieldActionItem
       }
       if (isSectionsArrayPath(props.path)) {
-        return {...base, renderAsButton: true, title: 'Copy All Sections'} satisfies DocumentFieldActionItem
+        return {
+          ...base,
+          renderAsButton: true,
+          title: 'Copy All Sections',
+        } satisfies DocumentFieldActionItem
       }
       return base
     },
@@ -80,7 +93,10 @@ function withVisiblePasteButton(action: DocumentFieldAction): DocumentFieldActio
   })
 }
 
-export const sectionCopyPasteFieldActionsResolver: DocumentFieldActionsResolver = (prev, context) => {
+export const sectionCopyPasteFieldActionsResolver: DocumentFieldActionsResolver = (
+  prev,
+  context,
+) => {
   if (!SECTION_BEARING_DOCUMENT_TYPES.has(context.documentType)) return prev
 
   return prev.map((action) => {

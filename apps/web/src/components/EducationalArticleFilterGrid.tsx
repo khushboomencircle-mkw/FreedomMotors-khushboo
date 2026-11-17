@@ -46,19 +46,24 @@ export default function EducationalArticleFilterGrid({categories}: Props) {
       <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-8">
         <div className="flex-1 min-w-0 overflow-x-auto scrollbar-thick">
           <div className="flex items-center gap-2 pb-2 w-max">
-            <button type="button" onClick={() => setSelected(null)} className={pillClass(selected === null)}>
+            <button
+              type="button"
+              onClick={() => setSelected(null)}
+              className={pillClass(selected === null)}
+            >
               All
             </button>
-            {categories && categories.map((category) => (
-              <button
-                key={category.slug}
-                type="button"
-                onClick={() => setSelected(category.slug)}
-                className={pillClass(selected === category.slug)}
-              >
-                {category.title}
-              </button>
-            ))}
+            {categories &&
+              categories.map((category) => (
+                <button
+                  key={category.slug}
+                  type="button"
+                  onClick={() => setSelected(category.slug)}
+                  className={pillClass(selected === category.slug)}
+                >
+                  {category.title}
+                </button>
+              ))}
           </div>
         </div>
 

@@ -93,9 +93,7 @@ export const cardItemType = defineType({
       hidden: ({parent}) => parent?.mediaType !== 'video',
       options: {hotspot: true},
       components: {input: CompactImageInput},
-      fields: [
-        defineField({name: 'alt', title: 'Alt Text', type: 'string'}),
-      ],
+      fields: [defineField({name: 'alt', title: 'Alt Text', type: 'string'})],
     }),
     defineField({
       name: 'videoOrientation',
@@ -208,7 +206,8 @@ export const cardItemType = defineType({
   preview: {
     select: {title: 'title', badge: 'badge', media: 'image.image', mediaType: 'mediaType'},
     prepare({title, badge, media, mediaType}) {
-      const typeLabel = mediaType === 'video' ? 'Video card' : mediaType === 'none' ? 'Text card' : 'Card item'
+      const typeLabel =
+        mediaType === 'video' ? 'Video card' : mediaType === 'none' ? 'Text card' : 'Card item'
       return {
         title: title || 'Untitled Card',
         subtitle: badge ? `[${badge}] · ${typeLabel}` : typeLabel,

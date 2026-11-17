@@ -83,7 +83,9 @@ function isUnmigratedImage(v: JSONValue): v is Record<string, JSONValue> {
  * untouched (keeps hotspot/crop data if any) over reconstructing one from
  * a top-level `asset`.
  */
-function hasNestedImage(v: Record<string, JSONValue>): v is Record<string, JSONValue> & {image: Record<string, JSONValue>} {
+function hasNestedImage(
+  v: Record<string, JSONValue>,
+): v is Record<string, JSONValue> & {image: Record<string, JSONValue>} {
   return isPlainObject(v.image) && Boolean((v.image as Record<string, JSONValue>).asset)
 }
 
@@ -136,7 +138,8 @@ function findPatches(doc: Record<string, JSONValue>): Patch[] {
   function walk(node: JSONValue, path: string, parentType?: string) {
     if (Array.isArray(node)) {
       node.forEach((item, i) => {
-        const key = isPlainObject(item) && typeof item._key === 'string' ? `[_key=="${item._key}"]` : `[${i}]`
+        const key =
+          isPlainObject(item) && typeof item._key === 'string' ? `[_key=="${item._key}"]` : `[${i}]`
         walk(item, `${path}${key}`, parentType)
       })
       return
@@ -188,7 +191,9 @@ function findPatches(doc: Record<string, JSONValue>): Patch[] {
             docId: doc._id as string,
             docType: doc._type as string,
             path: `${fieldPath}${itemKey}`,
-            label: hasRealImage(item) ? 'bannerSection.images[]' : 'bannerSection.images[] (empty slot, type fixed)',
+            label: hasRealImage(item)
+              ? 'bannerSection.images[]'
+              : 'bannerSection.images[] (empty slot, type fixed)',
             before: item,
             kind: 'set',
             after: reshapeBannerImage(item),
@@ -282,7 +287,9 @@ async function main() {
     console.log(`Patched ${docId} (${patches.length} field${patches.length === 1 ? '' : 's'}).`)
   }
 
-  console.log(`\nDone. Patched ${fixedDocs} document(s), ${allPatches.length} image value(s) total.`)
+  console.log(
+    `\nDone. Patched ${fixedDocs} document(s), ${allPatches.length} image value(s) total.`,
+  )
 }
 
 main().catch((err) => {

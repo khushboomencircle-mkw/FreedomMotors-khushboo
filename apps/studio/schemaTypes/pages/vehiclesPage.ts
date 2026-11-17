@@ -37,7 +37,8 @@ export const vehiclesPage = defineType({
       name: 'sections',
       title: 'Page Sections',
       type: 'array',
-      description: 'Sections render in order. Add a Static Section to place the built-in vehicle listing among them.',
+      description:
+        'Sections render in order. Add a Static Section to place the built-in vehicle listing among them.',
       of: allSectionMembers,
       validation: sectionsArrayValidation,
     }),

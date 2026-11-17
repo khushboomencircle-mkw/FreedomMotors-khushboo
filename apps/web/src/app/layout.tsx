@@ -1,7 +1,13 @@
 import type {Metadata} from 'next'
 import {Geist, Geist_Mono} from 'next/font/google'
 import './globals.css'
-import {getChromeVisibility, getCustomPagesForNav, getFooterNavLinks, getNavLinks, getSiteSettings} from '@/sanity/queries'
+import {
+  getChromeVisibility,
+  getCustomPagesForNav,
+  getFooterNavLinks,
+  getNavLinks,
+  getSiteSettings,
+} from '@/sanity/queries'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import ChromeGate from '@/components/ChromeGate'
@@ -61,7 +67,8 @@ async function SiteShell({children}: {children: React.ReactNode}) {
     globalVars,
     settings?.enableSiteTheme && settings?.defaultMode && `color-scheme:${settings.defaultMode}`,
     // Softened Text color for secondary footer text; only exists while Site Theme is on.
-    settings?.enableSiteTheme && '--theme-text-soft:color-mix(in srgb,var(--theme-text) 72%,transparent)',
+    settings?.enableSiteTheme &&
+      '--theme-text-soft:color-mix(in srgb,var(--theme-text) 72%,transparent)',
   ]
     .filter(Boolean)
     .join(';')

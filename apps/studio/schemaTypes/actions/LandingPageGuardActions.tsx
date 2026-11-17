@@ -83,7 +83,10 @@ export function guardLandingPageAction(
         ? {
             type: 'dialog' as const,
             id: 'landing-page-guard-notice',
-            header: guardedAction === 'delete' ? "Can't delete this landing page" : "Can't unpublish this landing page",
+            header:
+              guardedAction === 'delete'
+                ? "Can't delete this landing page"
+                : "Can't unpublish this landing page",
             content: notice,
             onClose: () => setNotice(null),
           }

@@ -1,7 +1,7 @@
-import { defineConfig } from 'vite'
+import {defineConfig} from 'vite'
 
 export default defineConfig({
   server: {
-    allowedHosts: ['.ngrok-free.dev', '.ngrok.io']
-  }
+    allowedHosts: ['.ngrok-free.dev', '.ngrok.io'],
+  },
 })

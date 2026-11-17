@@ -53,9 +53,7 @@ export const presentation = presentationTool({
       customPage: defineLocations({
         select: {title: 'title', slug: 'slug.current'},
         resolve: (doc) => ({
-          locations: [
-            {title: doc?.title || 'Untitled Page', href: `/${doc?.slug || ''}`},
-          ],
+          locations: [{title: doc?.title || 'Untitled Page', href: `/${doc?.slug || ''}`}],
         }),
       }),
       // A post lives under its landing page: /<landing page slug>/<post slug>.
@@ -63,7 +61,11 @@ export const presentation = presentationTool({
         select: {title: 'title', slug: 'slug.current', landingSlug: 'landingPage.slug.current'},
         resolve: (doc) =>
           doc?.slug && doc?.landingSlug
-            ? {locations: [{title: doc.title || 'Untitled Post', href: `/${doc.landingSlug}/${doc.slug}`}]}
+            ? {
+                locations: [
+                  {title: doc.title || 'Untitled Post', href: `/${doc.landingSlug}/${doc.slug}`},
+                ],
+              }
             : {locations: []},
       }),
       vehicle: defineLocations({

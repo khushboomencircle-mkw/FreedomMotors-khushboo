@@ -74,14 +74,20 @@ function parseCsv(contents: string): CsvRow[] {
 
 /** Stable, idempotent document id derived from the normalized old address. */
 function idForSource(source: string): string {
-  const slug = source.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'root'
+  const slug =
+    source
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '') || 'root'
   return `redirect.${slug}`
 }
 
 async function run() {
   const filePath = process.argv[2]
   if (!filePath) {
-    console.error('Usage: npx sanity exec scripts/importRedirects.ts --with-user-token -- /path/to/redirects.csv')
+    console.error(
+      'Usage: npx sanity exec scripts/importRedirects.ts --with-user-token -- /path/to/redirects.csv',
+    )
     process.exit(1)
   }
 
@@ -114,7 +120,10 @@ async function run() {
       continue
     }
     if (candidates.has(source)) {
-      skipped.push({row, reason: `duplicate old address within this CSV (already using "${row.old}")`})
+      skipped.push({
+        row,
+        reason: `duplicate old address within this CSV (already using "${row.old}")`,
+      })
       continue
     }
 
@@ -149,10 +158,17 @@ async function run() {
     }
 
     if (current !== candidate.destination) {
-      console.log(`Flattened chain: ${candidate.source} → ${candidate.destination} → … → ${current}`)
+      console.log(
+        `Flattened chain: ${candidate.source} → ${candidate.destination} → … → ${current}`,
+      )
     }
 
-    toWrite.push({_id: idForSource(source), source: candidate.source, destination: current, permanent: candidate.permanent})
+    toWrite.push({
+      _id: idForSource(source),
+      source: candidate.source,
+      destination: current,
+      permanent: candidate.permanent,
+    })
   }
 
   if (toWrite.length > 0) {
@@ -185,7 +201,9 @@ async function run() {
   }
 
   console.log('')
-  console.log('Remember to run `npm run redirects:sync` in apps/web (or wait for the next publish) to push these live.')
+  console.log(
+    'Remember to run `npm run redirects:sync` in apps/web (or wait for the next publish) to push these live.',
+  )
 }
 
 run().catch((err) => {

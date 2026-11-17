@@ -94,18 +94,21 @@ export const blogPostType = defineType({
       options: {source: 'title', maxLength: 96, isUnique: isUniqueWithinLandingPage},
       // Duplicates within the landing page are caught by Sanity's own slug check (options.isUnique above).
       validation: (rule) =>
-        rule.required().custom((value, context) =>
-          value?.current && !(context.document as PostDocument)?.landingPage?._ref
-            ? 'Pick a landing page first, then set the slug.'
-            : true,
-        ),
+        rule
+          .required()
+          .custom((value, context) =>
+            value?.current && !(context.document as PostDocument)?.landingPage?._ref
+              ? 'Pick a landing page first, then set the slug.'
+              : true,
+          ),
     }),
     defineField({
       name: 'eyebrow',
       title: 'Eyebrow / Category Label',
       type: 'string',
       group: 'content',
-      description: 'Short category label shown above the title (e.g. "Accessible SUVs," "Lifestyle").',
+      description:
+        'Short category label shown above the title (e.g. "Accessible SUVs," "Lifestyle").',
     }),
     defineField({
       name: 'categories',

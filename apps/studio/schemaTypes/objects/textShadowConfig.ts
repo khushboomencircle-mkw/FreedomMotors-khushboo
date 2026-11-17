@@ -24,7 +24,9 @@ export const textShadowConfigType = defineType({
     select: {enabled: 'enabled', x: 'offsetX', y: 'offsetY', b: 'blur', o: 'opacity'},
     prepare({enabled, x, y, b, o}) {
       return {
-        title: enabled ? `Shadow ${x ?? 0}·${y ?? 2}·${b ?? 4} (opacity ${o ?? 5}/9)` : 'Shadow off',
+        title: enabled
+          ? `Shadow ${x ?? 0}·${y ?? 2}·${b ?? 4} (opacity ${o ?? 5}/9)`
+          : 'Shadow off',
       }
     },
   },

@@ -1,6 +1,5 @@
-
-import { defineField, defineType } from 'sanity'
-import { CogIcon } from '@sanity/icons/Cog'
+import {defineField, defineType} from 'sanity'
+import {CogIcon} from '@sanity/icons/Cog'
 import CompactImageInput from './components/CompactImageInput'
 
 export const siteSettingsType = defineType({
@@ -10,12 +9,12 @@ export const siteSettingsType = defineType({
   icon: CogIcon,
 
   groups: [
-    { name: 'general', title: 'General', default: true },
-    { name: 'header', title: 'Header' },
-    { name: 'footer', title: 'Footer' },
-    { name: 'seo', title: 'SEO' },
-    { name: 'social', title: 'Social Media Links' },
-    { name: 'theme', title: 'Theme' },
+    {name: 'general', title: 'General', default: true},
+    {name: 'header', title: 'Header'},
+    {name: 'footer', title: 'Footer'},
+    {name: 'seo', title: 'SEO'},
+    {name: 'social', title: 'Social Media Links'},
+    {name: 'theme', title: 'Theme'},
   ],
 
   // Collapsible fieldsets within the existing groups
@@ -23,43 +22,43 @@ export const siteSettingsType = defineType({
     {
       name: 'generalInfo',
       title: 'General Information',
-      options: { collapsible: true, collapsed: true },
+      options: {collapsible: true, collapsed: true},
     },
     {
       name: 'headerLogo',
       title: 'Logo & Sticky Settings',
-      options: { collapsible: true, collapsed: true },
+      options: {collapsible: true, collapsed: true},
     },
     {
       name: 'headerTopBar',
       title: 'Top Bar Settings',
-      options: { collapsible: true, collapsed: true },
+      options: {collapsible: true, collapsed: true},
     },
     {
       name: 'footerBranding',
       title: 'Footer Contact Information',
-      options: { collapsible: true, collapsed: true },
+      options: {collapsible: true, collapsed: true},
     },
     {
       name: 'footerAddress',
       title: 'Footer Address',
-      options: { collapsible: true, collapsed: true },
+      options: {collapsible: true, collapsed: true},
     },
     {
       name: 'footerCopyright',
       title: 'Copyright Settings',
-      options: { collapsible: true, collapsed: true },
+      options: {collapsible: true, collapsed: true},
     },
     {
       name: 'seoDefaults',
       title: 'SEO Defaults',
-      options: { collapsible: true, collapsed: true },
+      options: {collapsible: true, collapsed: true},
     },
     {
       name: 'themeSetting',
       title: 'Theme Settings',
-      options: { collapsible: true, collapsed: true },
-    }
+      options: {collapsible: true, collapsed: true},
+    },
   ],
 
   fields: [
@@ -70,8 +69,8 @@ export const siteSettingsType = defineType({
       group: 'header',
       fieldset: 'headerLogo',
       description: 'Logo displayed in the site header.',
-      options: { hotspot: true },
-      components: { input: CompactImageInput },
+      options: {hotspot: true},
+      components: {input: CompactImageInput},
     }),
 
     // GENERAL
@@ -88,7 +87,7 @@ export const siteSettingsType = defineType({
       type: 'image',
       group: 'general',
       fieldset: 'generalInfo',
-      components: { input: CompactImageInput },
+      components: {input: CompactImageInput},
     }),
 
     // HEADER
@@ -110,7 +109,7 @@ export const siteSettingsType = defineType({
       fieldset: 'headerTopBar',
       description: 'Shown on the left of the top bar.',
       initialValue: 'Open Mon - Fri : 9am-6pm EST',
-      hidden: ({ parent }) => !parent?.topBarEnabled,
+      hidden: ({parent}) => !parent?.topBarEnabled,
     }),
     defineField({
       name: 'phoneLabel',
@@ -119,7 +118,7 @@ export const siteSettingsType = defineType({
       group: 'header',
       fieldset: 'headerTopBar',
       initialValue: 'Call Us:',
-      hidden: ({ parent }) => !parent?.topBarEnabled,
+      hidden: ({parent}) => !parent?.topBarEnabled,
     }),
     defineField({
       name: 'phoneNumber',
@@ -128,7 +127,7 @@ export const siteSettingsType = defineType({
       group: 'header',
       fieldset: 'headerTopBar',
       initialValue: '(866) 577-0794',
-      hidden: ({ parent }) => !parent?.topBarEnabled,
+      hidden: ({parent}) => !parent?.topBarEnabled,
     }),
     defineField({
       name: 'headerCta',
@@ -137,7 +136,7 @@ export const siteSettingsType = defineType({
       group: 'header',
       fieldset: 'headerTopBar',
       description: 'Button on the right side of the top bar (e.g. "CONTACT US").',
-      hidden: ({ parent }) => !parent?.topBarEnabled,
+      hidden: ({parent}) => !parent?.topBarEnabled,
       fields: [
         defineField({
           name: 'label',
@@ -191,9 +190,9 @@ export const siteSettingsType = defineType({
       type: 'image',
       group: 'footer',
       fieldset: 'footerBranding',
-      options: { hotspot: true },
+      options: {hotspot: true},
       description: 'Logo displayed in the footer contact area.',
-      components: { input: CompactImageInput },
+      components: {input: CompactImageInput},
     }),
     defineField({
       name: 'footerContactTitle',
@@ -225,7 +224,8 @@ export const siteSettingsType = defineType({
       type: 'url',
       group: 'footer',
       fieldset: 'footerAddress',
-      description: 'Google Maps or directions URL. When set, the address in the footer becomes a clickable link. The link itself is never shown.',
+      description:
+        'Google Maps or directions URL. When set, the address in the footer becomes a clickable link. The link itself is never shown.',
     }),
     defineField({
       name: 'footerPhoneLabel',
@@ -283,7 +283,7 @@ export const siteSettingsType = defineType({
       type: 'seo',
       group: 'seo',
       fieldset: 'seoDefaults',
-      options: { collapsible: true, collapsed: true },
+      options: {collapsible: true, collapsed: true},
     }),
 
     // SOCIAL MEDIA LINKS — each platform its own independent, optional field.
@@ -348,7 +348,7 @@ export const siteSettingsType = defineType({
       type: 'boolean',
       group: 'theme',
       description: 'When on, this theme applies site-wide unless a section sets its own.',
-      options: { layout: 'switch' },
+      options: {layout: 'switch'},
       initialValue: false,
     }),
     defineField({
@@ -359,14 +359,14 @@ export const siteSettingsType = defineType({
       description: 'Light or Dark appearance for the site theme.',
       options: {
         list: [
-          { title: 'Light', value: 'light' },
-          { title: 'Dark', value: 'dark' },
+          {title: 'Light', value: 'light'},
+          {title: 'Dark', value: 'dark'},
         ],
         layout: 'radio',
         direction: 'horizontal',
       },
       initialValue: 'dark',
-      hidden: ({ parent }) => !parent?.enableSiteTheme,
+      hidden: ({parent}) => !parent?.enableSiteTheme,
     }),
     // `lightTheme`/`darkTheme` share the exact same title and are mutually
     // exclusive via `hidden` (keyed off `defaultMode`, not just
@@ -382,7 +382,7 @@ export const siteSettingsType = defineType({
       group: 'theme',
       description:
         'Colors, fonts, button styles, and corner rounding applied site-wide. Edited independently of Dark — a blank field here falls back to a built-in light default, never a Dark value.',
-      hidden: ({ parent }) => !parent?.enableSiteTheme || parent?.defaultMode !== 'light',
+      hidden: ({parent}) => !parent?.enableSiteTheme || parent?.defaultMode !== 'light',
     }),
     defineField({
       name: 'darkTheme',
@@ -391,7 +391,7 @@ export const siteSettingsType = defineType({
       group: 'theme',
       description:
         'Colors, fonts, button styles, and corner rounding applied site-wide. Edited independently of Light — a blank field here falls back to a built-in dark default, never a Light value.',
-      hidden: ({ parent }) => !parent?.enableSiteTheme || parent?.defaultMode === 'light',
+      hidden: ({parent}) => !parent?.enableSiteTheme || parent?.defaultMode === 'light',
     }),
   ],
 
@@ -400,7 +400,7 @@ export const siteSettingsType = defineType({
       title: 'siteTitle',
       media: 'siteLogo',
     },
-    prepare({ title, media }) {
+    prepare({title, media}) {
       return {
         title: title || 'Site Settings',
         media: media || CogIcon,
