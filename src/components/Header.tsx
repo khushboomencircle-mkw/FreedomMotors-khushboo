@@ -391,8 +391,11 @@ function MegaMenuPanel({
               href={config.buttonLinkUrl}
               onClick={onClose}
               style={{
+                // Styled only by this mega menu's own CTA fields — deliberately NOT the Site
+                // Theme button vars (colors, radius, border), so no theme setting reaches it.
                 background: config.buttonStyle ?? '#dc2626',
                 color: config.buttonTextColor ?? '#ffffff',
+                border: 'none',
                 borderRadius: `${config.buttonRadius ?? 0}px`,
                 padding: '10px 24px',
                 fontSize: '0.75rem',

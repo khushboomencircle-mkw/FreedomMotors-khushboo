@@ -210,13 +210,13 @@ function VehicleCardRow({v}: {v: VehicleCard}) {
           {v.slug ? (
             <Link
               href={`/vehicles/${v.slug}`}
-              className="inline-flex items-center gap-1.5 rounded-[var(--theme-button-radius,9999px)] bg-[var(--theme-button-bg,#dc2626)] px-4 py-2 text-sm font-bold text-[var(--theme-button-text,#ffffff)] transition-opacity hover:opacity-90"
+              className="btn-border inline-flex items-center gap-1.5 rounded-[var(--theme-button-radius,9999px)] bg-[var(--theme-button-bg,#dc2626)] px-4 py-2 text-sm font-bold text-[var(--theme-button-text,#ffffff)] transition-opacity hover:opacity-90"
             >
               Details
               <ArrowRight className="h-4 w-4" />
             </Link>
           ) : (
-            <span className="inline-flex items-center gap-1.5 rounded-[var(--theme-button-radius,9999px)] bg-[var(--theme-button-bg,#dc2626)]/50 px-4 py-2 text-sm font-bold text-[var(--theme-button-text,#ffffff)]/70">
+            <span className="btn-border inline-flex items-center gap-1.5 rounded-[var(--theme-button-radius,9999px)] bg-[var(--theme-button-bg,#dc2626)]/50 px-4 py-2 text-sm font-bold text-[var(--theme-button-text,#ffffff)]/70">
               Details
               <ArrowRight className="h-4 w-4" />
             </span>

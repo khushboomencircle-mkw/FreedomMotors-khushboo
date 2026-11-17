@@ -24,6 +24,8 @@ import {googleReviewsSectionType} from './googleReviewsSection'
 import {staticSectionType} from './staticSection'
 import {photoGallerySectionType} from './photoGallerySection'
 import {callToActionSectionType} from './callToActionSection'
+import {testimonialItemType} from './testimonialItem'
+import {testimonialsSectionType} from './testimonialsSection'
 
 export {cardItemType} from './cardItem'
 export {accordionItemType} from './faqItem'
@@ -39,6 +41,8 @@ export {googleReviewsSectionType} from './googleReviewsSection'
 export {staticSectionType} from './staticSection'
 export {photoGallerySectionType} from './photoGallerySection'
 export {callToActionSectionType} from './callToActionSection'
+export {testimonialItemType} from './testimonialItem'
+export {testimonialsSectionType} from './testimonialsSection'
 
 /** All object types that must be registered in the global schema. */
 export const sectionObjectTypes = [
@@ -56,6 +60,8 @@ export const sectionObjectTypes = [
   staticSectionType,
   photoGallerySectionType,
   callToActionSectionType,
+  testimonialItemType,
+  testimonialsSectionType,
 ]
 
 /**
@@ -76,6 +82,7 @@ export const allSectionMembers = [
   defineArrayMember({type: 'staticSection'}),
   defineArrayMember({type: 'photoGallerySection'}),
   defineArrayMember({type: 'callToActionSection'}),
+  defineArrayMember({type: 'testimonialsSection'}),
 ]
 
 export const driverSections = [

@@ -59,7 +59,7 @@ export default function LoadMoreCardsGrid({
           <button
             type="button"
             onClick={() => setVisibleCount(items.length)}
-            className="rounded-full bg-[var(--theme-button-bg,#dc2626)] px-8 py-3 text-sm font-bold uppercase tracking-wide text-[var(--theme-button-text,#ffffff)] transition-opacity hover:opacity-90"
+            className="btn-border rounded-full bg-[var(--theme-button-bg,#dc2626)] px-8 py-3 text-sm font-bold uppercase tracking-wide text-[var(--theme-button-text,#ffffff)] transition-opacity hover:opacity-90"
           >
             {buttonLabel}
           </button>

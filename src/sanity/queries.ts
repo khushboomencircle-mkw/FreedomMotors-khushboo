@@ -129,6 +129,22 @@ const SECTION_PROJECTION = `{
   },
   layout,
   lightbox,
+  // Testimonials only — a conditional spread so no other section type carries these keys.
+  // $preview is true only for draft reads (see sanity/client.ts); the section uses it to
+  // show a placeholder in preview when empty instead of hiding itself.
+  _type == "testimonialsSection" => {
+    showRatings,
+    "isPreview": $preview,
+    testimonials[]{
+      _key,
+      quote,
+      name,
+      role,
+      rating,
+      source,
+      photo{"url": image.asset->url, alt}
+    }
+  },
   eyebrow,
   headerStyle,
   imageLayout,
