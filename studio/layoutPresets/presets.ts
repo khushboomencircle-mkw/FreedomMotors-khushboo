@@ -72,6 +72,11 @@ export interface SectionPresetConfig {
   defaults: FieldValues
   presets: LayoutPreset[]
   perRow?: PerRowInput
+  /**
+   * Existing fields the picker fully replaces. They are HIDDEN in the Studio, never removed: they stay in the schema,
+   * so their stored values keep working and the website keeps reading them. The picker writes to them.
+   */
+  hideFields?: string[]
 }
 
 /** Gap-free helper: a preset that sets one field to one value. */
@@ -250,6 +255,8 @@ const banner: SectionPresetConfig = {
 const linkList: SectionPresetConfig = {
   sectionType: 'linkListSection',
   fields: ['imageSide'],
+  // The picker's "Image left / Image right" is the same choice as the Image Side field, so the field is hidden.
+  hideFields: ['imageSide'],
   defaults: {imageSide: 'left'},
   presets: [
     single(

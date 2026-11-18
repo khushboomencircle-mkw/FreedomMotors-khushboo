@@ -30,13 +30,17 @@ interface SectionTypeLike {
 
 /**
  * Returns the section type with the picker added as the FIRST field of its Layout tab. Every existing field is
- * kept exactly as it is, in the same order. The section's form is wrapped only to hand its value and `onChange`
- * to the picker; it renders exactly as before. Sections without presets are returned unchanged, and so is a section
- * that already has its own custom input (it is never replaced).
+ * kept, in the same order; the only exception is a field the picker fully replaces (`hideFields` in presets.ts),
+ * which stays in the schema with its data but is hidden in the Studio. The section's form is wrapped only to hand its
+ * value and `onChange` to the picker. Sections without presets are returned unchanged, and so is a section that
+ * already has its own custom input (it is never replaced).
  */
 export function withLayoutPicker<T extends SectionTypeLike>(type: T): T {
   if (!LAYOUT_PICKER_ENABLED || !LAYOUT_PRESETS[type.name]) return type
-  const fields = type.fields ?? []
+  const hide = new Set(LAYOUT_PRESETS[type.name].hideFields ?? [])
+  const fields = (type.fields ?? []).map((field) =>
+    hide.has((field as {name?: string}).name ?? '') ? {...(field as object), hidden: true} : field,
+  )
   const already = fields.some((f) => (f as {name?: string}).name === layoutPickerField.name)
   if (already || type.components?.input) return type
   return {
