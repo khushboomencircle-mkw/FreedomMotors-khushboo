@@ -146,3 +146,37 @@ describe('other sections', () => {
     assert.equal(buttons().length, 0)
   })
 })
+
+describe('the pictures follow the number — for the selected layout only', () => {
+  const thumbOf = (title: string) => button(title).querySelector('svg')?.getAttribute('data-thumb')
+
+  it('Grid selected: the Grid picture shows the chosen number, Mosaic stays plain', () => {
+    mount(cards({columns: '2'}))
+    assert.equal(thumbOf('Grid'), 'grid2')
+    assert.equal(thumbOf('Mosaic'), 'mosaic')
+    mount(cards({columns: '4'}))
+    assert.equal(thumbOf('Grid'), 'grid4')
+  })
+
+  it('Mosaic selected: the Mosaic picture shows the chosen number, Grid stays plain', () => {
+    mount(cards({mosaicView: true, columns: '4'}))
+    assert.equal(button('Mosaic').getAttribute('aria-checked'), 'true')
+    assert.equal(thumbOf('Mosaic'), 'mosaic4')
+    assert.equal(thumbOf('Grid'), 'grid3')
+    mount(cards({mosaicView: true, columns: '2'}))
+    assert.equal(thumbOf('Mosaic'), 'mosaic2')
+    assert.equal(thumbOf('Grid'), 'grid3')
+  })
+
+  it('the number box also works while Mosaic is selected, and keeps Mosaic on', () => {
+    mount(cards({mosaicView: true, columns: '3'}))
+    type(numberBox()!, '4')
+    // Only Columns changes — Mosaic View is left alone.
+    assert.deepEqual(patches.at(-1), [{type: 'set', path: ['columns'], value: '4'}])
+  })
+
+  it('Feature Grid in Mosaic shows its picture with the number too', () => {
+    mount({_type: 'featureGridSection', featureDisplayMode: 'grid', mosaicView: true, columns: '2'})
+    assert.equal(thumbOf('Mosaic'), 'mosaic2')
+  })
+})

@@ -37,8 +37,64 @@ function cardRow(n: number, top = 8, height = 32): ReactNode {
   })
 }
 
+/**
+ * Mosaic with `cols` columns, laid out the way the website does it: the first tile of every five is a big 2×2 tile
+ * (or the full width when there are only two columns) and the rest are single cells, filling left to right.
+ */
+function mosaic(cols: number): ReactNode {
+  const rows = 3
+  const pad = 6
+  const gap = 3
+  const cw = (W - pad * 2 - gap * (cols - 1)) / cols
+  const ch = (H - 8 - gap * (rows - 1)) / rows
+  const taken = Array.from({length: rows}, () => Array<boolean>(cols).fill(false))
+  const tiles: ReactNode[] = []
+  /** First free spot (left to right, top to bottom) where a w×h tile fits. */
+  const findSpot = (w: number, h: number): [number, number] | undefined => {
+    for (let r = 0; r + h <= rows; r++) {
+      for (let c = 0; c + w <= cols; c++) {
+        let free = true
+        for (let dr = 0; dr < h; dr++)
+          for (let dc = 0; dc < w; dc++) if (taken[r + dr][c + dc]) free = false
+        if (free) return [r, c]
+      }
+    }
+    return undefined
+  }
+  for (let i = 0; ; i++) {
+    let w = i % 5 === 0 ? Math.min(2, cols) : 1
+    let h = i % 5 === 0 ? 2 : 1
+    let spot = findSpot(w, h)
+    // The picture only has room for three rows: a big tile that doesn't fit is drawn as a single one.
+    if (!spot && h === 2) {
+      w = 1
+      h = 1
+      spot = findSpot(w, h)
+    }
+    if (!spot) break
+    const [r, c] = spot
+    for (let dr = 0; dr < h; dr++) for (let dc = 0; dc < w; dc++) taken[r + dr][c + dc] = true
+    tiles.push(
+      <Pic
+        key={i}
+        x={pad + c * (cw + gap)}
+        y={4 + r * (ch + gap)}
+        w={cw * w + gap * (w - 1)}
+        h={ch * h + gap * (h - 1)}
+      />,
+    )
+  }
+  return <g>{tiles}</g>
+}
+
 function drawing(kind: ThumbKind): ReactNode {
   switch (kind) {
+    case 'mosaic2':
+      return mosaic(2)
+    case 'mosaic3':
+      return mosaic(3)
+    case 'mosaic4':
+      return mosaic(4)
     case 'grid2':
       return cardRow(2)
     case 'grid3':
@@ -167,6 +223,7 @@ export default function LayoutThumb({kind}: {kind: ThumbKind}) {
       width="100%"
       role="presentation"
       aria-hidden="true"
+      data-thumb={kind}
       style={{display: 'block', maxWidth: 108}}
     >
       {drawing(kind)}

@@ -115,7 +115,8 @@ export default function LayoutPresetInput() {
       <div role="radiogroup" aria-label="Layout" style={grid}>
         {config.presets.map((preset) => {
           const selected = preset.id === activeId
-          const kind = preset.thumbFor ? preset.thumbFor(values) : preset.thumb
+          // Only the selected layout's picture follows the number; the others keep their plain picture.
+          const kind = selected && preset.thumbFor ? preset.thumbFor(values) : preset.thumb
           return (
             <button
               key={preset.id}

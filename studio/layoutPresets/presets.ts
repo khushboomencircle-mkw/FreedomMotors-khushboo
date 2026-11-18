@@ -18,6 +18,9 @@ export type ThumbKind =
   | 'grid3'
   | 'grid4'
   | 'mosaic'
+  | 'mosaic2'
+  | 'mosaic3'
+  | 'mosaic4'
   | 'list'
   | 'slider'
   | 'scroller'
@@ -34,7 +37,10 @@ export interface LayoutPreset {
   title: string
   description: string
   thumb: ThumbKind
-  /** Picture that follows the current values (the Grid picture shows 2, 3 or 4 cards). Defaults to `thumb`. */
+  /**
+   * Picture for this layout WHILE IT IS THE SELECTED ONE, following the current values (the Grid picture shows 2, 3
+   * or 4 cards; the Mosaic picture shows 2, 3 or 4 columns). Layouts that are not selected keep their plain `thumb`.
+   */
   thumbFor?: (values: FieldValues) => ThumbKind
   /** True when `values` (already filled with the website's own defaults) is this layout. */
   matches: (values: FieldValues) => boolean
@@ -92,6 +98,7 @@ const isRowCount = (columns: FieldValues[string]): columns is string =>
 /** The current row count if it is a valid one, otherwise the website's default of 3. */
 const rowCountOr3 = (columns: FieldValues[string]): string => (isRowCount(columns) ? columns : '3')
 const gridThumb = (v: FieldValues): ThumbKind => `grid${rowCountOr3(v.columns)}` as ThumbKind
+const mosaicThumb = (v: FieldValues): ThumbKind => `mosaic${rowCountOr3(v.columns)}` as ThumbKind
 
 // ── Cards Grid ─────────────────────────────────────────────────────────────
 // Layout lives in three fields: Columns, Mosaic View and (for one column) Display as.
@@ -121,6 +128,7 @@ const cardsGrid: SectionPresetConfig = {
       title: 'Mosaic',
       description: 'Cards of mixed sizes in a tiled pattern. Turns Mosaic View on.',
       thumb: 'mosaic',
+      thumbFor: mosaicThumb,
       matches: (v) => v.mosaicView === true && v.columns !== '1',
       // Mosaic needs more than one column; keep the editor's choice unless it was 1.
       apply: (v) => ({mosaicView: true, columns: rowCountOr3(v.columns)}),
@@ -178,6 +186,7 @@ const featureGrid: SectionPresetConfig = {
       title: 'Mosaic',
       description: 'Cards of mixed sizes in a tiled pattern. Turns Mosaic View on.',
       thumb: 'mosaic',
+      thumbFor: mosaicThumb,
       matches: (v) => v.featureDisplayMode === 'grid' && v.mosaicView === true,
       apply: () => ({featureDisplayMode: 'grid', mosaicView: true}),
     },

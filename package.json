@@ -18,7 +18,7 @@
     "test:images": "node --import tsx --test src/lib/photoUpload.test.ts src/lib/imageUrl.test.ts",
     "test:templates": "node --import tsx --test studio/pageTemplateLibrary/*.test.ts",
     "templates:migrate": "node --env-file-if-exists=.env.local ./node_modules/tsx/dist/cli.mjs studio/pageTemplateLibrary/migrateLegacyTemplates.ts",
-    "test:preview": "node --import tsx --test src/lib/sanityDoc.test.ts src/components/PageSection.markers.test.tsx",
+    "test:preview": "node --import tsx --test src/lib/sanityDoc.test.ts src/components/PageSection.markers.test.tsx src/components/PageSection.mosaic.test.tsx",
     "test:layouts": "node --import tsx --test studio/layoutPresets/*.test.ts studio/layoutPresets/*.test.tsx"
   },
   "dependencies": {

@@ -1214,14 +1214,23 @@ const VIDEO_SIZE_MAP: Record<string, string> = {
   xl: '560px',
 }
 
+/** "16 / 9" or "4/3" → the height as a percentage of the width ("56.25%"), or undefined when it isn't a ratio. */
+function ratioToPadding(ratio: React.CSSProperties['aspectRatio']): string | undefined {
+  const m = /^\s*(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)\s*$/.exec(String(ratio ?? ''))
+  return m && Number(m[1]) > 0 ? `${(Number(m[2]) / Number(m[1])) * 100}%` : undefined
+}
+
 function CardMedia({
   card,
   imgStyle,
   sizes,
+  mosaic,
 }: {
   card: StepCard
   imgStyle: React.CSSProperties
   sizes: ImageSizePreset
+  /** Set only in Mosaic View: the picture fills the whole space its card gives it (the big tile is 'hero'). */
+  mosaic?: 'hero' | 'tile'
 }) {
   const mediaType = card.mediaType || (card.image?.url ? 'image' : 'none')
   if (mediaType === 'none') return null
@@ -1261,6 +1270,28 @@ function CardMedia({
           trigger={videoBox}
           videoUrl={card.videoUrl}
           videoFileUrl={card.videoFileUrl}
+        />
+      </div>
+    )
+  }
+
+  if (mosaic) {
+    // Mosaic tiles are different heights (the big tile spans two rows), so a picture at its own proportions leaves
+    // empty space in the taller ones. Here the picture instead grows to fill whatever space the tile has, cropped
+    // to fit (the editor's Image Fit and corner radius still apply). The spacer sets the least height it may have.
+    const minHeight = mosaic === 'hero' ? '56.25%' : (ratioToPadding(imgStyle.aspectRatio) ?? '75%')
+    return (
+      <div
+        className="relative flex-1 overflow-hidden"
+        style={{marginTop: '20px', marginBottom: '20px', borderRadius: imgStyle.borderRadius}}
+      >
+        <div aria-hidden style={{paddingTop: minHeight}} />
+        <SiteImage
+          src={card.image?.url || NO_IMAGE_FALLBACK_URL}
+          alt={card.image?.alt || card.title || 'Card Image'}
+          sizes={sizes}
+          fill
+          style={{objectFit: imgStyle.objectFit}}
         />
       </div>
     )
@@ -1451,7 +1482,13 @@ function CardsGridSection({section}: {section: Section}) {
           ) : null
 
           const mediaElement = (
-            <CardMedia card={card} imgStyle={imgStyle} sizes={cardGridSizes(section.columns)} />
+            <CardMedia
+              card={card}
+              imgStyle={imgStyle}
+              // The big mosaic tile is two columns wide, so it loads a larger picture than a single-column tile.
+              sizes={isMosaicHero ? 'content' : cardGridSizes(section.columns)}
+              mosaic={mosaicView ? (isMosaicHero ? 'hero' : 'tile') : undefined}
+            />
           )
 
           const descElement = card.description ? (
@@ -1471,7 +1508,8 @@ function CardsGridSection({section}: {section: Section}) {
 
           const cardBody = (
             <div className="flex flex-col justify-between h-full" style={cardStyleObj}>
-              <div>
+              {/* In Mosaic View this block grows to the tile's height so the picture can fill the space. */}
+              <div className={mosaicView ? 'flex flex-1 flex-col' : undefined}>
                 {order === 'titleImageDesc' && (
                   <>
                     {titleElement}
