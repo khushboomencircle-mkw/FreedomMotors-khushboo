@@ -316,19 +316,29 @@ const RADIUS_MAP: Record<string, string> = {
   full: '9999px',
 }
 
-const HEADING_SIZE_MAP: Record<string, string> = {
-  sm: '18px',
-  md: '22px',
-  lg: '26px',
-  xl: '32px',
-  '2xl': '44px',
+/**
+ * Fluid type: `min` px at a 320px-wide viewport, growing in a straight line to `max` px at 1024px,
+ * then fixed. Desktop (1024px and up) therefore keeps the exact sizes the editor picked, while a
+ * phone gets a heading that fits instead of the full desktop size.
+ */
+function fluidPx(min: number, max: number) {
+  return `clamp(${min}px, calc(${min}px + ${max - min} * (100vw - 320px) / 704), ${max}px)`
 }
 
+const HEADING_SIZE_MAP: Record<string, string> = {
+  sm: fluidPx(17, 18),
+  md: fluidPx(20, 22),
+  lg: fluidPx(22, 26),
+  xl: fluidPx(26, 32),
+  '2xl': fluidPx(30, 44),
+}
+
+// 'sm' stays a fixed 14px — it is the editor's deliberate "small print" choice.
 const DESC_SIZE_MAP: Record<string, string> = {
   sm: '14px',
   md: '16px',
-  lg: '18px',
-  xl: '20px',
+  lg: fluidPx(16, 18),
+  xl: fluidPx(17, 20),
 }
 
 const SHADOW_MAP: Record<string, string> = {
@@ -574,7 +584,7 @@ function LinkListSection({section}: {section: Section}) {
   const rowDivider = isWhiteTheme ? '#e5e7eb' : 'rgba(255,255,255,0.1)'
 
   const imageBlock = (
-    <div className="w-full md:flex-1">
+    <div className="w-full min-w-0 md:flex-1">
       {image?.url ? (
         <SiteImage
           src={image.url}
@@ -738,7 +748,7 @@ function LinkListRow({
           href={href}
           target={item.openInNewTab ? '_blank' : undefined}
           rel={item.openInNewTab ? 'noopener noreferrer' : undefined}
-          className="block"
+          className="tap-target block"
         >
           {row}
         </Link>
@@ -822,7 +832,7 @@ function FeatureGridSection({section, isFirst}: {section: Section; isFirst?: boo
   const colClasses: Record<string, string> = {
     '2': 'grid-cols-1 md:grid-cols-2',
     '3': 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
-    '4': 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4',
+    '4': 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
   }
 
   const header = (section.sectionHeading || section.sectionDescription) && (
@@ -987,14 +997,11 @@ function FeatureGridSection({section, isFirst}: {section: Section; isFirst?: boo
           const contentIsTop = section.cardContentPosition === 'top'
           const paddingTop = section.cardContentPaddingTop ?? 24
           const paddingLeft = section.cardContentPaddingLeft ?? 24
-          const contentStyle: React.CSSProperties = contentIsTop
-            ? {
-                position: 'absolute',
-                top: `${paddingTop}px`,
-                left: `${paddingLeft}px`,
-                right: `${paddingLeft}px`,
-              }
-            : {position: 'absolute', bottom: 0, left: 0, right: 0, padding: `24px ${paddingLeft}px`}
+          // Title/description sit at the top or bottom of the card, in its flow (see the card's flex
+          // classes below), so long text makes the card taller instead of being clipped.
+          const flowContentStyle: React.CSSProperties = contentIsTop
+            ? {position: 'relative', margin: `${paddingTop}px ${paddingLeft}px 0`}
+            : {position: 'relative', padding: `24px ${paddingLeft}px`}
 
           // `!== false`, not `=== true` or a truthy check: every document
           // saved before this field existed comes back with it absent
@@ -1005,9 +1012,11 @@ function FeatureGridSection({section, isFirst}: {section: Section; isFirst?: boo
 
           const cardInner = overImage ? (
             <div
-              className="relative overflow-hidden w-full group"
+              // The mosaic's big tile is only double height where it really spans two rows (md and up).
+              className={`relative flex w-full flex-col overflow-hidden group min-h-[var(--card-h)] ${contentIsTop ? 'justify-start' : 'justify-end'}${isMosaicHero ? ' md:min-h-[var(--mosaic-h)]' : ''}`}
               style={{
-                height: effectiveCardHeight,
+                ['--card-h' as string]: cardH,
+                ['--mosaic-h' as string]: effectiveCardHeight,
                 borderRadius: `${section.featureCardRadius ?? 0}px`,
               }}
             >
@@ -1037,7 +1046,7 @@ function FeatureGridSection({section, isFirst}: {section: Section; isFirst?: boo
                 />
               )}
               {/* Title / description content */}
-              <div className="flex flex-col gap-3" style={contentStyle}>
+              <div className="flex flex-col gap-3" style={flowContentStyle}>
                 {f.title && (
                   <div className="flex items-stretch gap-4">
                     {showBar && <span aria-hidden className="shrink-0 self-stretch" />}
@@ -1162,7 +1171,7 @@ function FeatureGridSection({section, isFirst}: {section: Section; isFirst?: boo
 
           const href = f.linkUrl || f.link?.endpoint
           const mosaicWrapperClass = mosaicView
-            ? `h-full ${isMosaicHero ? 'col-span-2 row-span-2' : ''}`.trim()
+            ? `h-full ${isMosaicHero ? 'md:col-span-2 md:row-span-2' : ''}`.trim()
             : undefined
           if (isVideo && (f.videoUrl || f.videoFileUrl)) {
             return (
@@ -1311,7 +1320,7 @@ function CardsGridSection({section}: {section: Section}) {
     '1': 'grid-cols-1',
     '2': 'grid-cols-1 md:grid-cols-2',
     '3': 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
-    '4': 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4',
+    '4': 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
   }
 
   // Kept visible by default (no explicit `show: false`) to match this card
@@ -1499,7 +1508,7 @@ function CardsGridSection({section}: {section: Section}) {
               // only matters once a hero tile is actually 2 rows tall.
               className={
                 mosaicView
-                  ? `h-full ${isMosaicHero ? 'col-span-2 row-span-2' : ''}`.trim()
+                  ? `h-full ${isMosaicHero ? 'md:col-span-2 md:row-span-2' : ''}`.trim()
                   : undefined
               }
             >
@@ -1569,7 +1578,7 @@ type Photo = NonNullable<Section['photos']>[number]
 const PHOTO_GALLERY_COL_CLASSES: Record<string, string> = {
   '2': 'grid-cols-1 sm:grid-cols-2',
   '3': 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
-  '4': 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4',
+  '4': 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
 }
 
 /**
@@ -2118,7 +2127,7 @@ function SplitLayoutSection({section}: {section: Section}) {
     rowHeight === 'auto'
       ? {}
       : rowHeight === '100vh'
-        ? {minHeight: '100vh'}
+        ? {minHeight: '100dvh'}
         : {minHeight: `${rowHeight}px`}
 
   const isWhiteTheme =
@@ -2132,9 +2141,11 @@ function SplitLayoutSection({section}: {section: Section}) {
 
   const imageBlock = (
     <div
-      className="w-full md:flex-1"
+      // Below lg the two columns may shrink so 50% + 50% + the gap fits the row (it was wider than the
+      // row, pushing the text off a tablet's screen). From lg up they keep their fixed width, unchanged.
+      className="w-full min-w-0 md:flex-[0_1_var(--split-basis)] lg:flex-[0_0_var(--split-basis)]"
       style={{
-        flex: `0 0 ${imgWidthPct}%`,
+        ['--split-basis' as string]: `${imgWidthPct}%`,
         maxWidth: '100%',
         display: 'flex',
         flexDirection: 'column',
@@ -2198,9 +2209,9 @@ function SplitLayoutSection({section}: {section: Section}) {
 
   const contentBlock = (
     <div
-      className="w-full md:flex-1"
+      className="w-full min-w-0 md:flex-[0_1_var(--split-basis)] lg:flex-[0_0_var(--split-basis)]"
       style={{
-        flex: `0 0 ${contentWidthPct}%`,
+        ['--split-basis' as string]: `${contentWidthPct}%`,
         maxWidth: '100%',
         backgroundColor: contentBg === 'transparent' ? undefined : contentBg,
         display: 'flex',
@@ -2787,13 +2798,16 @@ export default function PageSection({
     backgroundColor: bgImageUrl ? undefined : `var(--theme-bg, ${bgColor})`,
     color: `var(--theme-text, ${textColor})`,
     fontFamily: 'var(--theme-body-font, inherit)',
-    paddingTop: isFullBleed ? '0px' : '72px',
-    paddingBottom: isFullBleed ? '0px' : '72px',
+    // Full-bleed sections have no padding; the others get theirs from `sectionPaddingClass` below.
+    paddingTop: isFullBleed ? '0px' : undefined,
+    paddingBottom: isFullBleed ? '0px' : undefined,
     width: '100%',
     position: 'relative',
   }
 
   const showBgOverlay = bgOverlayAlpha > 0
+  // Section padding scales with the screen: 40px on phones, 56px on tablets, 72px from 1024px up.
+  const sectionPaddingClass = isFullBleed ? '' : 'py-10 sm:py-14 lg:py-[72px]'
 
   const bgOverlayEl = showBgOverlay ? (
     <div
@@ -2834,7 +2848,7 @@ export default function PageSection({
 
   if (section.expandable) {
     return (
-      <section {...sectionHooks(section)} style={outerWrapperStyle}>
+      <section {...sectionHooks(section, sectionPaddingClass)} style={outerWrapperStyle}>
         {bgImageEl}
         {bgOverlayEl}
         <div className={containerClass} style={{...innerStyle, ...contentLayerStyle}}>
@@ -2875,7 +2889,7 @@ export default function PageSection({
   }
 
   return (
-    <section {...sectionHooks(section)} style={outerWrapperStyle}>
+    <section {...sectionHooks(section, sectionPaddingClass)} style={outerWrapperStyle}>
       {bgImageEl}
       {bgOverlayEl}
       <div className={containerClass} style={{...innerStyle, ...contentLayerStyle}}>
