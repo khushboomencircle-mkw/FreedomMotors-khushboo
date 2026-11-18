@@ -15,10 +15,11 @@ import {sanitizeHtml} from '@/lib/sanitizeHtml'
 import {resolveSectionTheme, themeToCssVars, type ThemeConfig} from '@/lib/theme'
 import {toPlainText} from '@/lib/richText'
 import RichText from './RichText'
+import SiteImage, {NO_IMAGE_SRC} from './SiteImage'
+import type {ImageSizePreset} from '@/lib/imageSizes'
 
-/** Shown in place of a card/feature's image whenever none is uploaded — the live site's own "no image" placeholder asset. */
-export const NO_IMAGE_FALLBACK_URL =
-  'https://www.freedommotors.com/wp-content/uploads/2023/04/no-image-big-e1685047217875.jpg'
+/** Shown in place of a card/feature's image whenever none is uploaded — our own local copy of the "no image" placeholder (public/images). */
+export const NO_IMAGE_FALLBACK_URL = NO_IMAGE_SRC
 
 export interface SectionImage {
   _key: string
@@ -315,19 +316,29 @@ const RADIUS_MAP: Record<string, string> = {
   full: '9999px',
 }
 
-const HEADING_SIZE_MAP: Record<string, string> = {
-  sm: '18px',
-  md: '22px',
-  lg: '26px',
-  xl: '32px',
-  '2xl': '44px',
+/**
+ * Fluid type: `min` px at a 320px-wide viewport, growing in a straight line to `max` px at 1024px,
+ * then fixed. Desktop (1024px and up) therefore keeps the exact sizes the editor picked, while a
+ * phone gets a heading that fits instead of the full desktop size.
+ */
+function fluidPx(min: number, max: number) {
+  return `clamp(${min}px, calc(${min}px + ${max - min} * (100vw - 320px) / 704), ${max}px)`
 }
 
+const HEADING_SIZE_MAP: Record<string, string> = {
+  sm: fluidPx(17, 18),
+  md: fluidPx(20, 22),
+  lg: fluidPx(22, 26),
+  xl: fluidPx(26, 32),
+  '2xl': fluidPx(30, 44),
+}
+
+// 'sm' stays a fixed 14px — it is the editor's deliberate "small print" choice.
 const DESC_SIZE_MAP: Record<string, string> = {
   sm: '14px',
   md: '16px',
-  lg: '18px',
-  xl: '20px',
+  lg: fluidPx(16, 18),
+  xl: fluidPx(17, 20),
 }
 
 const SHADOW_MAP: Record<string, string> = {
@@ -573,11 +584,12 @@ function LinkListSection({section}: {section: Section}) {
   const rowDivider = isWhiteTheme ? '#e5e7eb' : 'rgba(255,255,255,0.1)'
 
   const imageBlock = (
-    <div className="w-full md:flex-1">
+    <div className="w-full min-w-0 md:flex-1">
       {image?.url ? (
-        <img
+        <SiteImage
           src={image.url}
           alt={image.alt || section.sectionHeading || 'Section image'}
+          sizes="half"
           className="w-full h-full object-cover rounded-lg"
           style={{minHeight: '420px'}}
         />
@@ -736,7 +748,7 @@ function LinkListRow({
           href={href}
           target={item.openInNewTab ? '_blank' : undefined}
           rel={item.openInNewTab ? 'noopener noreferrer' : undefined}
-          className="block"
+          className="tap-target block"
         >
           {row}
         </Link>
@@ -744,6 +756,17 @@ function LinkListRow({
     )
   }
   return <li>{row}</li>
+}
+
+/** The `sizes` preset for a grid with this many desktop columns (1 on phones). */
+function cardGridSizes(columns?: string): ImageSizePreset {
+  return columns === '1'
+    ? 'cardGrid1'
+    : columns === '2'
+      ? 'cardGrid2'
+      : columns === '4'
+        ? 'cardGrid4'
+        : 'cardGrid3'
 }
 
 const CARD_WIDTH_MAP: Record<string, string> = {
@@ -772,7 +795,14 @@ function FeaturePlayButton({
         style={{background: imageUrl ? 'transparent' : accent || '#dc2626'}}
       >
         {imageUrl ? (
-          <img src={imageUrl} alt="Play" className="w-full h-full object-cover" />
+          <SiteImage
+            src={imageUrl}
+            alt="Play"
+            sizes="icon"
+            width={96}
+            height={96}
+            className="w-full h-full object-cover"
+          />
         ) : (
           <span className="pl-1">▶</span>
         )}
@@ -786,7 +816,7 @@ function FeaturePlayButton({
   )
 }
 
-function FeatureGridSection({section}: {section: Section}) {
+function FeatureGridSection({section, isFirst}: {section: Section; isFirst?: boolean}) {
   const features = section.features || []
   if (features.length === 0) return null
 
@@ -802,7 +832,7 @@ function FeatureGridSection({section}: {section: Section}) {
   const colClasses: Record<string, string> = {
     '2': 'grid-cols-1 md:grid-cols-2',
     '3': 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
-    '4': 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4',
+    '4': 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
   }
 
   const header = (section.sectionHeading || section.sectionDescription) && (
@@ -898,6 +928,7 @@ function FeatureGridSection({section}: {section: Section}) {
           cardContentPosition={section.cardContentPosition}
           cardContentPaddingTop={section.cardContentPaddingTop}
           cardContentPaddingLeft={section.cardContentPaddingLeft}
+          preloadFirst={isFirst}
         />
         {footer && <div className="max-w-7xl mx-auto px-5 sm:px-8 pb-16 sm:pb-20">{footer}</div>}
       </div>
@@ -966,14 +997,11 @@ function FeatureGridSection({section}: {section: Section}) {
           const contentIsTop = section.cardContentPosition === 'top'
           const paddingTop = section.cardContentPaddingTop ?? 24
           const paddingLeft = section.cardContentPaddingLeft ?? 24
-          const contentStyle: React.CSSProperties = contentIsTop
-            ? {
-                position: 'absolute',
-                top: `${paddingTop}px`,
-                left: `${paddingLeft}px`,
-                right: `${paddingLeft}px`,
-              }
-            : {position: 'absolute', bottom: 0, left: 0, right: 0, padding: `24px ${paddingLeft}px`}
+          // Title/description sit at the top or bottom of the card, in its flow (see the card's flex
+          // classes below), so long text makes the card taller instead of being clipped.
+          const flowContentStyle: React.CSSProperties = contentIsTop
+            ? {position: 'relative', margin: `${paddingTop}px ${paddingLeft}px 0`}
+            : {position: 'relative', padding: `24px ${paddingLeft}px`}
 
           // `!== false`, not `=== true` or a truthy check: every document
           // saved before this field existed comes back with it absent
@@ -984,17 +1012,21 @@ function FeatureGridSection({section}: {section: Section}) {
 
           const cardInner = overImage ? (
             <div
-              className="relative overflow-hidden w-full group"
+              // The mosaic's big tile is only double height where it really spans two rows (md and up).
+              className={`relative flex w-full flex-col overflow-hidden group min-h-[var(--card-h)] ${contentIsTop ? 'justify-start' : 'justify-end'}${isMosaicHero ? ' md:min-h-[var(--mosaic-h)]' : ''}`}
               style={{
-                height: effectiveCardHeight,
+                ['--card-h' as string]: cardH,
+                ['--mosaic-h' as string]: effectiveCardHeight,
                 borderRadius: `${section.featureCardRadius ?? 0}px`,
               }}
             >
               {bgUrl && (
-                <img
+                <SiteImage
                   src={bgUrl}
                   alt={(isVideo ? f.videoThumbnail?.alt : f.image?.alt) || f.title || 'Feature'}
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  sizes="scroller"
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               )}
               {overlay !== 'transparent' && (
@@ -1014,7 +1046,7 @@ function FeatureGridSection({section}: {section: Section}) {
                 />
               )}
               {/* Title / description content */}
-              <div className="flex flex-col gap-3" style={contentStyle}>
+              <div className="flex flex-col gap-3" style={flowContentStyle}>
                 {f.title && (
                   <div className="flex items-stretch gap-4">
                     {showBar && <span aria-hidden className="shrink-0 self-stretch" />}
@@ -1065,10 +1097,12 @@ function FeatureGridSection({section}: {section: Section}) {
               const mediaElement = (
                 <div className="relative w-full shrink-0 overflow-hidden" style={{height: cardH}}>
                   {bgUrl && (
-                    <img
+                    <SiteImage
                       src={bgUrl}
                       alt={(isVideo ? f.videoThumbnail?.alt : f.image?.alt) || f.title || 'Feature'}
-                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      sizes="scroller"
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                   )}
                   <div
@@ -1137,7 +1171,7 @@ function FeatureGridSection({section}: {section: Section}) {
 
           const href = f.linkUrl || f.link?.endpoint
           const mosaicWrapperClass = mosaicView
-            ? `h-full ${isMosaicHero ? 'col-span-2 row-span-2' : ''}`.trim()
+            ? `h-full ${isMosaicHero ? 'md:col-span-2 md:row-span-2' : ''}`.trim()
             : undefined
           if (isVideo && (f.videoUrl || f.videoFileUrl)) {
             return (
@@ -1179,7 +1213,15 @@ const VIDEO_SIZE_MAP: Record<string, string> = {
   xl: '560px',
 }
 
-function CardMedia({card, imgStyle}: {card: StepCard; imgStyle: React.CSSProperties}) {
+function CardMedia({
+  card,
+  imgStyle,
+  sizes,
+}: {
+  card: StepCard
+  imgStyle: React.CSSProperties
+  sizes: ImageSizePreset
+}) {
   const mediaType = card.mediaType || (card.image?.url ? 'image' : 'none')
   if (mediaType === 'none') return null
 
@@ -1196,10 +1238,12 @@ function CardMedia({card, imgStyle}: {card: StepCard; imgStyle: React.CSSPropert
         style={{aspectRatio: aspect, maxHeight: height, borderRadius: imgStyle.borderRadius}}
       >
         {thumb ? (
-          <img
+          <SiteImage
             src={thumb}
             alt={card.videoThumbnail?.alt || card.title || 'Video'}
-            className="w-full h-full object-cover"
+            sizes={sizes}
+            fill
+            className="object-cover"
           />
         ) : null}
         <div className="absolute inset-0 flex items-center justify-center">
@@ -1223,9 +1267,10 @@ function CardMedia({card, imgStyle}: {card: StepCard; imgStyle: React.CSSPropert
 
   return (
     <div style={{marginTop: '20px', marginBottom: '20px'}}>
-      <img
+      <SiteImage
         src={card.image?.url || NO_IMAGE_FALLBACK_URL}
         alt={card.image?.alt || card.title || 'Card Image'}
+        sizes={sizes}
         style={imgStyle}
       />
     </div>
@@ -1275,7 +1320,7 @@ function CardsGridSection({section}: {section: Section}) {
     '1': 'grid-cols-1',
     '2': 'grid-cols-1 md:grid-cols-2',
     '3': 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
-    '4': 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4',
+    '4': 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
   }
 
   // Kept visible by default (no explicit `show: false`) to match this card
@@ -1326,6 +1371,8 @@ function CardsGridSection({section}: {section: Section}) {
     objectFit: (cs?.cardImageFit as React.CSSProperties['objectFit']) || 'cover',
     borderRadius: RADIUS_MAP[cs?.cardImageBorderRadius || 'none'] || '0px',
     width: '100%',
+    // next/image writes width/height attributes; `auto` keeps the picture's natural proportions, as before.
+    height: 'auto',
     display: 'block',
   }
 
@@ -1402,7 +1449,9 @@ function CardsGridSection({section}: {section: Section}) {
             </div>
           ) : null
 
-          const mediaElement = <CardMedia card={card} imgStyle={imgStyle} />
+          const mediaElement = (
+            <CardMedia card={card} imgStyle={imgStyle} sizes={cardGridSizes(section.columns)} />
+          )
 
           const descElement = card.description ? (
             <RichText
@@ -1459,7 +1508,7 @@ function CardsGridSection({section}: {section: Section}) {
               // only matters once a hero tile is actually 2 rows tall.
               className={
                 mosaicView
-                  ? `h-full ${isMosaicHero ? 'col-span-2 row-span-2' : ''}`.trim()
+                  ? `h-full ${isMosaicHero ? 'md:col-span-2 md:row-span-2' : ''}`.trim()
                   : undefined
               }
             >
@@ -1529,7 +1578,7 @@ type Photo = NonNullable<Section['photos']>[number]
 const PHOTO_GALLERY_COL_CLASSES: Record<string, string> = {
   '2': 'grid-cols-1 sm:grid-cols-2',
   '3': 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
-  '4': 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4',
+  '4': 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
 }
 
 /**
@@ -1544,12 +1593,15 @@ function PhotoGallerySection({section}: {section: Section}) {
   const layout = section.layout || 'grid'
   const lightbox = section.lightbox === true
 
-  const renderPhoto = (photo: Photo, className: string) => {
+  // Tiles are `relative` boxes of a fixed shape, so each photo fills its tile (cropped, as before).
+  const renderPhoto = (photo: Photo, className: string, sizes: ImageSizePreset) => {
     const img = (
-      <img
+      <SiteImage
         src={photo.url}
         alt={photo.alt || ''}
-        className={`w-full h-full object-cover ${className}`}
+        sizes={sizes}
+        fill
+        className={`object-cover ${className}`}
       />
     )
     return lightbox ? <ImageLightbox trigger={img} src={photo.url!} alt={photo.alt} /> : img
@@ -1559,8 +1611,8 @@ function PhotoGallerySection({section}: {section: Section}) {
     return (
       <OneColumnSlider showArrows showDots>
         {photos.map((photo) => (
-          <div key={photo._key} className="w-full aspect-video overflow-hidden rounded-lg">
-            {renderPhoto(photo, 'rounded-lg')}
+          <div key={photo._key} className="relative w-full aspect-video overflow-hidden rounded-lg">
+            {renderPhoto(photo, 'rounded-lg', 'content')}
           </div>
         ))}
       </OneColumnSlider>
@@ -1575,9 +1627,9 @@ function PhotoGallerySection({section}: {section: Section}) {
         {photos.map((photo, i) => (
           <div
             key={photo._key}
-            className={`overflow-hidden rounded-lg ${i % 5 === 0 ? 'col-span-2 row-span-2' : ''}`}
+            className={`relative overflow-hidden rounded-lg ${i % 5 === 0 ? 'col-span-2 row-span-2' : ''}`}
           >
-            {renderPhoto(photo, 'rounded-lg')}
+            {renderPhoto(photo, 'rounded-lg', 'cardGrid2')}
           </div>
         ))}
       </div>
@@ -1590,8 +1642,8 @@ function PhotoGallerySection({section}: {section: Section}) {
   return (
     <div className={`grid ${colClass} gap-4`}>
       {photos.map((photo) => (
-        <div key={photo._key} className="aspect-[4/3] overflow-hidden rounded-lg">
-          {renderPhoto(photo, 'rounded-lg')}
+        <div key={photo._key} className="relative aspect-[4/3] overflow-hidden rounded-lg">
+          {renderPhoto(photo, 'rounded-lg', cardGridSizes(section.columns))}
         </div>
       ))}
     </div>
@@ -1782,11 +1834,14 @@ function HeroBannerSection({
   imageUrl,
   altText,
   image,
+  preload,
 }: {
   section: Section
   imageUrl: string
   altText?: string
   image?: SectionImage
+  /** True for the first section of the page: its banner is the largest above-the-fold image, so it is preloaded. */
+  preload?: boolean
 }) {
   const bannerAccordion = section.items || []
   const hasBannerAccordion = bannerAccordion.length > 0
@@ -1821,10 +1876,13 @@ function HeroBannerSection({
   return (
     <>
       <div className={`relative w-full overflow-hidden ${bannerHeightClass} flex items-center`}>
-        <img
+        <SiteImage
           src={imageUrl}
           alt={altText || section.heading || 'Hero'}
-          className="absolute inset-0 w-full h-full object-cover"
+          sizes="hero"
+          fill
+          preload={preload}
+          className="object-cover"
           style={{...objectPositionStyle, ...(image ? resolveImageStyle(image) : {})}}
         />
 
@@ -1954,12 +2012,15 @@ function BannerImageCard({
   className,
   style,
   enableHover = true,
+  sizes,
 }: {
   img: SectionImage
   fallbackAlt?: string
   className?: string
   style?: React.CSSProperties
   enableHover?: boolean
+  /** How wide the card is shown (a preset from lib/imageSizes.ts). */
+  sizes: ImageSizePreset
 }) {
   const styles = splitImageStyles(img)
   const hasOverlay = Boolean(img.overlayTitle || img.overlayDescription)
@@ -1971,10 +2032,12 @@ function BannerImageCard({
       style={{...styles.wrapper, overflow: 'hidden', ...style}}
     >
       {img.url && (
-        <img
+        <SiteImage
           src={img.url}
           alt={img.alt || img.overlayTitle || fallbackAlt || 'Image'}
-          className={`absolute inset-0 w-full h-full object-cover block ${enableHover ? 'transition-transform duration-500 group-hover:scale-105' : ''}`}
+          sizes={sizes}
+          fill
+          className={`object-cover block ${enableHover ? 'transition-transform duration-500 group-hover:scale-105' : ''}`}
           style={{objectFit: styles.image.objectFit || 'cover'}}
         />
       )}
@@ -2064,7 +2127,7 @@ function SplitLayoutSection({section}: {section: Section}) {
     rowHeight === 'auto'
       ? {}
       : rowHeight === '100vh'
-        ? {minHeight: '100vh'}
+        ? {minHeight: '100dvh'}
         : {minHeight: `${rowHeight}px`}
 
   const isWhiteTheme =
@@ -2078,9 +2141,11 @@ function SplitLayoutSection({section}: {section: Section}) {
 
   const imageBlock = (
     <div
-      className="w-full md:flex-1"
+      // Below lg the two columns may shrink so 50% + 50% + the gap fits the row (it was wider than the
+      // row, pushing the text off a tablet's screen). From lg up they keep their fixed width, unchanged.
+      className="w-full min-w-0 md:flex-[0_1_var(--split-basis)] lg:flex-[0_0_var(--split-basis)]"
       style={{
-        flex: `0 0 ${imgWidthPct}%`,
+        ['--split-basis' as string]: `${imgWidthPct}%`,
         maxWidth: '100%',
         display: 'flex',
         flexDirection: 'column',
@@ -2096,10 +2161,12 @@ function SplitLayoutSection({section}: {section: Section}) {
               minHeight: imageMinHeight || '420px',
             }}
           >
-            <img
+            <SiteImage
               src={images[0].url}
               alt={images[0].alt || section.heading || 'Section image'}
-              className="absolute inset-0 w-full h-full block"
+              sizes="split"
+              fill
+              className="block"
               style={{objectFit: singleImageStyles.image.objectFit || 'cover'}}
             />
           </div>
@@ -2111,6 +2178,7 @@ function SplitLayoutSection({section}: {section: Section}) {
               <div key={img._key} style={{width: '100%', minHeight: '260px'}}>
                 <BannerImageCard
                   img={img}
+                  sizes="split"
                   fallbackAlt={section.heading}
                   enableHover={section.enableImageHover !== false}
                 />
@@ -2125,6 +2193,7 @@ function SplitLayoutSection({section}: {section: Section}) {
               <div key={img._key} style={{flex: '1 1 0', minWidth: '220px', minHeight: '260px'}}>
                 <BannerImageCard
                   img={img}
+                  sizes="split"
                   fallbackAlt={section.heading}
                   enableHover={section.enableImageHover !== false}
                 />
@@ -2140,9 +2209,9 @@ function SplitLayoutSection({section}: {section: Section}) {
 
   const contentBlock = (
     <div
-      className="w-full md:flex-1"
+      className="w-full min-w-0 md:flex-[0_1_var(--split-basis)] lg:flex-[0_0_var(--split-basis)]"
       style={{
-        flex: `0 0 ${contentWidthPct}%`,
+        ['--split-basis' as string]: `${contentWidthPct}%`,
         maxWidth: '100%',
         backgroundColor: contentBg === 'transparent' ? undefined : contentBg,
         display: 'flex',
@@ -2263,9 +2332,11 @@ function SplitLayoutSection({section}: {section: Section}) {
 function StandardSectionContent({
   section,
   isWhiteTheme,
+  isFirst,
 }: {
   section: Section
   isWhiteTheme: boolean
+  isFirst?: boolean
 }) {
   const typo = section.typography
   const images = section.images || []
@@ -2284,6 +2355,7 @@ function StandardSectionContent({
         imageUrl={images[0].url || ''}
         altText={images[0].alt}
         image={images[0]}
+        preload={isFirst}
       />
     )
   }
@@ -2399,9 +2471,10 @@ function StandardSectionContent({
         <div className="w-full">
           {images.length === 1 ? (
             <div className="max-w-6xl mx-auto">
-              <img
+              <SiteImage
                 src={images[0].url}
                 alt={images[0].alt || section.heading || 'Section Image'}
+                sizes="content"
                 className="w-full h-auto object-contain block mx-auto"
                 style={resolveImageStyle(images[0])}
               />
@@ -2417,6 +2490,7 @@ function StandardSectionContent({
                     <div key={img._key} className="w-full relative" style={{minHeight: '320px'}}>
                       <BannerImageCard
                         img={img}
+                        sizes="contentHalf"
                         fallbackAlt={section.heading}
                         enableHover={section.enableImageHover !== false}
                       />
@@ -2425,9 +2499,10 @@ function StandardSectionContent({
                 }
                 return (
                   <div key={img._key} className="flex flex-col items-center">
-                    <img
+                    <SiteImage
                       src={img.url}
                       alt={img.alt || ''}
+                      sizes="contentHalf"
                       className="w-full h-auto object-contain"
                       style={resolveImageStyle(img)}
                     />
@@ -2547,7 +2622,14 @@ function GoogleReviewsSection({
   )
 }
 
-export default function PageSection({section}: {section: Section}) {
+export default function PageSection({
+  section,
+  isFirst,
+}: {
+  section: Section
+  /** True for the first section on the page — its above-the-fold image (hero banner) is preloaded. Pass it for one section per page. */
+  isFirst?: boolean
+}) {
   // Deactivated sections are hidden from the page (not deleted). Default on,
   // so existing content without the field keeps rendering.
   if (section.isActive === false) return null
@@ -2662,6 +2744,18 @@ export default function PageSection({section}: {section: Section}) {
     ? Math.max(0, Math.min(90, cont?.backgroundOverlay ?? 0)) / 100
     : 0
   const bgImagePos = cont?.backgroundImagePosition || 'center'
+  // The background image is a real (optimized, lazy) image filling the section, not a CSS background-image,
+  // so it goes through the same resize/format pipeline as every other picture.
+  const bgImageEl = bgImageUrl ? (
+    <SiteImage
+      src={bgImageUrl}
+      alt=""
+      sizes="background"
+      fill
+      className="object-cover"
+      style={{objectPosition: bgImagePos}}
+    />
+  ) : null
 
   // Theme resolution: a section with its own theme sets only its defined vars
   // here; everything else inherits the global theme from :root. bg/text use the
@@ -2704,21 +2798,16 @@ export default function PageSection({section}: {section: Section}) {
     backgroundColor: bgImageUrl ? undefined : `var(--theme-bg, ${bgColor})`,
     color: `var(--theme-text, ${textColor})`,
     fontFamily: 'var(--theme-body-font, inherit)',
-    paddingTop: isFullBleed ? '0px' : '72px',
-    paddingBottom: isFullBleed ? '0px' : '72px',
+    // Full-bleed sections have no padding; the others get theirs from `sectionPaddingClass` below.
+    paddingTop: isFullBleed ? '0px' : undefined,
+    paddingBottom: isFullBleed ? '0px' : undefined,
     width: '100%',
     position: 'relative',
-    ...(bgImageUrl
-      ? {
-          backgroundImage: `url(${bgImageUrl})`,
-          backgroundSize: 'cover',
-          backgroundPosition: bgImagePos,
-          backgroundRepeat: 'no-repeat',
-        }
-      : {}),
   }
 
   const showBgOverlay = bgOverlayAlpha > 0
+  // Section padding scales with the screen: 40px on phones, 56px on tablets, 72px from 1024px up.
+  const sectionPaddingClass = isFullBleed ? '' : 'py-10 sm:py-14 lg:py-[72px]'
 
   const bgOverlayEl = showBgOverlay ? (
     <div
@@ -2759,7 +2848,8 @@ export default function PageSection({section}: {section: Section}) {
 
   if (section.expandable) {
     return (
-      <section {...sectionHooks(section)} style={outerWrapperStyle}>
+      <section {...sectionHooks(section, sectionPaddingClass)} style={outerWrapperStyle}>
+        {bgImageEl}
         {bgOverlayEl}
         <div className={containerClass} style={{...innerStyle, ...contentLayerStyle}}>
           <ExpandableSection
@@ -2776,7 +2866,7 @@ export default function PageSection({section}: {section: Section}) {
             {isLinkList ? (
               <LinkListSection section={section} />
             ) : isFeatureGrid ? (
-              <FeatureGridSection section={section} />
+              <FeatureGridSection section={section} isFirst={isFirst} />
             ) : isCardsGrid ? (
               <CardsGridSection section={section} />
             ) : isPhotoGallery ? (
@@ -2786,7 +2876,11 @@ export default function PageSection({section}: {section: Section}) {
             ) : isVehicleCarousel ? (
               <VehicleCarouselSection section={section} />
             ) : (
-              <StandardSectionContent section={section} isWhiteTheme={isWhiteTheme} />
+              <StandardSectionContent
+                section={section}
+                isWhiteTheme={isWhiteTheme}
+                isFirst={isFirst}
+              />
             )}
           </ExpandableSection>
         </div>
@@ -2795,13 +2889,14 @@ export default function PageSection({section}: {section: Section}) {
   }
 
   return (
-    <section {...sectionHooks(section)} style={outerWrapperStyle}>
+    <section {...sectionHooks(section, sectionPaddingClass)} style={outerWrapperStyle}>
+      {bgImageEl}
       {bgOverlayEl}
       <div className={containerClass} style={{...innerStyle, ...contentLayerStyle}}>
         {isLinkList ? (
           <LinkListSection section={section} />
         ) : isFeatureGrid ? (
-          <FeatureGridSection section={section} />
+          <FeatureGridSection section={section} isFirst={isFirst} />
         ) : isCardsGrid ? (
           <CardsGridSection section={section} />
         ) : isPhotoGallery ? (
@@ -2811,7 +2906,7 @@ export default function PageSection({section}: {section: Section}) {
         ) : isVehicleCarousel ? (
           <VehicleCarouselSection section={section} />
         ) : (
-          <StandardSectionContent section={section} isWhiteTheme={isWhiteTheme} />
+          <StandardSectionContent section={section} isWhiteTheme={isWhiteTheme} isFirst={isFirst} />
         )}
       </div>
     </section>

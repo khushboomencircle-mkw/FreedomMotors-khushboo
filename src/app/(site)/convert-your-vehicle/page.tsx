@@ -55,8 +55,8 @@ async function PageContent() {
       )}
 
       <div className="w-full">
-        {page.sections?.map((section: Section) => (
-          <PageSection key={section._key} section={section} />
+        {page.sections?.map((section: Section, i: number) => (
+          <PageSection key={section._key} section={section} isFirst={i === 0} />
         ))}
       </div>
     </div>
@@ -67,7 +67,7 @@ export default function ConvertYourVehiclePage() {
   return (
     <div
       data-page-css={pageCssId('convert-your-vehicle')}
-      className="min-h-screen overflow-x-hidden"
+      className="min-h-dvh overflow-x-hidden"
       style={{background: 'var(--theme-bg, #121212)', color: 'var(--theme-text, #ffffff)'}}
     >
       <Suspense fallback={<p className="text-gray-400 text-center py-24">Loading...</p>}>

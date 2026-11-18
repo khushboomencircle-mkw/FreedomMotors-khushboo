@@ -4,6 +4,7 @@ import React, {useRef, useState, useEffect, useCallback} from 'react'
 import Link from 'next/link'
 import VideoLightbox from './VideoLightbox'
 import RichText from './RichText'
+import SiteImage from './SiteImage'
 
 interface Feature {
   _key: string
@@ -67,7 +68,14 @@ function PlayButton({accent, label, imageUrl}: {accent: string; label: string; i
         style={{background: imageUrl ? 'transparent' : accent || '#dc2626'}}
       >
         {imageUrl ? (
-          <img src={imageUrl} alt="Play" className="w-full h-full object-cover" />
+          <SiteImage
+            src={imageUrl}
+            alt="Play"
+            sizes="icon"
+            width={96}
+            height={96}
+            className="w-full h-full object-cover"
+          />
         ) : (
           <span className="pl-1">▶</span>
         )}
@@ -192,25 +200,28 @@ export default function FeatureGridScroller({
     const contentIsTop = cardContentPosition === 'top'
     const padTop = cardContentPaddingTop ?? 24
     const padLeft = cardContentPaddingLeft ?? 24
+    // At the top or bottom of the card, in its flow — so long text makes the card taller instead of being clipped.
     const contentStyle: React.CSSProperties = contentIsTop
-      ? {position: 'absolute', top: `${padTop}px`, left: `${padLeft}px`, right: `${padLeft}px`}
-      : {position: 'absolute', bottom: 0, left: 0, right: 0, padding: `24px ${padLeft}px`}
+      ? {position: 'relative', margin: `${padTop}px ${padLeft}px 0`}
+      : {position: 'relative', padding: `24px ${padLeft}px`}
 
     const cardInner = (
       <div
-        className="relative overflow-hidden flex-none group bg-gray-900"
+        className={`relative flex flex-none flex-col overflow-hidden group bg-gray-900 ${contentIsTop ? 'justify-start' : 'justify-end'}`}
         style={{
           width: cardW,
-          height: cardHeight,
+          minHeight: cardHeight,
           scrollSnapAlign: 'start',
           borderRadius: `${cardRadius}px`,
         }}
       >
         {bgUrl && (
-          <img
+          <SiteImage
             src={bgUrl}
             alt={(isVideo ? f.videoThumbnail?.alt : f.image?.alt) || f.title || 'Feature'}
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            sizes="scroller"
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
             draggable={false}
           />
         )}
@@ -287,7 +298,7 @@ export default function FeatureGridScroller({
         <button
           aria-label="Scroll left"
           onClick={() => scrollBy('left')}
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 -translate-x-4 w-10 h-10 rounded-full bg-white/90 text-gray-900 shadow-lg flex items-center justify-center text-lg font-bold transition-all duration-150 hover:bg-red-600 hover:text-white"
+          className="tap-target absolute left-0 top-1/2 -translate-y-1/2 z-10 -translate-x-4 w-10 h-10 rounded-full bg-white/90 text-gray-900 shadow-lg flex items-center justify-center text-lg font-bold transition-all duration-150 hover:bg-red-600 hover:text-white"
         >
           ←
         </button>
@@ -296,7 +307,7 @@ export default function FeatureGridScroller({
         <button
           aria-label="Scroll right"
           onClick={() => scrollBy('right')}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 translate-x-4 w-10 h-10 rounded-full bg-white/90 text-gray-900 shadow-lg flex items-center justify-center text-lg font-bold transition-all duration-150 hover:bg-red-600 hover:text-white"
+          className="tap-target absolute right-0 top-1/2 -translate-y-1/2 z-10 translate-x-4 w-10 h-10 rounded-full bg-white/90 text-gray-900 shadow-lg flex items-center justify-center text-lg font-bold transition-all duration-150 hover:bg-red-600 hover:text-white"
         >
           →
         </button>
@@ -304,7 +315,11 @@ export default function FeatureGridScroller({
 
       <div
         ref={scrollRef}
-        className="flex overflow-x-auto scrollbar-hide"
+        // Focusable so the arrow keys scroll it, even when no card in it is a link.
+        tabIndex={0}
+        role="region"
+        aria-label="Scrollable cards"
+        className="flex overflow-x-auto overscroll-x-contain scrollbar-hide focus-visible:outline-offset-4"
         style={{
           gap: cardGap,
           cursor: features.length > 1 ? 'grab' : 'default',

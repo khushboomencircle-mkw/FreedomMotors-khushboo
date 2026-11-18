@@ -58,7 +58,8 @@ export default function VehicleSearchBar({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search for products..."
-              className="w-full rounded-[var(--theme-input-radius,9999px)] border border-[var(--theme-border,rgba(255,255,255,0.15))] bg-[var(--theme-surface,rgba(255,255,255,0.05))] py-2 pl-9 pr-4 text-sm text-[var(--theme-text,#ffffff)] placeholder:text-[var(--theme-muted,#6b7280)] focus:border-[var(--theme-primary,#dc2626)] focus:outline-none"
+              aria-label="Search vehicles"
+              className="tap-target w-full rounded-[var(--theme-input-radius,9999px)] border border-[var(--theme-border,rgba(255,255,255,0.15))] bg-[var(--theme-surface,rgba(255,255,255,0.05))] py-2 pl-9 pr-4 text-base pointer-fine:text-sm text-[var(--theme-text,#ffffff)] placeholder:text-[var(--theme-muted,#6b7280)] focus:border-[var(--theme-primary,#dc2626)] focus:outline-none"
             />
           </div>
 
@@ -70,7 +71,7 @@ export default function VehicleSearchBar({
           <button
             type="button"
             onClick={() => setSearch('')}
-            className="inline-flex items-center gap-1.5 rounded-[var(--theme-button-radius,9999px)] border border-[var(--theme-border,rgba(255,255,255,0.15))] px-3 py-1.5 text-xs font-semibold text-[var(--theme-text,#ffffff)] transition-colors] ]"
+            className="tap-target inline-flex items-center gap-1.5 rounded-[var(--theme-button-radius,9999px)] border border-[var(--theme-border,rgba(255,255,255,0.15))] px-3 py-1.5 text-xs font-semibold text-[var(--theme-text,#ffffff)] transition-colors] ]"
           >
             <RotateCcw className="h-3.5 w-3.5" />
             Reset Filters
@@ -79,7 +80,7 @@ export default function VehicleSearchBar({
           <button
             type="button"
             onClick={() => setShareOpen(true)}
-            className="inline-flex items-center gap-1.5 rounded-[var(--theme-button-radius,9999px)] border border-[var(--theme-border,rgba(255,255,255,0.15))] px-3 py-1.5 text-xs font-semibold text-[var(--theme-text,#ffffff)] transition-colors] ]"
+            className="tap-target inline-flex items-center gap-1.5 rounded-[var(--theme-button-radius,9999px)] border border-[var(--theme-border,rgba(255,255,255,0.15))] px-3 py-1.5 text-xs font-semibold text-[var(--theme-text,#ffffff)] transition-colors] ]"
           >
             <Share2 className="h-3.5 w-3.5" />
             Share Results
@@ -98,7 +99,7 @@ export default function VehicleSearchBar({
             <Link
               key={f.key}
               href={removeFilterHref(activeFilters, f.key)}
-              className="inline-flex items-center gap-1.5 rounded-full bg-[var(--theme-surface,rgba(255,255,255,0.1))] px-3 py-1 text-xs font-medium text-[var(--theme-text,#e5e7eb)] transition-opacity hover:opacity-80"
+              className="tap-target inline-flex items-center gap-1.5 rounded-full bg-[var(--theme-surface,rgba(255,255,255,0.1))] px-3 py-1 text-xs font-medium text-[var(--theme-text,#e5e7eb)] transition-opacity hover:opacity-80"
             >
               {f.label}: {f.value}
               <X className="h-3 w-3" aria-hidden />

@@ -1,6 +1,7 @@
 'use client'
 
-import {useCallback, useEffect, useState} from 'react'
+import {useCallback, useEffect, useRef, useState} from 'react'
+import {useReducedMotion} from '@/lib/useReducedMotion'
 
 interface Props {
   children: React.ReactNode[]
@@ -21,15 +22,18 @@ export default function OneColumnSlider({
   const count = items.length
   const [index, setIndex] = useState(0)
   const [paused, setPaused] = useState(false)
+  // A visitor who asks for less motion gets no autoplay (the slide animation is switched off in globals.css).
+  const reducedMotion = useReducedMotion()
+  const touchX = useRef<number | null>(null)
 
   const prev = useCallback(() => setIndex((i) => (i - 1 + count) % count), [count])
   const next = useCallback(() => setIndex((i) => (i + 1) % count), [count])
 
   useEffect(() => {
-    if (!autoPlay || paused || count <= 1) return
+    if (!autoPlay || paused || count <= 1 || reducedMotion) return
     const t = setInterval(next, Math.max(2, intervalSeconds) * 1000)
     return () => clearInterval(t)
-  }, [autoPlay, paused, intervalSeconds, count, next])
+  }, [autoPlay, paused, reducedMotion, intervalSeconds, count, next])
 
   if (count === 0) return null
   if (count === 1) return <div>{items[0]}</div>
@@ -37,8 +41,32 @@ export default function OneColumnSlider({
   return (
     <div
       className="relative w-full"
+      role="region"
+      aria-roledescription="carousel"
+      aria-label="Slider"
+      style={{touchAction: 'pan-y'}}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
+      // Swipe left/right on touch screens.
+      onTouchStart={(e) => {
+        touchX.current = e.touches[0].clientX
+        setPaused(true)
+      }}
+      onTouchEnd={(e) => {
+        const start = touchX.current
+        touchX.current = null
+        setPaused(false)
+        if (start == null) return
+        const dx = e.changedTouches[0].clientX - start
+        if (Math.abs(dx) > 50) (dx < 0 ? next : prev)()
+      }}
+      // Keyboard: Left/Right arrows change slides while focus is inside the slider.
+      onKeyDown={(e) => {
+        if (e.key === 'ArrowRight') next()
+        else if (e.key === 'ArrowLeft') prev()
+        else return
+        e.preventDefault()
+      }}
     >
       <div className="overflow-hidden w-full">
         <div
@@ -46,7 +74,13 @@ export default function OneColumnSlider({
           style={{transform: `translateX(-${index * 100}%)`}}
         >
           {items.map((child, i) => (
-            <div key={i} className="w-full flex-shrink-0">
+            // `inert`: slides that aren't showing can't be tabbed into.
+            <div
+              key={i}
+              className="w-full flex-shrink-0"
+              inert={i !== index}
+              aria-hidden={i !== index}
+            >
               {child}
             </div>
           ))}
@@ -75,14 +109,14 @@ export default function OneColumnSlider({
       )}
 
       {showDots && (
-        <div className="mt-6 flex items-center justify-center gap-2">
+        <div className="mt-6 flex items-center justify-center gap-2 pointer-coarse:gap-0">
           {items.map((_, i) => (
             <button
               key={i}
               type="button"
               aria-label={`Go to slide ${i + 1}`}
               onClick={() => setIndex(i)}
-              className={`h-1.5 rounded-full transition-all duration-300 ${
+              className={`tap-dot h-1.5 rounded-full transition-all duration-300 ${
                 i === index ? 'w-8 bg-red-500' : 'w-4 bg-white/40 hover:bg-white/60'
               }`}
             />

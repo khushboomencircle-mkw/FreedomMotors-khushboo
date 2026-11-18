@@ -31,20 +31,27 @@ export default function PageSizeDropdown({
 
   useEffect(() => {
     if (!open) return
-    function handleClickOutside(e: MouseEvent) {
+    function handleClickOutside(e: PointerEvent) {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setOpen(false)
       }
     }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setOpen(false)
+    }
+    document.addEventListener('pointerdown', handleClickOutside)
+    document.addEventListener('keydown', handleKey)
+    return () => {
+      document.removeEventListener('pointerdown', handleClickOutside)
+      document.removeEventListener('keydown', handleKey)
+    }
   }, [open])
 
   return (
     <div ref={containerRef} className="page-size-dropdown relative inline-block text-left">
       <button
         type="button"
-        className="page-size-dropdown-toggle flex items-center gap-2 rounded-[var(--theme-button-radius,9999px)] border border-[var(--theme-border,rgba(255,255,255,0.15))] px-4 py-2 text-sm text-[var(--theme-text,#e5e7eb)]"
+        className="page-size-dropdown-toggle tap-target flex items-center gap-2 rounded-[var(--theme-button-radius,9999px)] border border-[var(--theme-border,rgba(255,255,255,0.15))] px-4 py-2 text-sm text-[var(--theme-text,#e5e7eb)]"
         onClick={() => setOpen((o) => !o)}
         aria-haspopup="listbox"
         aria-expanded={open}
@@ -67,7 +74,7 @@ export default function PageSizeDropdown({
                 <Link
                   href={href}
                   onClick={() => setOpen(false)}
-                  className={`page-size-dropdown-item flex items-center justify-between px-4 py-2 text-sm transition-colors ${
+                  className={`page-size-dropdown-item tap-target flex items-center justify-between px-4 py-2 text-sm transition-colors ${
                     isSelected
                       ? 'selected bg-white/5 text-[var(--theme-text,#ffffff)]'
                       : 'text-[var(--theme-muted,#d1d5db)] hover:bg-white/5 hover:text-[var(--theme-text,#ffffff)]'

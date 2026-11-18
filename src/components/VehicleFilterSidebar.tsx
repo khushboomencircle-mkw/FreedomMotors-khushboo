@@ -67,16 +67,37 @@ function FilterAccordionRow({label, options}: {label: string; options: string[]}
 }
 
 export default function VehicleFilterSidebar() {
+  // Below lg the filters sit in a collapsible panel (closed by default) so the list of
+  // categories doesn't push the vehicles a full screen down on a phone; from lg they are always shown.
+  const [open, setOpen] = useState(false)
   return (
     <aside className="w-full flex-shrink-0 lg:w-64">
-      <div className="divide-y divide-[var(--theme-border,rgba(255,255,255,0.1))] rounded-xl border border-[var(--theme-border,rgba(255,255,255,0.1))] bg-[var(--theme-surface,rgba(255,255,255,0.02))]">
-        {FILTER_CATEGORIES.map((category) => (
-          <FilterAccordionRow
-            key={category.label}
-            label={category.label}
-            options={category.options}
-          />
-        ))}
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls="vehicle-filters"
+        onClick={() => setOpen((o) => !o)}
+        className="tap-target flex w-full items-center justify-between rounded-xl border border-[var(--theme-border,rgba(255,255,255,0.1))] bg-[var(--theme-surface,rgba(255,255,255,0.02))] px-4 py-3 text-sm font-semibold uppercase tracking-wide text-[var(--theme-text,#e5e7eb)] lg:hidden"
+      >
+        Filters
+        <ChevronDown
+          className={`h-4 w-4 text-[var(--theme-muted,#6b7280)] transition-transform ${open ? 'rotate-180' : ''}`}
+          aria-hidden
+        />
+      </button>
+      <div
+        id="vehicle-filters"
+        className={`${open ? 'mt-3 block' : 'hidden'} lg:mt-0 lg:block divide-y`}
+      >
+        <div className="divide-y divide-[var(--theme-border,rgba(255,255,255,0.1))] rounded-xl border border-[var(--theme-border,rgba(255,255,255,0.1))] bg-[var(--theme-surface,rgba(255,255,255,0.02))]">
+          {FILTER_CATEGORIES.map((category) => (
+            <FilterAccordionRow
+              key={category.label}
+              label={category.label}
+              options={category.options}
+            />
+          ))}
+        </div>
       </div>
     </aside>
   )

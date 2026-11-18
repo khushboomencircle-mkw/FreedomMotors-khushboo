@@ -35,7 +35,7 @@ export default function EducationalArticleFilterGrid({categories}: Props) {
   const [search, setSearch] = useState('')
 
   const pillClass = (active: boolean) =>
-    `shrink-0 whitespace-nowrap rounded-full border px-4 py-1.5 text-xs sm:text-sm font-semibold uppercase tracking-wide transition-colors ${
+    `tap-target shrink-0 whitespace-nowrap rounded-full border px-4 py-1.5 text-xs sm:text-sm font-semibold uppercase tracking-wide transition-colors ${
       active
         ? 'border-red-600 bg-red-600 text-white'
         : 'border-[var(--theme-border,#374151)] text-[var(--theme-text,#ffffff)] hover:border-red-500 hover:text-red-500'
@@ -72,7 +72,8 @@ export default function EducationalArticleFilterGrid({categories}: Props) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search..."
-          className="sm:w-64 shrink-0 rounded-full border border-[var(--theme-border,#374151)] bg-transparent px-4 py-2 text-sm text-[var(--theme-text,#ffffff)] placeholder-[var(--theme-muted,#9ca3af)] focus:outline-none focus:border-red-500"
+          aria-label="Search articles"
+          className="tap-target sm:w-64 shrink-0 rounded-full border border-[var(--theme-border,#374151)] bg-transparent px-4 py-2 text-base pointer-fine:text-sm text-[var(--theme-text,#ffffff)] placeholder-[var(--theme-muted,#9ca3af)] focus:outline-none focus:border-red-500"
         />
       </div>
     </div>

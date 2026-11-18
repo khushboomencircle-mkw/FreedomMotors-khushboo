@@ -1,7 +1,8 @@
 'use client'
 
-import {useEffect, useState} from 'react'
+import {useState} from 'react'
 import {X, Copy, Check} from 'lucide-react'
+import ModalShell from './ModalShell'
 
 /**
  * Share modal — Modal Backdrop (dark overlay), Modal Dialog (light box, by
@@ -29,18 +30,6 @@ export default function ShareResultsModal({open, onClose}: {open: boolean; onClo
     }
   }
 
-  // Close on Escape, same as any other modal.
-  useEffect(() => {
-    if (!open) return
-    function handleKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') onClose()
-    }
-    document.addEventListener('keydown', handleKey)
-    return () => document.removeEventListener('keydown', handleKey)
-  }, [open, onClose])
-
-  if (!open) return null
-
   async function handleCopy() {
     try {
       await navigator.clipboard.writeText(url)
@@ -53,31 +42,28 @@ export default function ShareResultsModal({open, onClose}: {open: boolean; onClo
   }
 
   return (
-    <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="share-modal-title"
+    // ModalShell is the Modal Backdrop (dark overlay) and handles Escape, focus and scroll lock.
+    <ModalShell
+      open={open}
+      onClose={onClose}
+      label="Share these results"
+      hideCloseButton
+      backdropClassName="bg-black/60"
     >
-      {/* Modal Backdrop */}
-      <div className="absolute inset-0 bg-black/60" onClick={onClose} aria-hidden />
-
       {/* Modal Dialog */}
-      <div className="relative w-full max-w-md rounded-xl bg-white p-6 text-gray-900 shadow-2xl">
+      <div className="relative w-[min(calc(100vw-2rem),28rem)] max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-xl bg-white p-6 text-gray-900 shadow-2xl">
         {/* Modal Close Button */}
         <button
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="absolute right-4 top-4 text-gray-400 transition-colors hover:text-gray-700"
+          className="absolute right-1 top-1 flex h-11 w-11 items-center justify-center text-gray-400 transition-colors hover:text-gray-700"
         >
           <X className="h-5 w-5" />
         </button>
 
         {/* Modal Title */}
-        <h2 id="share-modal-title" className="pr-8 text-lg font-bold">
-          Share these results
-        </h2>
+        <h2 className="pr-10 text-lg font-bold">Share these results</h2>
         <p className="mt-1 text-sm text-gray-500">Copy the link below to share this search.</p>
 
         {/* Modal Body */}
@@ -86,18 +72,19 @@ export default function ShareResultsModal({open, onClose}: {open: boolean; onClo
             readOnly
             value={url}
             onFocus={(e) => e.currentTarget.select()}
-            className="w-full truncate rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-700"
+            aria-label="Shareable link"
+            className="min-w-0 w-full truncate rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-base text-gray-700 pointer-fine:text-sm"
           />
           <button
             type="button"
             onClick={handleCopy}
-            className="inline-flex flex-shrink-0 items-center gap-1.5 rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700"
+            className="tap-target inline-flex flex-shrink-0 items-center gap-1.5 rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700"
           >
             {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
             {copied ? 'Copied' : 'Copy'}
           </button>
         </div>
       </div>
-    </div>
+    </ModalShell>
   )
 }

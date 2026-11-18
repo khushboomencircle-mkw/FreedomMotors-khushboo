@@ -52,7 +52,7 @@ export default function GlobalError({error, retry}: GlobalErrorProps) {
   return (
     <html lang="en" className={geistSans.variable}>
       <body
-        className="min-h-screen text-white antialiased"
+        className="min-h-dvh text-white antialiased"
         // Inline, not a `bg-[#02090d]` utility class: globals.css's plain
         // `body { background: var(--background); ... }` rule is unlayered,
         // and Tailwind's own utilities live inside `@layer utilities` — an
@@ -66,7 +66,7 @@ export default function GlobalError({error, retry}: GlobalErrorProps) {
           backgroundColor: '#02090d',
         }}
       >
-        <main className="min-h-screen flex items-center overflow-hidden">
+        <main className="min-h-dvh flex items-center overflow-hidden">
           <div className="max-w-7xl w-full mx-auto px-6 lg:px-12 py-16">
             <div className="max-w-lg">
               <span className="text-xl font-bold">Freedom Motors</span>

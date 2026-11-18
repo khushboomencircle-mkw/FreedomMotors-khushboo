@@ -45,7 +45,7 @@ export default function Error({error, retry}: ErrorProps) {
   }
 
   return (
-    <main className="min-h-[calc(100vh-140px)] bg-[#02090d] text-white flex items-center overflow-hidden">
+    <main className="min-h-[calc(100dvh-140px)] bg-[#02090d] text-white flex items-center overflow-hidden">
       <div className="max-w-7xl w-full mx-auto px-6 lg:px-12 py-16">
         <div className="max-w-lg">
           <h1 className="text-6xl md:text-7xl font-bold tracking-tight mb-5">OOPS...</h1>

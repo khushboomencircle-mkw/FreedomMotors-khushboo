@@ -70,7 +70,7 @@ export default function FaqAccordionList({
               type="button"
               onClick={() => toggleItem(item._key)}
               aria-expanded={isOpen}
-              className="w-full py-5 sm:py-6 flex items-center justify-between text-left group cursor-pointer focus:outline-none"
+              className="w-full py-5 sm:py-6 flex items-center justify-between text-left group cursor-pointer"
             >
               <span
                 className={`text-lg sm:text-xl font-bold pr-4 transition-colors ${questionTextColor} group-hover:text-[#e11900]`}

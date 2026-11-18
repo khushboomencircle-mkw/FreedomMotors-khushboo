@@ -66,8 +66,8 @@ async function VehicleContent({slug}: {slug: string}) {
       <PageCss id="vehicle-detail" css={detailPage?.customCss} />
       {/* Editor-built sections placed before the vehicle specs (Static Section
           placeholder), if an editor chose to position any there. */}
-      {before.map((section: Section) => (
-        <PageSection key={section._key} section={section} />
+      {before.map((section: Section, i: number) => (
+        <PageSection key={section._key} section={section} isFirst={i === 0} />
       ))}
 
       {/* Header */}
@@ -80,6 +80,8 @@ async function VehicleContent({slug}: {slug: string}) {
                 mainImage={vehicle.mainImage}
                 mainImageAlt={name}
                 gallery={vehicle.gallery}
+                // Preloaded only when no editor section sits above it (otherwise that section's image is the first one).
+                preloadMain={before.length === 0}
               />
 
               {/* Summary */}
@@ -178,7 +180,7 @@ export default async function VehicleDetailPage({params}: {params: Promise<{slug
   return (
     <div
       data-page-css={pageCssId('vehicle-detail')}
-      className="min-h-screen overflow-x-hidden"
+      className="min-h-dvh overflow-x-hidden"
       style={{background: 'var(--theme-bg, #121212)', color: 'var(--theme-text, #ffffff)'}}
     >
       <Suspense fallback={<p className="text-gray-400 text-center py-24">Loading...</p>}>

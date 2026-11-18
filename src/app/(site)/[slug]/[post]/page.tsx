@@ -67,7 +67,7 @@ export default async function BlogPostPage({params}: {params: Params}) {
   return (
     <div
       data-page-css={pageCssId(`post-${landingSlug}-${postSlug}`)}
-      className="min-h-screen overflow-x-hidden"
+      className="min-h-dvh overflow-x-hidden"
       style={{background: 'var(--theme-bg, #121212)', color: 'var(--theme-text, #ffffff)'}}
     >
       <Suspense

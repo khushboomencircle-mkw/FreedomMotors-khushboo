@@ -4,6 +4,8 @@ import React, {useCallback, useEffect, useRef, useState} from 'react'
 import Link from 'next/link'
 import VideoLightbox from './VideoLightbox'
 import RichText from './RichText'
+import SiteImage from './SiteImage'
+import {useReducedMotion} from '@/lib/useReducedMotion'
 
 interface Feature {
   _key: string
@@ -36,6 +38,8 @@ interface Props {
   cardContentPosition?: string
   cardContentPaddingTop?: number
   cardContentPaddingLeft?: number
+  /** Preload the first visible slide's picture (set when this slider is the first thing on the page). */
+  preloadFirst?: boolean
 }
 
 const SLIDE_MS = 750
@@ -84,6 +88,7 @@ export default function FeatureHeroSlider({
   cardContentPosition,
   cardContentPaddingTop,
   cardContentPaddingLeft,
+  preloadFirst,
 }: Props) {
   const n = features.length
   const loop = n > 1
@@ -93,6 +98,8 @@ export default function FeatureHeroSlider({
   const [pos, setPos] = useState(loop ? 1 : 0)
   const [animate, setAnimate] = useState(true)
   const [paused, setPaused] = useState(false)
+  // A visitor who asks for less motion gets no autoplay and no sliding animation.
+  const reducedMotion = useReducedMotion()
   const posRef = useRef(pos)
   const busyRef = useRef(false)
   const settleTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -141,7 +148,7 @@ export default function FeatureHeroSlider({
   const prev = useCallback(() => move(posRef.current - 1), [move])
 
   useEffect(() => {
-    if (!autoPlay || !loop || paused) return
+    if (!autoPlay || !loop || paused || reducedMotion) return
     const id = setInterval(
       () => {
         if (document.visibilityState === 'visible') next()
@@ -149,7 +156,7 @@ export default function FeatureHeroSlider({
       Math.max(2, intervalSeconds) * 1000,
     )
     return () => clearInterval(id)
-  }, [autoPlay, loop, paused, intervalSeconds, next])
+  }, [autoPlay, loop, paused, reducedMotion, intervalSeconds, next])
 
   useEffect(
     () => () => {
@@ -180,12 +187,15 @@ export default function FeatureHeroSlider({
     const inner = (
       <div className="group relative h-full w-full overflow-hidden bg-gray-900">
         {bgUrl && (
-          <img
+          <SiteImage
             src={bgUrl}
             alt={(isVideo ? f.videoThumbnail?.alt : f.image?.alt) || f.title || ''}
-            className="absolute inset-0 h-full w-full object-cover"
+            sizes="hero"
+            fill
+            className="object-cover"
             draggable={false}
-            loading={i <= 1 ? 'eager' : 'lazy'}
+            // Only the slide that is on screen first is preloaded; the rest load lazily as they near the viewport.
+            preload={Boolean(preloadFirst) && i === (loop ? 1 : 0)}
           />
         )}
         {overlay !== 'transparent' && (
@@ -202,7 +212,14 @@ export default function FeatureHeroSlider({
               style={{background: playButtonImageUrl ? 'transparent' : accent}}
             >
               {playButtonImageUrl ? (
-                <img src={playButtonImageUrl} alt="" className="h-full w-full object-cover" />
+                <SiteImage
+                  src={playButtonImageUrl}
+                  alt=""
+                  sizes="icon"
+                  width={96}
+                  height={96}
+                  className="h-full w-full object-cover"
+                />
               ) : (
                 <span className="pl-1">▶</span>
               )}
@@ -286,6 +303,9 @@ export default function FeatureHeroSlider({
         className="h-full w-full flex-none"
         style={{flexBasis: '100%'}}
         aria-hidden={isClone || undefined}
+        // Slides that aren't on screen can't be tabbed into (their links and video buttons would
+        // otherwise scroll the clipped track out of step with the slider's own position).
+        inert={i !== pos}
       >
         {body}
       </div>
@@ -294,10 +314,20 @@ export default function FeatureHeroSlider({
 
   return (
     <div
-      className="relative w-full overflow-hidden"
-      style={{height: `min(${cardHeight}, 80vh)`, minHeight: 280}}
+      className="relative w-full overflow-hidden focus-visible:outline-offset-[-4px]"
+      style={{height: `min(${cardHeight}, 80dvh)`, minHeight: 280, touchAction: 'pan-y'}}
       role="region"
       aria-roledescription="carousel"
+      aria-label="Featured slides"
+      // Keyboard: focus the slider, then Left/Right arrow keys change slides.
+      tabIndex={loop ? 0 : undefined}
+      onKeyDown={(e) => {
+        if (!loop || e.target !== e.currentTarget) return
+        if (e.key === 'ArrowRight') next()
+        else if (e.key === 'ArrowLeft') prev()
+        else return
+        e.preventDefault()
+      }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onTouchStart={(e) => {
@@ -317,7 +347,7 @@ export default function FeatureHeroSlider({
         className="flex h-full will-change-transform"
         style={{
           transform: `translate3d(-${pos * 100}%, 0, 0)`,
-          transition: animate ? `transform ${SLIDE_MS}ms ${EASE}` : 'none',
+          transition: animate && !reducedMotion ? `transform ${SLIDE_MS}ms ${EASE}` : 'none',
         }}
         onTransitionEnd={(e) => {
           if (e.target === e.currentTarget) settle()
@@ -334,7 +364,7 @@ export default function FeatureHeroSlider({
       )}
 
       {showDots && loop && (
-        <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2">
+        <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 pointer-coarse:gap-0">
           {features.map((f, i) => (
             <button
               key={f._key}
@@ -342,7 +372,7 @@ export default function FeatureHeroSlider({
               aria-label={`Go to slide ${i + 1}`}
               aria-current={i === activeIndex}
               onClick={() => move(i + 1)}
-              className="h-2 rounded-full bg-white transition-all duration-300"
+              className="tap-dot h-2 rounded-full bg-white transition-all duration-300"
               style={{width: i === activeIndex ? 28 : 8, opacity: i === activeIndex ? 1 : 0.5}}
             />
           ))}

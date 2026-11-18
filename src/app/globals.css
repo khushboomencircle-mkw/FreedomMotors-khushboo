@@ -42,6 +42,77 @@ button {
   font-family: var(--theme-button-font, inherit);
 }
 
+/* ── Responsive & touch basics, shared by every page (README → "Responsive checklist") ──
+   In the base layer on purpose: any Tailwind utility on an element still wins over these. */
+@layer base {
+  /* No automatic font inflation when a phone is rotated. */
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  /* Long words, URLs and emails wrap instead of pushing the page wider. `anywhere` (unlike
+     `break-word`) also lowers the text's minimum width, so one long word can't force a flex or
+     grid column wider than its container. Table cells keep `break-word` (their layout is automatic). */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  li,
+  dt,
+  dd,
+  blockquote,
+  figcaption {
+    overflow-wrap: anywhere;
+  }
+  th,
+  td {
+    overflow-wrap: break-word;
+  }
+  /* A page's outer wrapper (the one editor Custom CSS is scoped to) clips sideways overflow. It must
+     also be a positioned box: an absolutely-positioned element inside an unpositioned, clipped
+     wrapper is NOT clipped by it and would widen the whole page. */
+  [data-page-css] {
+    position: relative;
+  }
+  /* No double-tap-to-zoom delay on controls (pinch zoom still works). */
+  a,
+  button,
+  summary,
+  label,
+  input,
+  select,
+  textarea,
+  [role='button'] {
+    touch-action: manipulation;
+  }
+  /* Visible keyboard focus everywhere. Components with their own focus style override this. */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--theme-primary, #ef4444);
+    outline-offset: 2px;
+  }
+}
+
+/* Touch comfort: a 44px minimum tap area on phones and tablets only (coarse pointer), so mouse
+   layouts — including desktop — are untouched. Add `tap-target` to small buttons and links. */
+@utility tap-target {
+  @media (pointer: coarse) {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+  }
+}
+
+/* Slider dots: the dot keeps its own size and look; only its touch area grows to 44px (coarse pointers). */
+@utility tap-dot {
+  @media (pointer: coarse) {
+    box-sizing: content-box;
+    padding: 1.1875rem 1.125rem;
+    background-clip: content-box;
+  }
+}
+
 /* Site chrome: Header and Footer read the Site Theme (:root --theme-* vars).
    Every fallback is the pre-theme look, so nothing changes while Site Theme is off.
    In the components layer so Tailwind utilities on the same element still win. */
@@ -203,15 +274,32 @@ button {
   max-width: 100%;
   overflow-x: auto;
 }
+.custom-html-section__inner {
+  overflow-wrap: break-word;
+}
 .custom-html-section__inner img,
 .custom-html-section__inner table,
-.custom-html-section__inner video {
+.custom-html-section__inner video,
+.custom-html-section__inner iframe,
+.custom-html-section__inner embed,
+.custom-html-section__inner object,
+.custom-html-section__inner pre {
   max-width: 100%;
 }
+/* Wide code blocks scroll inside their own box instead of widening the page. */
+.custom-html-section__inner pre {
+  overflow-x: auto;
+}
 
-/* Respect reduced-motion for the full-width feature slider. */
+/* Respect reduced motion everywhere (sliders, hover zooms, fades). Autoplay is stopped in the
+   slider components themselves, through src/lib/useReducedMotion.ts. */
 @media (prefers-reduced-motion: reduce) {
-  [aria-roledescription='carousel'] > div {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
