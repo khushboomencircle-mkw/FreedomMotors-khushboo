@@ -29,6 +29,7 @@ import {navigationSettingsType} from './navigationSettingsType'
 
 import {sectionObjectTypes} from './sections'
 import {applyLayoutPickers} from '../layoutPresets'
+import {applySectionLibrary} from '../sectionLibrary'
 import {convertVehicle2PageType} from './pages/convertVehicle2Page'
 import {driverPage} from './pages/driver'
 import {commercialPage} from './pages/commercialPage'
@@ -47,7 +48,9 @@ import {redirectType} from './redirectType'
 import {categoryType} from './category'
 import {pageTemplateType} from '../pageTemplateLibrary/pageTemplateType'
 
-export const schemaTypes = [
+// The section library (visual "Add section" menu + empty starting rows) is applied once, over the whole list,
+// so no page or section file is edited. Switch it off with SECTION_LIBRARY_ENABLED in studio/sectionLibrary.
+export const schemaTypes = applySectionLibrary([
   // Document types
   siteSettingsType,
   navigationSettingsType,
@@ -103,4 +106,4 @@ export const schemaTypes = [
   socialLinksSectionType,
   copyrightSectionType,
   footerRichTextType,
-]
+])
