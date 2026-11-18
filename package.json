@@ -23,7 +23,8 @@
     "test:pages": "node --import tsx --test studio/singletonPages.test.ts",
     "sections:previews": "node --import tsx studio/sectionLibrary/generatePreviews.ts",
     "test:library": "node --import tsx --test studio/sectionLibrary/*.test.ts",
-    "test:usability": "node --import tsx --test studio/usability/*.test.ts studio/usability/*.test.tsx"
+    "test:usability": "node --import tsx --test studio/usability/*.test.ts studio/usability/*.test.tsx",
+    "schema:lock": "node --import tsx studio/usability/generateFieldLock.ts"
   },
   "dependencies": {
     "@portabletext/react": "^8.0.1",
