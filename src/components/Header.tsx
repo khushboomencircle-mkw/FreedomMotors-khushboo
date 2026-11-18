@@ -2,7 +2,9 @@
 
 import Link from 'next/link'
 import {usePathname} from 'next/navigation'
-import {useEffect, useRef, useState} from 'react'
+import {useEffect, useLayoutEffect, useRef, useState} from 'react'
+import {ChevronDown} from 'lucide-react'
+import {useScrollLock} from '@/lib/useScrollLock'
 import type {NavLink, MegaMenuConfig, MegaMenuFeature, MegaMenuLogoItem} from '@/sanity/queries'
 import SiteImage from './SiteImage'
 
@@ -242,6 +244,9 @@ function MegaMenuPanel({
         left: 0,
         right: 0,
         zIndex: 40,
+        maxHeight: 'calc(100dvh - 6rem)',
+        overflowY: 'auto',
+        overscrollBehavior: 'contain',
         boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
         borderTop: '1px solid rgba(0,0,0,0.08)',
       }}
@@ -290,11 +295,9 @@ function MegaMenuPanel({
             </div>
           ) : (
             <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
-                gap: `${gap}px`,
-              }}
+              // The editor's column count applies from 768px; below that at most 2 columns.
+              className="grid grid-cols-[repeat(min(var(--mega-cols),2),minmax(0,1fr))] md:grid-cols-[repeat(var(--mega-cols),minmax(0,1fr))]"
+              style={{['--mega-cols' as string]: cols, gap: `${gap}px`}}
             >
               {features.map((item) => (
                 <MegaFeatureCard key={item._key} item={item} cfg={config} onClose={onClose} />
@@ -424,6 +427,22 @@ function MegaMenuPanel({
 
 // ── Header ────────────────────────────────────────────────────────────────────
 
+/** Every link a mega menu contains, flattened — what the hamburger menu lists under that item. */
+function megaMenuLinks(cfg: MegaMenuConfig) {
+  const links: {key: string; label: string; href: string; openInNewTab?: boolean}[] = []
+  for (const f of cfg.features ?? []) {
+    if (f.title && f.linkUrl)
+      links.push({key: f._key, label: f.title, href: f.linkUrl, openInNewTab: f.openInNewTab})
+  }
+  for (const l of cfg.logoStrip ?? []) {
+    if (l.label && l.href)
+      links.push({key: l._key, label: l.label, href: l.href, openInNewTab: l.openInNewTab})
+  }
+  if (cfg.showButton && cfg.buttonLabel && cfg.buttonLinkUrl)
+    links.push({key: 'cta', label: cfg.buttonLabel, href: cfg.buttonLinkUrl})
+  return links
+}
+
 export default function Header({
   settings,
   customNavPages,
@@ -451,40 +470,84 @@ export default function Header({
         ]
 
   // ── Overflow detection ──────────────────────────────────────────────────────
+  // The number of nav items is editor-controlled, so the bar collapses to the hamburger exactly when
+  // the items stop fitting (not at a fixed breakpoint). Measured in a layout effect so the very
+  // first paint already has the right bar — no frame of a clipped desktop nav on a phone.
   const outerRef = useRef<HTMLDivElement>(null)
   const innerRef = useRef<HTMLDivElement>(null)
   const [overflows, setOverflows] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  // Which mega item's links are expanded inside the hamburger menu.
+  const [mobileMega, setMobileMega] = useState<string | null>(null)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const check = () => {
       const outer = outerRef.current
       const inner = innerRef.current
-      if (outer && inner) setOverflows(inner.scrollWidth > outer.clientWidth + 1)
+      if (!outer || !inner) return
+      const collapsed = inner.scrollWidth > outer.clientWidth + 1
+      setOverflows(collapsed)
+      // The bar no longer collapses (window widened, device rotated): an open hamburger menu has
+      // nothing to show, so close it — otherwise it would keep the page scroll-locked.
+      if (!collapsed) setMenuOpen(false)
     }
     check()
     const ro = new ResizeObserver(check)
     if (outerRef.current) ro.observe(outerRef.current)
+    // Web fonts change text widths after first paint.
+    document.fonts?.ready.then(check)
     return () => ro.disconnect()
   }, [navItems.length])
 
-  // Close hamburger on outside click
   const headerRef = useRef<HTMLElement>(null)
-  useEffect(() => {
-    if (!menuOpen) return
-    const handler = (e: MouseEvent) => {
-      if (headerRef.current && !headerRef.current.contains(e.target as Node)) setMenuOpen(false)
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [menuOpen])
+  const menuButtonRef = useRef<HTMLButtonElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
+  // The nav link that opened the mega panel — focus goes back to it when the panel closes with Escape.
+  const megaTriggerRef = useRef<HTMLElement | null>(null)
+  // How the nav link was last pressed ('touch', 'mouse', 'pen', or '' for the keyboard), and whether
+  // its mega panel was already open at that moment. A phone has no hover, so the first tap opens the
+  // panel and the second tap follows the link.
+  const pressRef = useRef({pointerType: '', wasOpen: false})
 
-  // ── Mega menu hover state ───────────────────────────────────────────────────
+  // ── Mega menu state ─────────────────────────────────────────────────────────
   // activeMega = href of the item whose panel is mounted
   // visible    = whether the panel is in its "open" CSS state (drives the transition)
   const [activeMega, setActiveMega] = useState<string | null>(null)
   const [megaVisible, setMegaVisible] = useState(false)
   const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Page behind the hamburger menu doesn't scroll while it is open.
+  useScrollLock(menuOpen)
+
+  // Outside tap/click and Escape close the hamburger menu and the mega panel.
+  useEffect(() => {
+    if (!menuOpen && !activeMega) return
+    const onPointerDown = (e: PointerEvent) => {
+      if (headerRef.current && !headerRef.current.contains(e.target as Node)) {
+        setMenuOpen(false)
+        setMegaVisible(false)
+        setTimeout(() => setActiveMega(null), 240)
+      }
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      if (menuOpen) {
+        setMenuOpen(false)
+        menuButtonRef.current?.focus()
+      }
+      if (activeMega) {
+        if (panelRef.current?.contains(document.activeElement)) megaTriggerRef.current?.focus()
+        setMegaVisible(false)
+        setTimeout(() => setActiveMega(null), 240)
+      }
+    }
+    document.addEventListener('pointerdown', onPointerDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [menuOpen, activeMega])
 
   // Close the hamburger menu and any open mega panel on route change. Done
   // during render (tracking the previous pathname) rather than in an effect,
@@ -526,21 +589,29 @@ export default function Header({
   const activeMegaItem = navItems.find((item) => item.href === activeMega && item.showMegaMenu)
 
   return (
-    <header ref={headerRef} className={settings?.stickyHeader ? 'sticky top-0 z-50' : 'relative'}>
-      {/* Top Bar */}
+    <header
+      ref={headerRef} // A pinned header stays pinned except on short screens (a phone held sideways), where it would take
+      // a third of the visible height and leave too little room to read.
+      className={
+        settings?.stickyHeader
+          ? 'sticky top-0 z-50 [@media(max-height:480px)]:relative'
+          : 'relative'
+      }
+    >
+      {/* Top Bar — one row on wide screens; on a phone the items wrap onto a second row instead of crowding. */}
       {settings?.topBarEnabled && (
         <div className="chrome-topbar text-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-10">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 py-1.5 sm:h-10 sm:flex-nowrap sm:py-0">
             <span className="font-medium">
               {settings.businessHours || 'Open Mon - Fri : 9am-6pm EST'}
             </span>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-1">
               {settings.phoneNumber && (
                 <span>
                   <span className="chrome-muted">{settings.phoneLabel || 'Call Us:'}</span>{' '}
                   <a
                     href={`tel:${settings.phoneNumber.replace(/[^\d+]/g, '')}`}
-                    className="font-bold chrome-link"
+                    className="tap-target inline-block pointer-coarse:inline-flex pointer-coarse:items-center font-bold chrome-link"
                   >
                     {settings.phoneNumber}
                   </a>
@@ -550,7 +621,7 @@ export default function Header({
                 <Link
                   href={settings.headerCta.endpoint || '/contact'}
                   target={settings.headerCta.openInNewTab ? '_blank' : undefined}
-                  className="chrome-btn text-xs px-4 py-1.5 transition-colors flex items-center gap-1"
+                  className="chrome-btn tap-target text-xs px-4 py-1.5 transition-colors flex items-center gap-1"
                 >
                   {settings.headerCta.label}
                   <span aria-hidden>→</span>
@@ -562,17 +633,18 @@ export default function Header({
       )}
 
       {/* Main Nav */}
-      <nav className="chrome-nav">
+      <nav className="chrome-nav" aria-label="Main">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center h-16 gap-4">
           {/* Logo */}
-          <Link href={homeLink} className="shrink-0">
+          <Link href={homeLink} className="tap-target flex min-w-0 shrink items-center">
             {settings?.siteLogo ? (
-              // `w-auto`: the height is fixed (h-10) and the width follows the logo's own proportions.
+              // `w-auto`: the height is fixed (h-10) and the width follows the logo's own proportions;
+              // `max-w-full object-contain` lets it shrink (not push the menu button off-screen) when text is enlarged.
               <SiteImage
                 src={settings.siteLogo}
                 alt={settings.siteTitle || 'Logo'}
                 sizes="logo"
-                className="h-10 w-auto"
+                className="h-10 w-auto max-w-full object-contain"
               />
             ) : (
               <span className="text-xl font-bold">{settings?.siteTitle || 'Site'}</span>
@@ -610,8 +682,35 @@ export default function Header({
                       href={item.href}
                       target={item.openInNewTab ? '_blank' : undefined}
                       rel={item.openInNewTab ? 'noopener noreferrer' : undefined}
-                      className="chrome-nav-link flex items-center gap-1 px-3 py-2 text-sm font-medium transition-colors uppercase tracking-wide whitespace-nowrap"
+                      className="chrome-nav-link tap-target flex items-center gap-1 px-3 py-2 text-sm font-medium transition-colors uppercase tracking-wide whitespace-nowrap"
                       aria-current={isActive ? 'page' : undefined}
+                      aria-haspopup={hasMega ? 'true' : undefined}
+                      aria-expanded={hasMega ? isMegaOpen : undefined}
+                      onPointerDown={(e) => {
+                        pressRef.current = {pointerType: e.pointerType, wasOpen: isMegaOpen}
+                      }}
+                      onClick={(e) => {
+                        const {pointerType, wasOpen} = pressRef.current
+                        pressRef.current = {pointerType: '', wasOpen: false}
+                        // First tap on a mega item (touch) opens its panel; the second tap navigates.
+                        if (hasMega && pointerType === 'touch' && !wasOpen) {
+                          e.preventDefault()
+                          megaTriggerRef.current = e.currentTarget
+                          openMega(item.href)
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        // Keyboard: ArrowDown opens the panel and moves into it (Escape closes it).
+                        if (hasMega && e.key === 'ArrowDown') {
+                          e.preventDefault()
+                          megaTriggerRef.current = e.currentTarget
+                          openMega(item.href)
+                          setTimeout(
+                            () => panelRef.current?.querySelector<HTMLElement>('a[href]')?.focus(),
+                            80,
+                          )
+                        }
+                      }}
                     >
                       {item.label.toUpperCase()}
                     </Link>
@@ -624,11 +723,13 @@ export default function Header({
           {/* Hamburger */}
           {overflows && (
             <button
+              ref={menuButtonRef}
               type="button"
               aria-label={menuOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={menuOpen}
+              aria-controls="mobile-menu"
               onClick={() => setMenuOpen((o) => !o)}
-              className="shrink-0 flex flex-col justify-center items-center w-9 h-9 gap-1.5 rounded hover:bg-[color-mix(in_srgb,currentColor_12%,transparent)] transition-colors"
+              className="shrink-0 flex flex-col justify-center items-center w-11 h-11 gap-1.5 rounded hover:bg-[color-mix(in_srgb,currentColor_12%,transparent)] transition-colors"
             >
               <span
                 className={`block h-0.5 w-5 bg-current transition-all duration-200 ${menuOpen ? 'translate-y-2 rotate-45' : ''}`}
@@ -643,24 +744,82 @@ export default function Header({
           )}
         </div>
 
-        {/* Hamburger dropdown */}
+        {/* Hamburger dropdown — scrolls inside itself when taller than the screen (e.g. a phone held sideways). */}
         {overflows && menuOpen && (
-          <div className="chrome-menu">
+          <div
+            id="mobile-menu"
+            className="chrome-menu max-h-[calc(100dvh-8rem)] overflow-y-auto overscroll-contain"
+          >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex flex-col">
               {navItems.map((item) => {
                 const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
+                const subLinks =
+                  item.showMegaMenu && item.megaMenuConfig ? megaMenuLinks(item.megaMenuConfig) : []
+                const expanded = mobileMega === item.href
+                const linkClass =
+                  'chrome-nav-link px-2 py-3 text-sm font-medium uppercase tracking-wide transition-colors'
+
+                // A plain item is one link; a mega item also gets a toggle that lists its links.
+                if (subLinks.length === 0) {
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      target={item.openInNewTab ? '_blank' : undefined}
+                      rel={item.openInNewTab ? 'noopener noreferrer' : undefined}
+                      onClick={() => setMenuOpen(false)}
+                      className={`${linkClass} chrome-menu-item last:border-0`}
+                      aria-current={isActive ? 'page' : undefined}
+                    >
+                      {item.label.toUpperCase()}
+                    </Link>
+                  )
+                }
                 return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    target={item.openInNewTab ? '_blank' : undefined}
-                    rel={item.openInNewTab ? 'noopener noreferrer' : undefined}
-                    onClick={() => setMenuOpen(false)}
-                    className="chrome-nav-link chrome-menu-item px-2 py-3 text-sm font-medium last:border-0 uppercase tracking-wide transition-colors"
-                    aria-current={isActive ? 'page' : undefined}
-                  >
-                    {item.label.toUpperCase()}
-                  </Link>
+                  <div key={item.href} className="chrome-menu-item last:border-0">
+                    <div className="flex items-center">
+                      <Link
+                        href={item.href}
+                        target={item.openInNewTab ? '_blank' : undefined}
+                        rel={item.openInNewTab ? 'noopener noreferrer' : undefined}
+                        onClick={() => setMenuOpen(false)}
+                        className={`${linkClass} flex-1`}
+                        aria-current={isActive ? 'page' : undefined}
+                      >
+                        {item.label.toUpperCase()}
+                      </Link>
+                      <button
+                        type="button"
+                        aria-expanded={expanded}
+                        aria-controls={`mobile-mega-${item.href}`}
+                        aria-label={`${expanded ? 'Hide' : 'Show'} ${item.label} links`}
+                        onClick={() => setMobileMega(expanded ? null : item.href)}
+                        className="flex h-11 w-11 shrink-0 items-center justify-center rounded"
+                      >
+                        <ChevronDown
+                          className={`h-5 w-5 transition-transform ${expanded ? 'rotate-180' : ''}`}
+                          aria-hidden
+                        />
+                      </button>
+                    </div>
+                    {expanded && (
+                      <ul id={`mobile-mega-${item.href}`} className="flex flex-col pb-2 pl-4">
+                        {subLinks.map((l) => (
+                          <li key={l.key}>
+                            <Link
+                              href={l.href}
+                              target={l.openInNewTab ? '_blank' : undefined}
+                              rel={l.openInNewTab ? 'noopener noreferrer' : undefined}
+                              onClick={() => setMenuOpen(false)}
+                              className="chrome-nav-link flex min-h-11 items-center px-2 text-sm"
+                            >
+                              {l.label}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
                 )
               })}
             </div>
@@ -670,7 +829,7 @@ export default function Header({
 
       {/* Mega Menu panel — always mounted while activeMega is set, visibility controlled by CSS */}
       {activeMegaItem?.megaMenuConfig && (
-        <div onMouseEnter={cancelMegaClose} onMouseLeave={scheduleMegaClose}>
+        <div ref={panelRef} onMouseEnter={cancelMegaClose} onMouseLeave={scheduleMegaClose}>
           <MegaMenuPanel
             config={activeMegaItem.megaMenuConfig}
             visible={megaVisible}

@@ -108,7 +108,7 @@ export default function Footer({
                   </span>{' '}
                   <a
                     href={`tel:${settings.footerPhone.replace(/[^\d+]/g, '')}`}
-                    className="chrome-strong chrome-link font-semibold"
+                    className="chrome-strong chrome-link tap-target inline-block pointer-coarse:inline-flex pointer-coarse:items-center font-semibold"
                   >
                     {settings.footerPhone}
                   </a>
@@ -120,7 +120,7 @@ export default function Footer({
                   <span className="chrome-muted">{settings.footerTextLabel || 'Text us Now:'}</span>{' '}
                   <a
                     href={`sms:${settings.footerTextNumber.replace(/[^\d+]/g, '')}`}
-                    className="chrome-strong chrome-link font-semibold"
+                    className="chrome-strong chrome-link tap-target inline-block pointer-coarse:inline-flex pointer-coarse:items-center font-semibold"
                   >
                     {settings.footerTextNumber}
                   </a>
@@ -128,7 +128,10 @@ export default function Footer({
               )}
 
               {settings.footerEmail && (
-                <a href={`mailto:${settings.footerEmail}`} className="chrome-strong chrome-link">
+                <a
+                  href={`mailto:${settings.footerEmail}`}
+                  className="chrome-strong chrome-link tap-target inline-block pointer-coarse:inline-flex pointer-coarse:items-center"
+                >
                   {settings.footerEmail}
                 </a>
               )}
@@ -150,13 +153,13 @@ export default function Footer({
         settings.pinterestUrl) && (
         <div className="chrome-divider">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="flex justify-center gap-4">
+            <div className="flex flex-wrap justify-center gap-4">
               {settings.facebookUrl && (
                 <a
                   href={settings.facebookUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="chrome-social w-12 h-12 flex items-center justify-center transition-colors"
+                  className="chrome-social w-12 h-12 shrink-0 flex items-center justify-center transition-colors"
                   aria-label="Facebook"
                 >
                   <FaFacebook size={20} />
@@ -167,7 +170,7 @@ export default function Footer({
                   href={settings.instagramUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="chrome-social w-12 h-12 flex items-center justify-center transition-colors"
+                  className="chrome-social w-12 h-12 shrink-0 flex items-center justify-center transition-colors"
                   aria-label="Instagram"
                 >
                   <FaInstagram size={20} />
@@ -178,7 +181,7 @@ export default function Footer({
                   href={settings.twitterUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="chrome-social w-12 h-12 flex items-center justify-center transition-colors"
+                  className="chrome-social w-12 h-12 shrink-0 flex items-center justify-center transition-colors"
                   aria-label="Twitter / X"
                 >
                   <FaXTwitter size={20} />
@@ -189,7 +192,7 @@ export default function Footer({
                   href={settings.linkedinUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="chrome-social w-12 h-12 flex items-center justify-center transition-colors"
+                  className="chrome-social w-12 h-12 shrink-0 flex items-center justify-center transition-colors"
                   aria-label="LinkedIn"
                 >
                   <FaLinkedin size={20} />
@@ -200,7 +203,7 @@ export default function Footer({
                   href={settings.youtubeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="chrome-social w-12 h-12 flex items-center justify-center transition-colors"
+                  className="chrome-social w-12 h-12 shrink-0 flex items-center justify-center transition-colors"
                   aria-label="YouTube"
                 >
                   <FaYoutube size={20} />
@@ -211,7 +214,7 @@ export default function Footer({
                   href={settings.tiktokUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="chrome-social w-12 h-12 flex items-center justify-center transition-colors"
+                  className="chrome-social w-12 h-12 shrink-0 flex items-center justify-center transition-colors"
                   aria-label="TikTok"
                 >
                   <FaTiktok size={20} />
@@ -222,7 +225,7 @@ export default function Footer({
                   href={settings.pinterestUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="chrome-social w-12 h-12 flex items-center justify-center transition-colors"
+                  className="chrome-social w-12 h-12 shrink-0 flex items-center justify-center transition-colors"
                   aria-label="Pinterest"
                 >
                   <FaPinterest size={20} />
@@ -245,7 +248,7 @@ export default function Footer({
                     href={link.href}
                     target={link.openInNewTab ? '_blank' : undefined}
                     rel={link.openInNewTab ? 'noopener noreferrer' : undefined}
-                    className="chrome-muted-link text-sm transition-colors uppercase tracking-wide"
+                    className="chrome-muted-link tap-target block pointer-coarse:flex pointer-coarse:items-center text-sm transition-colors uppercase tracking-wide"
                   >
                     {link.label.toUpperCase()}
                   </Link>
