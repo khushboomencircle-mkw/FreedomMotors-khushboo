@@ -1,6 +1,8 @@
 import {LIBRARY_GROUPS} from '../sectionLibrary/library'
+import {SINGLETON_PAGES} from '../singletonPages'
 import {withCalmTabs} from './tabs'
 import {withHiddenBadge} from './hiddenBadge'
+import {SECTION_CHECKS, withReadinessChecks, withSeoWarnings} from './readiness'
 
 /**
  * Studio usability improvements, each with its own switch. Set a switch to `false` to put that one thing back exactly
@@ -10,6 +12,20 @@ import {withHiddenBadge} from './hiddenBadge'
 export const CALM_TABS_ENABLED = true
 /** A "Hidden" marker on the rows of sections that are switched off. */
 export const HIDDEN_BADGE_ENABLED = true
+/** Plain-language warnings (never errors) about empty cards, missing answers, no SEO title … */
+export const READINESS_CHECKS_ENABLED = true
+
+/**
+ * The types that are real pages on the website, so a missing SEO title is worth a reminder: the fixed pages, Landing
+ * Pages, Blog Posts and Articles. (Vehicles, Categories, Site Settings and Page Templates also have an SEO block, but
+ * a reminder on each of hundreds of vehicles would only be noise.)
+ */
+const SEO_REMINDER_TYPES = new Set([
+  ...SINGLETON_PAGES.map((p) => p.type),
+  'customPage',
+  'blogPost',
+  'educationalArticle',
+])
 
 interface TypeLike {
   name: string
@@ -30,6 +46,10 @@ export function applyStudioUsability<T extends TypeLike>(types: T[]): T[] {
     if (SECTION_TYPES.has(type.name)) {
       if (CALM_TABS_ENABLED) out = withCalmTabs(out as never)
       if (HIDDEN_BADGE_ENABLED) out = withHiddenBadge(out as never)
+      if (READINESS_CHECKS_ENABLED && SECTION_CHECKS[type.name])
+        out = withReadinessChecks(out as never)
+    } else if (READINESS_CHECKS_ENABLED && SEO_REMINDER_TYPES.has(type.name)) {
+      out = withSeoWarnings(out as never)
     }
     return out
   })
