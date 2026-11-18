@@ -44,6 +44,7 @@ import {customPage} from './customPage'
 import {megaMenuConfigType} from './megaMenuConfigType'
 import {redirectType} from './redirectType'
 import {categoryType} from './category'
+import {pageTemplateType} from '../pageTemplateLibrary/pageTemplateType'
 
 export const schemaTypes = [
   // Document types
@@ -85,6 +86,7 @@ export const schemaTypes = [
   megaMenuConfigType,
   redirectType,
   categoryType,
+  pageTemplateType,
 
   // Header content sections
   announcementBarType,

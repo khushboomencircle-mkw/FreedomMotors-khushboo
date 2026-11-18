@@ -2,6 +2,7 @@ import {sanityFetch} from './client'
 import type {ThemeConfig, ThemeMode} from '@/lib/theme'
 import {LANDING_PAGE_VISIBLE, NAV_LINK_HAS_PAGE} from './navQueries'
 import {BLOG_POST_VISIBLE} from './blogQueries'
+import {cleanSlug} from '@/lib/slug'
 import {VEHICLE_AVAILABLE, VEHICLE_CAROUSEL_PROJECTION} from './vehicleQueries'
 
 const SECTION_PROJECTION = `{
@@ -261,6 +262,8 @@ export interface SiteSettings {
 
   // Footer contact
   footerLogo?: string
+  footerBackgroundImage?: string
+  footerBackgroundOverlay?: number
   footerContactTitle?: string
   addressLine1?: string
   addressLine2?: string
@@ -312,6 +315,8 @@ export async function getSiteSettings() {
 
     // Footer contact
     "footerLogo": footerLogo.asset->url,
+    "footerBackgroundImage": footerBackgroundImage.asset->url,
+    footerBackgroundOverlay,
     footerContactTitle,
     addressLine1,
     addressLine2,
@@ -698,7 +703,7 @@ export async function getAllEducationalArticleSlugs() {
  */
 export async function getBlogPostByPath(landingSlug: string, postSlug: string) {
   return sanityFetch(
-    `*[_type == "blogPost" && slug.current == $postSlug && landingPage->slug.current == $landingSlug && ${BLOG_POST_VISIBLE}][0]{
+    `*[_type == "blogPost" && slug.current in [$postSlug, "/" + $postSlug, $postSlug + "/", "/" + $postSlug + "/"] && landingPage->slug.current == $landingSlug && ${BLOG_POST_VISIBLE}][0]{
       title,
       eyebrow,
       "landingTitle": landingPage->title,
@@ -716,12 +721,14 @@ export async function getBlogPostByPath(landingSlug: string, postSlug: string) {
 
 /** Every visible blog post's address, for static generation (always the live rule at build time). */
 export async function getAllBlogPostPaths() {
-  return sanityFetch<{landing: string; post: string}[]>(
+  const paths = await sanityFetch<{landing: string; post: string}[]>(
     `*[_type == "blogPost" && defined(slug.current) && ${BLOG_POST_VISIBLE}]{
       "landing": landingPage->slug.current,
       "post": slug.current
     }`,
   )
+  // A slug saved with a stray slash ("/my-post") still gets the address /<landing page>/my-post.
+  return paths.map(({landing, post}) => ({landing, post: cleanSlug(post)}))
 }
 
 export async function getCategoryBySlug(slug: string) {

@@ -4,6 +4,7 @@ import {Suspense} from 'react'
 import Link from 'next/link'
 import {getAllCategorySlugs, getCategoryBySlug} from '@/sanity/queries'
 import SanityErrorState from '@/components/SanityErrorState'
+import {cleanSlug} from '@/lib/slug'
 import {seoToMetadata} from '@/lib/seo'
 
 // Independent of /[slug]'s own generateStaticParams, and of /educational/
@@ -58,7 +59,7 @@ async function PageContent({slug}: {slug: string}) {
   // Educational articles first, then blog posts (each at its own /<landing page>/<slug> address).
   const items = [
     ...articles.map((article) => ({...article, href: `/educational/${article.slug}`})),
-    ...posts.map((post) => ({...post, href: `/${post.landingSlug}/${post.slug}`})),
+    ...posts.map((post) => ({...post, href: `/${post.landingSlug}/${cleanSlug(post.slug)}`})),
   ]
 
   return (

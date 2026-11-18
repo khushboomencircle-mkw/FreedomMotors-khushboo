@@ -14,7 +14,10 @@
     "db:migrate": "drizzle-kit migrate",
     "redirects:sync": "node --env-file-if-exists=.env.local ./node_modules/tsx/dist/cli.mjs scripts/syncRedirects.ts",
     "redirects:check": "node --env-file-if-exists=.env.local ./node_modules/tsx/dist/cli.mjs scripts/checkRedirect.ts",
-    "test:css": "node --import tsx --test src/lib/sanitizeCss.test.ts"
+    "test:css": "node --import tsx --test src/lib/sanitizeCss.test.ts",
+    "test:images": "node --import tsx --test src/lib/photoUpload.test.ts src/lib/imageUrl.test.ts",
+    "test:templates": "node --import tsx --test studio/pageTemplateLibrary/*.test.ts",
+    "templates:migrate": "node --env-file-if-exists=.env.local ./node_modules/tsx/dist/cli.mjs studio/pageTemplateLibrary/migrateLegacyTemplates.ts"
   },
   "dependencies": {
     "@portabletext/react": "^8.0.1",

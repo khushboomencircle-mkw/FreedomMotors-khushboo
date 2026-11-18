@@ -2,18 +2,22 @@
 
 // Sanity Studio, embedded in the Next app at /studio (see src/app/studio).
 // 'use client' is required: the Studio config holds functions and runs in the browser.
-import {defineConfig} from 'sanity'
-import {structureTool} from 'sanity/structure'
-import {visionTool} from '@sanity/vision'
-import {schemaTypes} from './studio/schemaTypes'
-import {presentation} from './studio/presentation'
-import {pageTemplates} from './studio/pageTemplates'
-import {DuplicateLandingPageAction} from './studio/schemaTypes/actions/DuplicateLandingPageAction'
-import {guardLandingPageAction} from './studio/schemaTypes/actions/LandingPageGuardActions'
-import {sectionCopyPasteFieldActionsResolver} from './studio/schemaTypes/fieldActions/sectionCopyPasteFieldActions'
+import { defineConfig } from 'sanity'
+import { structureTool } from 'sanity/structure'
+import { visionTool } from '@sanity/vision'
+import { schemaTypes } from './studio/schemaTypes'
+import { presentation } from './studio/presentation'
+import {
+  TemplatePicker,
+  legacyCreateMenuTemplates,
+  registeredPageTemplates,
+} from './studio/pageTemplateLibrary'
+import { DuplicateLandingPageAction } from './studio/schemaTypes/actions/DuplicateLandingPageAction'
+import { guardLandingPageAction } from './studio/schemaTypes/actions/LandingPageGuardActions'
+import { sectionCopyPasteFieldActionsResolver } from './studio/schemaTypes/fieldActions/sectionCopyPasteFieldActions'
 const dynamicPages = [
-  {type: 'convertVehicle2Page', title: 'Convert Your Vehicle'},
-  {type: 'driver', title: 'Driver Page'},
+  { type: 'convertVehicle2Page', title: 'Convert Your Vehicle' },
+  { type: 'driver', title: 'Driver Page' },
   // Adding a new page to the sidebar is now as simple as adding a new object line:
   // { type: 'aboutPage', title: 'About Us Page' },
 ]
@@ -72,8 +76,16 @@ export default defineConfig({
                         S.documentTypeList('customPage')
                           .title('Landing Page(s)')
                           .initialValueTemplates(
-                            pageTemplates.map((t) => S.initialValueTemplateItem(t.id)),
+                            legacyCreateMenuTemplates.map((t) => S.initialValueTemplateItem(t.id)),
                           ),
+                      ),
+                    // Pick an active template from the Page Templates library; the new page starts as a copy of it.
+                    S.listItem()
+                      .title('New Template Page')
+                      .child(
+                        S.component(TemplatePicker)
+                          .id('new-page-from-template')
+                          .title('New Template Page'),
                       ),
                     // Each post belongs to one Landing Page and lives at /<landing page>/<slug>.
                     S.listItem()
@@ -81,6 +93,10 @@ export default defineConfig({
                       .child(S.documentTypeList('blogPost').title('Blog Posts')),
                   ]),
               ),
+            // The library of starting points offered when creating a Landing Page (see studio/pageTemplateLibrary).
+            S.listItem()
+              .title('Page Templates')
+              .child(S.documentTypeList('pageTemplate').title('Page Templates')),
             // Vehicle inventory — a separate schema from the Pages list.
             S.listItem()
               .title('Vehicle Listing')
@@ -110,9 +126,13 @@ export default defineConfig({
   schema: {
     types: schemaTypes,
     // Drop the auto-generated blank-document template for customPage and
-    // replace it with pageTemplates' own 4 — keeps every other document
+    // replace it with the hardcoded templates (studio/pageTemplates.ts) plus the one library
+    // template (studio/pageTemplateLibrary) — keeps every other document
     // type's default create-template untouched.
-    templates: (prev) => [...prev.filter((t) => t.schemaType !== 'customPage'), ...pageTemplates],
+    templates: (prev) => [
+      ...prev.filter((t) => t.schemaType !== 'customPage'),
+      ...registeredPageTemplates,
+    ],
   },
 
   document: {
@@ -123,13 +143,13 @@ export default defineConfig({
     actions: (prev, context) =>
       context.schemaType === 'customPage'
         ? prev.map((action) => {
-            if (action.action === 'duplicate') return DuplicateLandingPageAction
-            if (action.action === 'delete') return guardLandingPageAction(action, 'delete')
-            if (action.action === 'unpublish' || action.action === 'unpublishVersion') {
-              return guardLandingPageAction(action, 'unpublish')
-            }
-            return action
-          })
+          if (action.action === 'duplicate') return DuplicateLandingPageAction
+          if (action.action === 'delete') return guardLandingPageAction(action, 'delete')
+          if (action.action === 'unpublish' || action.action === 'unpublishVersion') {
+            return guardLandingPageAction(action, 'unpublish')
+          }
+          return action
+        })
         : prev,
     // Always-visible Copy/Paste icon buttons on every page type's `sections`
     // field — wraps Sanity's own built-in copyField/pasteField field actions.

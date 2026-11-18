@@ -116,6 +116,27 @@ const pickerSelect: React.CSSProperties = {
   appearance: 'auto',
 }
 
+const toggleGroup: React.CSSProperties = {
+  display: 'inline-flex',
+  gap: 4,
+  padding: 3,
+  marginBottom: 16,
+  borderRadius: 7,
+  background: 'rgba(255,255,255,0.05)',
+  border: '1px solid rgba(255,255,255,0.1)',
+}
+
+const toggleButton = (active: boolean): React.CSSProperties => ({
+  padding: '7px 14px',
+  borderRadius: 5,
+  border: 'none',
+  background: active ? 'rgba(255,255,255,0.16)' : 'transparent',
+  color: active ? 'inherit' : 'rgba(255,255,255,0.55)',
+  fontSize: 13,
+  fontWeight: active ? 600 : 500,
+  cursor: 'pointer',
+})
+
 const identityCard: React.CSSProperties = {
   background: 'rgba(255, 255, 255, 0.03)',
   border: '1px solid rgba(255, 255, 255, 0.08)',
@@ -316,6 +337,8 @@ export default function NavLinkPickerInput(props: ObjectInputProps) {
   const client = useClient({apiVersion: '2024-01-01'})
   const [navLinks, setNavLinks] = useState<NavLink[]>([])
   const [ready, setReady] = useState(false)
+  // Which way to start this page: from an existing nav link, or by creating a new link + slug. One at a time.
+  const [mode, setMode] = useState<'existing' | 'new'>('existing')
 
   const title = (value as any)?.title as string | undefined
   const slugCurrent = (value as any)?.slug?.current as string | undefined
@@ -393,8 +416,29 @@ export default function NavLinkPickerInput(props: ObjectInputProps) {
         </div>
       )}
 
-      {/* State 1: no title, nav links available — show picker */}
+      {/* State 1: no title, nav links available — a toggle chooses between the picker and the new-link form */}
       {!hasTitle && ready && navLinks.length > 0 && (
+        <div role="group" aria-label="How to start this page" style={toggleGroup}>
+          <button
+            type="button"
+            aria-pressed={mode === 'existing'}
+            style={toggleButton(mode === 'existing')}
+            onClick={() => setMode('existing')}
+          >
+            Use an existing nav link
+          </button>
+          <button
+            type="button"
+            aria-pressed={mode === 'new'}
+            style={toggleButton(mode === 'new')}
+            onClick={() => setMode('new')}
+          >
+            Create a new nav link
+          </button>
+        </div>
+      )}
+
+      {!hasTitle && ready && navLinks.length > 0 && mode === 'existing' && (
         <div style={pickerCard}>
           <span style={sectionLabel}>Select a navigation link to create this page for</span>
           <select
@@ -415,9 +459,9 @@ export default function NavLinkPickerInput(props: ObjectInputProps) {
       )}
 
       {/* State 1 (cont.): or add a new nav link without leaving this page */}
-      {!hasTitle && ready && navLinks.length > 0 && (
+      {!hasTitle && ready && navLinks.length > 0 && mode === 'new' && (
         <AddNavLinkForm
-          heading="Or add a new navigation link for this page"
+          heading="Add a new navigation link for this page"
           onCreated={handleCreated}
         />
       )}

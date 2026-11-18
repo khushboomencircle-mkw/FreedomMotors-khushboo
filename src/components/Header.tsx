@@ -77,7 +77,7 @@ function MegaFeatureCard({
   const inner = (
     <div
       className="relative w-full overflow-hidden select-none"
-      style={{height: `${height}px`, borderRadius: `${radius}px`}}
+      style={{height: `${height}px`, borderRadius: `var(--theme-card-radius, ${radius}px)`}}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -110,7 +110,7 @@ function MegaFeatureCard({
       <div
         className="absolute inset-0 flex items-center justify-end pr-4"
         style={{
-          background: hoverColor,
+          background: `var(--theme-primary, ${hoverColor})`,
           opacity: hovered ? 0.88 : 0,
           transition: 'opacity 0.25s ease',
         }}
@@ -134,7 +134,7 @@ function MegaFeatureCard({
               style={{
                 width: 3,
                 height: 16,
-                background: item.accentColor ?? '#dc2626',
+                background: `var(--theme-primary, ${item.accentColor ?? '#dc2626'})`,
                 flexShrink: 0,
               }}
             />
@@ -207,7 +207,9 @@ function MegaMenuPanel({
   const cols = parseInt(config.columns ?? '4', 10)
   const gap = parseInt(config.gridGap ?? '8', 10)
   const panelPad = parseInt(config.panelPadding ?? '24', 10)
-  const bgColor = config.panelBgColor || '#ffffff'
+  // Mega menu colors follow the Site Theme (same order as the rest of the site: Site Theme first,
+  // then this menu's own Studio setting / built-in color as the fallback when the theme is off).
+  const bgColor = `var(--theme-bg, ${config.panelBgColor || '#ffffff'})`
   const isScroll = config.featureDisplayMode === 'horizontalScroll'
 
   // Max Width caps how wide the panel's content gets on large screens;
@@ -240,7 +242,7 @@ function MegaMenuPanel({
         right: 0,
         zIndex: 40,
         boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
-        borderTop: '1px solid rgba(0,0,0,0.08)',
+        borderTop: '1px solid var(--theme-border, rgba(0,0,0,0.08))',
       }}
     >
       <div
@@ -305,7 +307,7 @@ function MegaMenuPanel({
             {config.footerDividerColor && (
               <div
                 style={{
-                  borderTop: `1px solid ${config.footerDividerColor ?? '#4b5563'}`,
+                  borderTop: `1px solid var(--theme-border, ${config.footerDividerColor ?? '#4b5563'})`,
                   marginBottom: 12,
                 }}
               />
@@ -313,7 +315,7 @@ function MegaMenuPanel({
             {config.footerHeading && (
               <p
                 className="text-sm font-semibold uppercase tracking-widest text-center"
-                style={{marginBottom: 12}}
+                style={{marginBottom: 12, color: 'var(--theme-text, inherit)'}}
               >
                 {config.footerHeading}
               </p>
@@ -341,7 +343,10 @@ function MegaMenuPanel({
                     alignItems: 'center',
                     gap: 6,
                     padding: '0 14px',
-                    borderRight: i < config.logoStrip!.length - 1 ? '1px solid #e5e7eb' : 'none',
+                    borderRight:
+                      i < config.logoStrip!.length - 1
+                        ? '1px solid var(--theme-border, #e5e7eb)'
+                        : 'none',
                   }}
                 >
                   {item.logo && (
@@ -357,7 +362,7 @@ function MegaMenuPanel({
                         fontSize: '0.72rem',
                         fontWeight: 700,
                         letterSpacing: '0.08em',
-                        color: '#111827',
+                        color: 'var(--theme-text, #111827)',
                       }}
                     >
                       {item.label.toUpperCase()}
@@ -391,12 +396,16 @@ function MegaMenuPanel({
               href={config.buttonLinkUrl}
               onClick={onClose}
               style={{
-                background: config.buttonStyle ?? '#dc2626',
-                color: config.buttonTextColor ?? '#ffffff',
-                borderRadius: `${config.buttonRadius ?? 0}px`,
-                padding: '10px 24px',
-                fontSize: '0.75rem',
-                fontWeight: 700,
+                // Site Theme button settings first; this menu's own CTA fields are the fallback.
+                background: `var(--theme-button-bg, ${config.buttonStyle ?? '#dc2626'})`,
+                color: `var(--theme-button-text, ${config.buttonTextColor ?? '#ffffff'})`,
+                border:
+                  'var(--theme-button-border-width, 0px) solid var(--theme-button-border, transparent)',
+                borderRadius: `var(--theme-button-radius, ${config.buttonRadius ?? 0}px)`,
+                fontFamily: 'var(--theme-button-font, inherit)',
+                padding: 'var(--theme-button-py, 10px) var(--theme-button-px, 24px)',
+                fontSize: 'var(--theme-button-size, 0.75rem)',
+                fontWeight: 'var(--theme-button-weight, 700)',
                 textTransform: 'uppercase',
                 letterSpacing: '0.1em',
                 display: 'inline-flex',

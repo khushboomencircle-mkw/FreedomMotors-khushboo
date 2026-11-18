@@ -102,6 +102,12 @@ export const blogPostType = defineType({
             value?.current && !(context.document as PostDocument)?.landingPage?._ref
               ? 'Pick a landing page first, then set the slug.'
               : true,
+          )
+          // One plain segment: a slash (e.g. "/my-post") would make the address /<landing page>//my-post.
+          .custom((value) =>
+            value?.current && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value.current)
+              ? 'Use lowercase letters, numbers and single hyphens only — no slashes or spaces (e.g. my-post). Click Generate to create it from the title.'
+              : true,
           ),
     }),
     defineField({

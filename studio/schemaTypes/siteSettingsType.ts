@@ -40,6 +40,11 @@ export const siteSettingsType = defineType({
       options: {collapsible: true, collapsed: true},
     },
     {
+      name: 'footerBackground',
+      title: 'Footer Background Image',
+      options: {collapsible: true, collapsed: true},
+    },
+    {
       name: 'footerAddress',
       title: 'Footer Address',
       options: {collapsible: true, collapsed: true},
@@ -193,6 +198,29 @@ export const siteSettingsType = defineType({
       options: {hotspot: true},
       description: 'Logo displayed in the footer contact area.',
       components: {input: CompactImageInput},
+    }),
+    defineField({
+      name: 'footerBackgroundImage',
+      title: 'Background Image',
+      type: 'image',
+      group: 'footer',
+      fieldset: 'footerBackground',
+      options: {hotspot: true},
+      description:
+        'Optional picture behind the whole footer. It covers the footer and is cropped to fit. Leave empty for the plain theme background.',
+      components: {input: CompactImageInput},
+    }),
+    defineField({
+      name: 'footerBackgroundOverlay',
+      title: 'Background Overlay (%)',
+      type: 'number',
+      group: 'footer',
+      fieldset: 'footerBackground',
+      initialValue: 60,
+      validation: (rule) => rule.min(0).max(95).integer(),
+      description:
+        'How strongly the footer background color is laid over the picture so the text stays readable. 0 = picture only, 95 = almost solid color. Default 60.',
+      hidden: ({document}) => !document?.footerBackgroundImage,
     }),
     defineField({
       name: 'footerContactTitle',

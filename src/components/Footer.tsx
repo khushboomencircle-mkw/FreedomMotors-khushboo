@@ -17,6 +17,8 @@ interface NavLink {
 
 interface SiteSettings {
   footerLogo?: string
+  footerBackgroundImage?: string
+  footerBackgroundOverlay?: number
   footerContactTitle?: string
   addressLine1?: string
   addressLine2?: string
@@ -58,8 +60,29 @@ export default function Footer({
     </>
   )
 
+  // Optional background picture. The theme background color is laid over it (default 60%) so text stays readable.
+  const bgOverlay = Math.max(0, Math.min(95, settings.footerBackgroundOverlay ?? 60))
+
   return (
-    <footer className="chrome-footer">
+    <footer className="chrome-footer relative isolate overflow-hidden">
+      {settings.footerBackgroundImage && (
+        <>
+          <SiteImage
+            src={settings.footerBackgroundImage}
+            alt=""
+            sizes="background"
+            fill
+            className="object-cover -z-20"
+          />
+          <div
+            aria-hidden
+            className="absolute inset-0 -z-10"
+            style={{
+              background: `color-mix(in srgb, var(--theme-bg, #1a1a1a) ${bgOverlay}%, transparent)`,
+            }}
+          />
+        </>
+      )}
       {/* Main footer content */}
       {(hasContact || settings.footerLogo) && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">

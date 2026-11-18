@@ -136,32 +136,6 @@ export const customPage = defineType({
       group: 'content',
       fieldset: 'pageInfo',
     }),
-    defineField({
-      name: 'sections',
-      title: 'Page Sections',
-      type: 'array',
-      group: 'content',
-      description:
-        'Add sections in any order. Each section is ordered by its sequence number. ' +
-        'Starting from a template? A template only applies when creating a new page — ' +
-        "it can't be applied to an existing page, it can't change colors or fonts " +
-        "(that's the Theme feature, not built yet), and it can't create new section " +
-        'designs — for a new design, use a section template (not built yet) or a ' +
-        'Custom HTML Section.',
-      of: allSectionMembers,
-      validation: (Rule) =>
-        sectionsArrayValidation(Rule)
-          .custom((sections: unknown[] | undefined) => {
-            const hits = findPlaceholderStrings(sections ?? [])
-            return hits.length > 0
-              ? `Placeholder text from a template is still here — replace it before publishing:\n${hits.join('\n')}`
-              : true
-          })
-          .warning(),
-    }),
-
-    ...pageCssFields('content'),
-
     // ── Navigation ──
 
     defineField({
@@ -222,6 +196,8 @@ export const customPage = defineType({
       initialValue: true,
     }),
 
+    ...pageCssFields('content'),
+
     // ── SEO ──
     defineField({
       name: 'seo',
@@ -229,6 +205,29 @@ export const customPage = defineType({
       type: 'seo',
       group: 'seo',
       fieldset: 'seoSettings',
+    }),
+    defineField({
+      name: 'sections',
+      title: 'Page Sections',
+      type: 'array',
+      group: 'content',
+      description:
+        'Add sections in any order. Each section is ordered by its sequence number. ' +
+        'Starting from a template? A template only applies when creating a new page — ' +
+        "it can't be applied to an existing page, it can't change colors or fonts " +
+        "(that's the Theme feature, not built yet), and it can't create new section " +
+        'designs — for a new design, use a section template (not built yet) or a ' +
+        'Custom HTML Section.',
+      of: allSectionMembers,
+      validation: (Rule) =>
+        sectionsArrayValidation(Rule)
+          .custom((sections: unknown[] | undefined) => {
+            const hits = findPlaceholderStrings(sections ?? [])
+            return hits.length > 0
+              ? `Placeholder text from a template is still here — replace it before publishing:\n${hits.join('\n')}`
+              : true
+          })
+          .warning(),
     }),
   ],
   preview: {

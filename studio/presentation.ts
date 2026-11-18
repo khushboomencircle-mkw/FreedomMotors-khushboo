@@ -65,7 +65,10 @@ export const presentation = presentationTool({
           doc?.slug && doc?.landingSlug
             ? {
                 locations: [
-                  {title: doc.title || 'Untitled Post', href: `/${doc.landingSlug}/${doc.slug}`},
+                  {
+                    title: doc.title || 'Untitled Post',
+                    href: `/${doc.landingSlug}/${String(doc.slug).replace(/^\/+|\/+$/g, '')}`,
+                  },
                 ],
               }
             : {locations: []},
