@@ -11,7 +11,7 @@ export default function LoadingOverlay() {
     <div
       role="status"
       aria-live="polite"
-      className="flex min-h-[60vh] w-full items-center justify-center bg-[#121212]/80 backdrop-blur-sm"
+      className="flex min-h-[60dvh] w-full items-center justify-center bg-[#121212]/80 backdrop-blur-sm"
     >
       <div className="flex flex-col items-center gap-3 text-gray-300">
         <Loader2 className="h-10 w-10 animate-spin text-red-600" aria-hidden />

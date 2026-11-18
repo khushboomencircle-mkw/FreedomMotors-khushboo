@@ -119,6 +119,44 @@ list to Vercel Global Config, and `src/proxy.ts` applies it on every request. Se
 To sync by hand, run `npm run redirects:sync`. To test one path on the live site, run
 `npm run redirects:check -- /old-path/`.
 
+## Responsive checklist
+
+Every page must look intentional and be easy to use on any screen. Check a change at these sizes
+(portrait and landscape for the phones and tablets), and with browser zoom at 200%:
+
+| Device                      | Widths to check    |
+| --------------------------- | ------------------ |
+| Phones                      | 320, 375, 390, 430 |
+| Large phone / small tablet  | 600                |
+| Tablet portrait / landscape | 768 / 1024         |
+| Laptop and desktop          | 1280, 1440, 1920   |
+| Ultra-wide                  | 2560               |
+
+Rules:
+
+- **No horizontal scroll.** `document.documentElement.scrollWidth` must not exceed the viewport.
+  Each page wrapper has `overflow-x-hidden` as a safety net for editor-written HTML and CSS; our own
+  components must never rely on it to hide an overflow.
+- **Fix it once, in the shared place:** `src/app/globals.css` (tokens and utilities), then the section
+  wrapper in `PageSection.tsx`, then the single component. Mobile-first Tailwind, with the existing
+  breakpoints; `clamp()` (see `fluidPx` in PageSection) instead of per-breakpoint font sizes.
+- **Editor content must survive anything:** 1 to many items, long words and URLs (`min-w-0`,
+  `overflow-wrap`), no image, any container width, light or dark theme. Columns step down 4 → 3 → 2 → 1.
+  Never give a text box a fixed `height` (use `min-height`).
+- **Touch:** every button and link has a 44×44px touch area. Add `tap-target` (small buttons and
+  links) or `tap-dot` (slider dots) — they only act on touch screens, so mouse layouts don't change.
+  Inputs use 16px text on touch (`text-base pointer-fine:text-sm`) so iOS doesn't zoom on focus.
+  Nothing works by hover alone.
+- **Keyboard:** everything is reachable and visible while focused (a default `:focus-visible` ring
+  is in globals.css), nothing traps focus, Escape closes menus and dialogs.
+- **Dialogs and lightboxes** use `ModalShell` (portal, `dvh` sizing, focus trap, scroll lock); never
+  `position: fixed` inside a component that may be transformed.
+- **Heights use `dvh`, not `vh`** (phone browser bars change the screen height).
+- **Reduced motion:** autoplay and slide animations stop (`useReducedMotion`; globals.css switches
+  off transitions).
+- **No layout shift:** images keep their aspect ratio and reserve space; no `window.innerWidth` checks
+  during render (use CSS breakpoints; `useLayoutEffect` + `ResizeObserver` where measuring is needed).
+
 ## Before pushing
 
 Run these from the project root before every push, and fix anything they report:

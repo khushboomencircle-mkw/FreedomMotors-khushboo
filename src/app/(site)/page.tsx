@@ -59,7 +59,7 @@ export default function Home() {
   return (
     <div
       data-page-css={pageCssId('home')}
-      className="min-h-screen overflow-x-hidden"
+      className="min-h-dvh overflow-x-hidden"
       style={{background: 'var(--theme-bg, #121212)', color: 'var(--theme-text, #ffffff)'}}
     >
       <Suspense fallback={<p className="text-gray-400 text-center py-24">Loading...</p>}>

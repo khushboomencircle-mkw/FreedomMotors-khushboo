@@ -118,7 +118,7 @@ export default async function CategoryPage({params}: {params: Promise<{slug: str
 
   return (
     <div
-      className="min-h-screen overflow-x-hidden"
+      className="min-h-dvh overflow-x-hidden"
       style={{background: 'var(--theme-bg, #121212)', color: 'var(--theme-text, #ffffff)'}}
     >
       <Suspense
