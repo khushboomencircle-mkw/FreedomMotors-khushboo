@@ -5,6 +5,7 @@ import {withStandardContent} from './contentLayout'
 import {withSectionGuide} from './withSectionGuide'
 import {SUMMARY_ROW_TYPES, withRowSummary} from './rows'
 import {withAddButtons} from './withAddButtons'
+import {withCardBlocks} from './withCardBlocks'
 import {withHiddenBadge} from './hiddenBadge'
 import {SECTION_CHECKS, withReadinessChecks, withSeoWarnings} from './readiness'
 
@@ -20,6 +21,8 @@ export const STANDARD_CONTENT_ENABLED = true
 export const SECTION_GUIDE_ENABLED = true
 /** Card/feature rows show a one-line summary; lists say "Add card", "Add question" … */
 export const FRIENDLY_ROWS_ENABLED = true
+/** The boxed-card look around the Content-tab blocks (scoped style sheet; see CardBlocks.tsx). */
+export const CARD_BLOCKS_ENABLED = true
 /** A "Hidden" marker on the rows of sections that are switched off. */
 export const HIDDEN_BADGE_ENABLED = true
 /** Plain-language warnings (never errors) about empty cards, missing answers, no SEO title … */
@@ -58,6 +61,7 @@ export function applyStudioUsability<T extends TypeLike>(types: T[]): T[] {
       if (STANDARD_CONTENT_ENABLED) out = withStandardContent(out as never)
       if (STANDARD_CONTENT_ENABLED && SECTION_GUIDE_ENABLED) out = withSectionGuide(out as never)
       if (FRIENDLY_ROWS_ENABLED) out = withAddButtons(out as never)
+      if (STANDARD_CONTENT_ENABLED && CARD_BLOCKS_ENABLED) out = withCardBlocks(out as never)
       if (CALM_TABS_ENABLED) out = withCalmTabs(out as never)
       if (HIDDEN_BADGE_ENABLED) out = withHiddenBadge(out as never)
       if (READINESS_CHECKS_ENABLED && SECTION_CHECKS[type.name])
