@@ -9,6 +9,8 @@ import { schemaTypes } from './studio/schemaTypes'
 import { presentation } from './studio/presentation'
 import { registeredPageTemplates } from './studio/pageTemplateLibrary'
 import { buildStructure } from './studio/usability/structure'
+import { OpenInPreviewAction } from './studio/usability/OpenInPreviewAction'
+import { isPreviewable } from './studio/usability/previewPaths'
 import { DuplicateLandingPageAction } from './studio/schemaTypes/actions/DuplicateLandingPageAction'
 import { guardLandingPageAction } from './studio/schemaTypes/actions/LandingPageGuardActions'
 import { withoutSingletonActions, withoutSingletonCreateOptions } from './studio/singletonPages'
@@ -79,7 +81,9 @@ export default defineConfig({
           })
           : prev
       // A fixed page (Home, Commercial …) can be neither duplicated nor deleted — there is only ever one.
-      return withoutSingletonActions(actions, context.schemaType)
+      const allowed = withoutSingletonActions(actions, context.schemaType)
+      // Every page-like document also gets "Preview on site" in its menu.
+      return isPreviewable(context.schemaType) ? [...allowed, OpenInPreviewAction] : allowed
     },
     // The fixed pages are never offered in a "+ New document" menu. Landing Pages and everything else are.
     newDocumentOptions: (prev) => withoutSingletonCreateOptions(prev),

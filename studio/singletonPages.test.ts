@@ -172,10 +172,11 @@ describe('the real Studio configuration', () => {
           c: {schemaType: string},
         ) => {action?: string}[]
       )(prev, {schemaType}).map((a) => a.action)
-    assert.deepEqual(run('commercialPage'), ['publish', 'unpublish'])
-    assert.deepEqual(run('homePage'), ['publish', 'unpublish'])
-    // Landing Pages keep Duplicate and Delete (as their own guarded versions) and Unpublish
-    assert.equal(run('customPage').length, 4)
+    // The last entry (no name) is "Preview on site", which every page-like document also has.
+    assert.deepEqual(run('commercialPage'), ['publish', 'unpublish', undefined])
+    assert.deepEqual(run('homePage'), ['publish', 'unpublish', undefined])
+    // Landing Pages keep Duplicate and Delete (as their own guarded versions) and Unpublish, plus Preview
+    assert.equal(run('customPage').length, 5)
   })
 
   it('does not offer the fixed pages in a new-document menu', () => {
