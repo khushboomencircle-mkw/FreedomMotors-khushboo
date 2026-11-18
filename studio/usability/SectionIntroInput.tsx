@@ -37,6 +37,7 @@ export function SectionIntroInput(props: StringInputProps) {
   if (!guide || !section?._type) return null
   return (
     <div style={card}>
+      {/* eslint-disable-next-line @next/next/no-img-element -- Studio UI: a small static SVG, not a page image */}
       <img
         src={previewUrlFor(section._type)}
         alt=""
