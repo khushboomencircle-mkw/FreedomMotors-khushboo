@@ -7,14 +7,10 @@ import { structureTool } from 'sanity/structure'
 import { visionTool } from '@sanity/vision'
 import { schemaTypes } from './studio/schemaTypes'
 import { presentation } from './studio/presentation'
-import {
-  TemplatePicker,
-  legacyCreateMenuTemplates,
-  registeredPageTemplates,
-} from './studio/pageTemplateLibrary'
+import { registeredPageTemplates } from './studio/pageTemplateLibrary'
+import { buildStructure } from './studio/usability/structure'
 import { DuplicateLandingPageAction } from './studio/schemaTypes/actions/DuplicateLandingPageAction'
 import { guardLandingPageAction } from './studio/schemaTypes/actions/LandingPageGuardActions'
-import { singletonStructureItems } from './studio/singletonStructure'
 import { withoutSingletonActions, withoutSingletonCreateOptions } from './studio/singletonPages'
 import { sectionCopyPasteFieldActionsResolver } from './studio/schemaTypes/fieldActions/sectionCopyPasteFieldActions'
 const dynamicPages = [
@@ -46,74 +42,8 @@ export default defineConfig({
 
   plugins: [
     structureTool({
-      structure: (S, context) =>
-        S.list()
-          .title('Content')
-          .items([
-            S.listItem()
-              .title('Site Settings')
-              .child(S.document().schemaType('siteSettings').documentId('siteSettings')),
-            S.listItem()
-              .title('Pages')
-              .child(
-                S.list()
-                  .title('Pages')
-                  .items([
-                    // The fixed pages: each opens its one document directly, so there is no list and no "+"
-                    // to add a second copy (see studio/singletonPages.ts).
-                    ...singletonStructureItems(S, context),
-                    S.divider(),
-
-                    // 🚀 NATIVE "+" ACCESSIBLE FOR USERS:
-                    // This lets users dynamically add an infinite number of new pages
-                    S.listItem()
-                      .title('Landing Page(s)')
-                      .child(
-                        S.documentTypeList('customPage')
-                          .title('Landing Page(s)')
-                          .initialValueTemplates(
-                            legacyCreateMenuTemplates.map((t) => S.initialValueTemplateItem(t.id)),
-                          ),
-                      ),
-                    // Pick an active template from the Page Templates library; the new page starts as a copy of it.
-                    S.listItem()
-                      .title('New Template Page')
-                      .child(
-                        S.component(TemplatePicker)
-                          .id('new-page-from-template')
-                          .title('New Template Page'),
-                      ),
-                    // Each post belongs to one Landing Page and lives at /<landing page>/<slug>.
-                    S.listItem()
-                      .title('Blog Posts')
-                      .child(S.documentTypeList('blogPost').title('Blog Posts')),
-                  ]),
-              ),
-            // The library of starting points offered when creating a Landing Page (see studio/pageTemplateLibrary).
-            S.listItem()
-              .title('Page Templates')
-              .child(S.documentTypeList('pageTemplate').title('Page Templates')),
-            // Vehicle inventory — a separate schema from the Pages list.
-            S.listItem()
-              .title('Vehicle Listing')
-              .child(S.documentTypeList('vehicle').title('Vehicle Listing')),
-            // Standalone articles at /educational/[slug] — separate from the
-            // Educational Page's own hand-curated sections.
-            S.listItem()
-              .title('Educational Articles')
-              .child(S.documentTypeList('educationalArticle').title('Educational Articles')),
-            S.listItem()
-              .title('Categories')
-              .child(S.documentTypeList('category').title('Categories')),
-            S.listItem()
-              .title('Navigation')
-              .child(
-                S.document().schemaType('navigationSettings').documentId('navigationSettings'),
-              ),
-            S.listItem()
-              .title('Redirects')
-              .child(S.documentTypeList('redirect').title('Redirects')),
-          ]),
+      // The sidebar, grouped by task (see studio/usability/structure.ts).
+      structure: (S, context) => buildStructure(S, context),
     }),
     presentation,
     visionTool(),
