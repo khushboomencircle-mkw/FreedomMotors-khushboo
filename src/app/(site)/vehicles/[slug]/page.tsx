@@ -3,6 +3,7 @@ import {notFound} from 'next/navigation'
 import {Suspense} from 'react'
 import {getVehicleBySlug, getVehicleDetailPage} from '@/sanity/queries'
 import PageSection, {Section} from '@/components/PageSection'
+import {sanityDocOf} from '@/lib/sanityDoc'
 import PageCss from '@/components/PageCss'
 import {pageCssId} from '@/lib/cssPolicy'
 import {splitAroundStaticSection} from '@/lib/staticSection'
@@ -67,7 +68,12 @@ async function VehicleContent({slug}: {slug: string}) {
       {/* Editor-built sections placed before the vehicle specs (Static Section
           placeholder), if an editor chose to position any there. */}
       {before.map((section: Section, i: number) => (
-        <PageSection key={section._key} section={section} isFirst={i === 0} />
+        <PageSection
+          key={section._key}
+          section={section}
+          isFirst={i === 0}
+          doc={sanityDocOf(detailPage)}
+        />
       ))}
 
       {/* Header */}
@@ -167,7 +173,7 @@ async function VehicleContent({slug}: {slug: string}) {
           was positioned before them above). */}
       <div className="w-full">
         {after.map((section: Section) => (
-          <PageSection key={section._key} section={section} />
+          <PageSection key={section._key} section={section} doc={sanityDocOf(detailPage)} />
         ))}
       </div>
     </div>

@@ -354,6 +354,9 @@ export async function getSiteSettings() {
 
 export async function getDriverPage() {
   return sanityFetch(`*[_type == "driver"][0]{
+    _id,
+    _type,
+    "preview": $preview,
     pageTitle,
     pageDescription,
     ${SEO_PROJECTION},
@@ -363,6 +366,9 @@ export async function getDriverPage() {
 
 export async function getContactPage() {
   return sanityFetch(`*[_type == "contactPage"][0]{
+    _id,
+    _type,
+    "preview": $preview,
     pageTitle,
     pageDescription,
     ${SEO_PROJECTION},
@@ -373,6 +379,9 @@ export async function getContactPage() {
 
 export async function getOurStoryPage() {
   return sanityFetch(`*[_type == "ourStoryPage"][0]{
+    _id,
+    _type,
+    "preview": $preview,
     pageTitle,
     pageDescription,
     ${SEO_PROJECTION},
@@ -383,6 +392,9 @@ export async function getOurStoryPage() {
 
 export async function getEducationalPage() {
   return sanityFetch(`*[_type == "educationalPage"][0]{
+    _id,
+    _type,
+    "preview": $preview,
     pageTitle,
     pageDescription,
     ${SEO_PROJECTION},
@@ -393,6 +405,9 @@ export async function getEducationalPage() {
 
 export async function getCommercialPage() {
   return sanityFetch(`*[_type == "commercialPage"][0]{
+    _id,
+    _type,
+    "preview": $preview,
     pageTitle,
     pageDescription,
     ${SEO_PROJECTION},
@@ -403,6 +418,9 @@ export async function getCommercialPage() {
 
 export async function getVehiclesPage() {
   return sanityFetch(`*[_type == "vehiclesPage"][0]{
+    _id,
+    _type,
+    "preview": $preview,
     pageTitle,
     pageDescription,
     ${SEO_PROJECTION},
@@ -414,6 +432,9 @@ export async function getVehiclesPage() {
 /** The home page rendered at "/" (singleton). */
 export async function getHomePage() {
   return sanityFetch(`*[_id == "homePage"][0]{
+    _id,
+    _type,
+    "preview": $preview,
     pageTitle,
     pageDescription,
     ${SEO_PROJECTION},
@@ -425,6 +446,9 @@ export async function getHomePage() {
 /** Shared sections template for every vehicle detail page. */
 export async function getVehicleDetailPage() {
   return sanityFetch(`*[_type == "vehicleDetailPage"][0]{
+    _id,
+    _type,
+    "preview": $preview,
     pageTitle,
     pageDescription,
     ${SEO_PROJECTION},
@@ -468,6 +492,9 @@ export async function getAllVehicleSlugs() {
 
 export async function getConvertVehicle2() {
   return sanityFetch(`*[_type == "convertVehicle2Page"][0]{
+    _id,
+    _type,
+    "preview": $preview,
     pageTitle,
     pageDescription,
     ${SEO_PROJECTION},
@@ -658,6 +685,9 @@ export async function getFooterNavLinks() {
 export async function getCustomPageBySlug(slug: string) {
   return sanityFetch(
     `*[_type == "customPage" && slug.current == $slug][0]{
+      _id,
+      _type,
+      "preview": $preview,
       title,
       pageDescription,
       ${SEO_PROJECTION},
@@ -704,6 +734,9 @@ export async function getAllEducationalArticleSlugs() {
 export async function getBlogPostByPath(landingSlug: string, postSlug: string) {
   return sanityFetch(
     `*[_type == "blogPost" && slug.current in [$postSlug, "/" + $postSlug, $postSlug + "/", "/" + $postSlug + "/"] && landingPage->slug.current == $landingSlug && ${BLOG_POST_VISIBLE}][0]{
+      _id,
+      _type,
+      "preview": $preview,
       title,
       eyebrow,
       "landingTitle": landingPage->title,

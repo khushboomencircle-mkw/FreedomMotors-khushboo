@@ -10,6 +10,7 @@ import LoadMoreCardsGrid from './LoadMoreCardsGrid'
 import FeatureGridScroller from './FeatureGridScroller'
 import FeatureHeroSlider from './FeatureHeroSlider'
 import VehicleCarousel from './VehicleCarousel'
+import {dataSanity, sectionPath, type SanityDoc} from '@/lib/sanityDoc'
 import type {CarouselVehicle} from './VehicleCarouselCard'
 import {sanitizeHtml} from '@/lib/sanitizeHtml'
 import {resolveSectionTheme, themeToCssVars, type ThemeConfig} from '@/lib/theme'
@@ -2539,13 +2540,15 @@ function StandardSectionContent({
  * Nothing in the site's own styles uses these names, so adding them changes no current styling.
  * Values are reduced to safe characters (a Sanity _key/_type is already plain, this is belt and braces).
  */
-function sectionHooks(section: Section, extraClass = '') {
+function sectionHooks(section: Section, extraClass = '', doc?: SanityDoc) {
   const safe = (value?: string) => (value || '').replace(/[^A-Za-z0-9_-]/g, '')
   return {
     className: ['page-section', `page-section--${safe(section._type) || 'section'}`, extraClass]
       .filter(Boolean)
       .join(' '),
     'data-section-key': safe(section._key) || undefined,
+    // Live-preview click target: clicking anywhere on the section opens its editor. Empty outside preview.
+    ...dataSanity(doc, section._key ? sectionPath(section._key) : undefined),
   }
 }
 
@@ -2559,14 +2562,14 @@ function sectionHooks(section: Section, extraClass = '') {
  * vars on this wrapper so the editor's HTML can use them too (e.g.
  * `color: var(--theme-text)`).
  */
-function CustomHtmlSection({section}: {section: Section}) {
+function CustomHtmlSection({section, doc}: {section: Section; doc?: SanityDoc}) {
   const clean = sanitizeHtml(section.htmlCode)
   if (!clean.trim()) return null
   const {config: sectionThemeConfig} = resolveSectionTheme(undefined, section)
   const sectionThemeVars = themeToCssVars(sectionThemeConfig)
   return (
     <section
-      {...sectionHooks(section, 'custom-html-section w-full')}
+      {...sectionHooks(section, 'custom-html-section w-full', doc)}
       style={{
         ...(sectionThemeVars as React.CSSProperties),
         backgroundColor: 'var(--theme-bg, transparent)',
@@ -2625,10 +2628,13 @@ function GoogleReviewsSection({
 export default function PageSection({
   section,
   isFirst,
+  doc,
 }: {
   section: Section
   /** True for the first section on the page — its above-the-fold image (hero banner) is preloaded. Pass it for one section per page. */
   isFirst?: boolean
+  /** The page document, in preview only (from `sanityDocOf(page)`). Adds click-to-edit markers; leave out on the live site. */
+  doc?: SanityDoc
 }) {
   // Deactivated sections are hidden from the page (not deleted). Default on,
   // so existing content without the field keeps rendering.
@@ -2638,13 +2644,13 @@ export default function PageSection({
   // the structured fields (features/cards/etc.) the dispatch below keys on,
   // so both must be handled first.
   if (section._type === 'customHtmlSection') {
-    return <CustomHtmlSection section={section} />
+    return <CustomHtmlSection section={section} doc={doc} />
   }
   if (section._type === 'googleReviewsSection') {
     return (
       <GoogleReviewsSection
         widgetId={section.trustindexWidgetId}
-        hooks={sectionHooks(section, 'w-full py-12 sm:py-16')}
+        hooks={sectionHooks(section, 'w-full py-12 sm:py-16', doc)}
       />
     )
   }
@@ -2848,7 +2854,7 @@ export default function PageSection({
 
   if (section.expandable) {
     return (
-      <section {...sectionHooks(section, sectionPaddingClass)} style={outerWrapperStyle}>
+      <section {...sectionHooks(section, sectionPaddingClass, doc)} style={outerWrapperStyle}>
         {bgImageEl}
         {bgOverlayEl}
         <div className={containerClass} style={{...innerStyle, ...contentLayerStyle}}>
@@ -2889,7 +2895,7 @@ export default function PageSection({
   }
 
   return (
-    <section {...sectionHooks(section, sectionPaddingClass)} style={outerWrapperStyle}>
+    <section {...sectionHooks(section, sectionPaddingClass, doc)} style={outerWrapperStyle}>
       {bgImageEl}
       {bgOverlayEl}
       <div className={containerClass} style={{...innerStyle, ...contentLayerStyle}}>

@@ -3,6 +3,7 @@ import Link from 'next/link'
 import {getVehiclesPage, getAllVehicles} from '@/sanity/queries'
 import {Suspense} from 'react'
 import PageSection, {Section} from '@/components/PageSection'
+import {sanityDocOf} from '@/lib/sanityDoc'
 import PageCss from '@/components/PageCss'
 import {pageCssId} from '@/lib/cssPolicy'
 import {splitAroundStaticSection} from '@/lib/staticSection'
@@ -361,7 +362,12 @@ async function PageContent({
           (if any) so the built-in vehicle listing renders at the position —
           and only when active — an editor chose in Sanity. */}
       {before.map((section: Section, i: number) => (
-        <PageSection key={section._key} section={section} isFirst={i === 0} />
+        <PageSection
+          key={section._key}
+          section={section}
+          isFirst={i === 0}
+          doc={sanityDocOf(page)}
+        />
       ))}
 
       {showStatic && (
@@ -375,7 +381,7 @@ async function PageContent({
       )}
 
       {after.map((section: Section) => (
-        <PageSection key={section._key} section={section} />
+        <PageSection key={section._key} section={section} doc={sanityDocOf(page)} />
       ))}
     </div>
   )

@@ -2,6 +2,7 @@ import type {Metadata} from 'next'
 import {getContactPage} from '@/sanity/queries'
 import {Suspense} from 'react'
 import PageSection, {Section} from '@/components/PageSection'
+import {sanityDocOf} from '@/lib/sanityDoc'
 import PageCss from '@/components/PageCss'
 import {pageCssId} from '@/lib/cssPolicy'
 import RichText from '@/components/RichText'
@@ -48,7 +49,12 @@ async function PageContent() {
 
       <div className="w-full">
         {page.sections?.map((section: Section, i: number) => (
-          <PageSection key={section._key} section={section} isFirst={i === 0} />
+          <PageSection
+            key={section._key}
+            section={section}
+            isFirst={i === 0}
+            doc={sanityDocOf(page)}
+          />
         ))}
       </div>
     </div>

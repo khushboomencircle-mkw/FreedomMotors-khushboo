@@ -3,6 +3,7 @@ import {notFound} from 'next/navigation'
 import {Suspense} from 'react'
 import {getAllCustomPageSlugs, getCustomPageBySlug} from '@/sanity/queries'
 import PageSection, {Section} from '@/components/PageSection'
+import {sanityDocOf} from '@/lib/sanityDoc'
 import PageCss from '@/components/PageCss'
 import {pageCssId} from '@/lib/cssPolicy'
 import RichText from '@/components/RichText'
@@ -49,7 +50,12 @@ async function PageContent({slug}: {slug: string}) {
 
       <div className="w-full">
         {page.sections?.map((section: Section, i: number) => (
-          <PageSection key={section._key} section={section} isFirst={i === 0} />
+          <PageSection
+            key={section._key}
+            section={section}
+            isFirst={i === 0}
+            doc={sanityDocOf(page)}
+          />
         ))}
       </div>
     </div>

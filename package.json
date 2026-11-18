@@ -17,7 +17,8 @@
     "test:css": "node --import tsx --test src/lib/sanitizeCss.test.ts",
     "test:images": "node --import tsx --test src/lib/photoUpload.test.ts src/lib/imageUrl.test.ts",
     "test:templates": "node --import tsx --test studio/pageTemplateLibrary/*.test.ts",
-    "templates:migrate": "node --env-file-if-exists=.env.local ./node_modules/tsx/dist/cli.mjs studio/pageTemplateLibrary/migrateLegacyTemplates.ts"
+    "templates:migrate": "node --env-file-if-exists=.env.local ./node_modules/tsx/dist/cli.mjs studio/pageTemplateLibrary/migrateLegacyTemplates.ts",
+    "test:preview": "node --import tsx --test src/lib/sanityDoc.test.ts src/components/PageSection.markers.test.tsx"
   },
   "dependencies": {
     "@portabletext/react": "^8.0.1",

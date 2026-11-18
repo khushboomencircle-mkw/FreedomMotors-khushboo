@@ -3,8 +3,13 @@ import Link from 'next/link'
 import RichText from '@/components/RichText'
 import PageSection, {NO_IMAGE_FALLBACK_URL, type Section} from '@/components/PageSection'
 import SiteImage from '@/components/SiteImage'
+import {sanityDocOf} from '@/lib/sanityDoc'
 
 export interface BlogPost {
+  /** Document id/type and the preview flag, from the post query — used for click-to-edit in the live preview. */
+  _id?: string
+  _type?: string
+  preview?: boolean
   title?: string
   eyebrow?: string
   landingTitle?: string
@@ -91,7 +96,7 @@ export default function BlogPostView({post}: {post: BlogPost}) {
       {sections.length > 0 && (
         <div className="w-full">
           {sections.map((section) => (
-            <PageSection key={section._key} section={section} />
+            <PageSection key={section._key} section={section} doc={sanityDocOf(post)} />
           ))}
         </div>
       )}

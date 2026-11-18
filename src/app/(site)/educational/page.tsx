@@ -6,6 +6,7 @@ import {
 } from '@/sanity/queries'
 import {Suspense} from 'react'
 import PageSection, {Section} from '@/components/PageSection'
+import {sanityDocOf, type SanityDoc} from '@/lib/sanityDoc'
 import PageCss from '@/components/PageCss'
 import {pageCssId} from '@/lib/cssPolicy'
 import SanityErrorState from '@/components/SanityErrorState'
@@ -72,7 +73,7 @@ async function PageContent() {
         </div>
       )}
 
-      <StaticSectionContent sections={page.sections} />
+      <StaticSectionContent sections={page.sections} doc={sanityDocOf(page)} />
     </div>
   )
 }
@@ -85,7 +86,7 @@ async function PageContent() {
  * only ever appears once an editor explicitly adds the placeholder, at the
  * sequence position they put it.
  */
-async function StaticSectionContent({sections}: {sections?: Section[]}) {
+async function StaticSectionContent({sections, doc}: {sections?: Section[]; doc?: SanityDoc}) {
   const {before, after, showStatic} = splitAroundStaticSection<Section>(sections, false)
 
   let filterGrid = null
@@ -97,13 +98,13 @@ async function StaticSectionContent({sections}: {sections?: Section[]}) {
   return (
     <div className="w-full">
       {before.map((section: Section, i: number) => (
-        <PageSection key={section._key} section={section} isFirst={i === 0} />
+        <PageSection key={section._key} section={section} isFirst={i === 0} doc={doc} />
       ))}
 
       {filterGrid}
 
       {after.map((section: Section) => (
-        <PageSection key={section._key} section={section} />
+        <PageSection key={section._key} section={section} doc={doc} />
       ))}
     </div>
   )
