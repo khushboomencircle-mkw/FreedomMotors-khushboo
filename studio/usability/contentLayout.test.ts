@@ -329,13 +329,31 @@ describe('buttons: what it says and where it goes, in one row', () => {
   })
 })
 
-describe('blocks are flat labelled areas, not fold-away boxes (except the second button)', () => {
-  it('Status, Heading & intro, More heading options and Main button have no fold-away triangle', () => {
+describe('which blocks fold away', () => {
+  it('Heading & intro, More heading options and Main button can be folded away, and start open', () => {
+    let seen = 0
     for (const name of tabbed) {
-      for (const block of ['status', 'header', 'headerMore', 'primaryButton']) {
+      for (const block of ['header', 'headerMore', 'primaryButton']) {
         const fs = fieldset(live(name), block)
-        if (fs) assert.equal(fs.options?.collapsible, false, `${name}.${block}`)
+        if (!fs) continue
+        assert.equal(fs.options?.collapsible, true, `${name}.${block} can be folded`)
+        assert.equal(fs.options?.collapsed, false, `${name}.${block} starts open`)
+        seen++
       }
+    }
+    assert.ok(seen >= 10, `only ${seen} blocks checked`)
+  })
+
+  it('Second button can be folded and starts folded away', () => {
+    const second = fieldset(live('bannerSection'), 'secondaryButton')!
+    assert.equal(second.options?.collapsible, true)
+    assert.equal(second.options?.collapsed, true)
+  })
+
+  it('the small Status row is always shown', () => {
+    for (const name of tabbed) {
+      const status = fieldset(live(name), 'status')!
+      assert.equal(status.options?.collapsible, false, name)
     }
   })
 })

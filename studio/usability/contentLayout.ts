@@ -132,8 +132,10 @@ export function exampleFrom(description: unknown): string | undefined {
 const groupsOf = (field: FieldLike): string[] =>
   Array.isArray(field.group) ? field.group : field.group ? [field.group] : []
 
-/** Blocks that are always open and have no fold-away triangle. */
-const FLAT_BLOCKS = new Set(['header', 'primaryButton', HEADING_MORE_FIELDSET, STATUS_FIELDSET])
+/** Blocks that can be folded away with a triangle, and start open. */
+const FOLDABLE_OPEN = new Set(['header', 'primaryButton', HEADING_MORE_FIELDSET])
+/** Blocks that are always shown (the small Status row has nothing worth folding). */
+const ALWAYS_SHOWN = new Set([STATUS_FIELDSET])
 
 /** The fieldsets with plain titles; the shared ones open or closed the way the standard says. */
 function standardFieldsets(
@@ -143,7 +145,11 @@ function standardFieldsets(
   const out: FieldsetLike[] = fieldsets.map((fs) => {
     const title = BLOCK_TITLES[fs.name] ?? stripNumber(fs.title)
     const options: Record<string, unknown> = {...fs.options}
-    if (FLAT_BLOCKS.has(fs.name)) {
+    if (FOLDABLE_OPEN.has(fs.name)) {
+      options.collapsible = true
+      options.collapsed = false
+    }
+    if (ALWAYS_SHOWN.has(fs.name)) {
       options.collapsible = false
       options.collapsed = false
     }
@@ -176,7 +182,7 @@ function standardFieldsets(
     add({
       name: HEADING_MORE_FIELDSET,
       title: 'More heading options',
-      options: {collapsible: false, collapsed: false},
+      options: {collapsible: true, collapsed: false},
     })
   }
   if (extra.buttonStyle) {
