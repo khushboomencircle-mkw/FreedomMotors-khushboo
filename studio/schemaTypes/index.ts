@@ -28,6 +28,7 @@ import {navigationLinkType} from './navigationLinkType'
 import {navigationSettingsType} from './navigationSettingsType'
 
 import {sectionObjectTypes} from './sections'
+import {applyLayoutPickers} from '../layoutPresets'
 import {convertVehicle2PageType} from './pages/convertVehicle2Page'
 import {driverPage} from './pages/driver'
 import {commercialPage} from './pages/commercialPage'
@@ -77,7 +78,8 @@ export const schemaTypes = [
   photoWithAltType,
 
   // Section types (cards grid, FAQ accordion, banner, + child items)
-  ...sectionObjectTypes,
+  // The layout picker is added here, on registration, so the section files themselves are untouched.
+  ...applyLayoutPickers(sectionObjectTypes),
 
   customPage,
   vehicleType,
