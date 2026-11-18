@@ -47,6 +47,39 @@ export const SIDEBAR = {
   redirects: 'Redirects',
 } as const
 
+/**
+ * The views of the Vehicles list. `isAvailable` is a switch that defaults to on, so "not set" counts as available —
+ * the same rule the website uses (a vehicle is hidden only when it is switched off).
+ */
+export const VEHICLE_VIEWS = [
+  {id: 'vehicles-all', title: 'All vehicles', filter: '_type == "vehicle"', newest: false},
+  {
+    id: 'vehicles-available',
+    title: 'Available',
+    filter: '_type == "vehicle" && isAvailable != false',
+    newest: false,
+  },
+  {
+    id: 'vehicles-unavailable',
+    title: 'Not available',
+    filter: '_type == "vehicle" && isAvailable == false',
+    newest: false,
+  },
+  {
+    id: 'vehicles-featured',
+    title: 'Featured',
+    filter: '_type == "vehicle" && isFeatured == true',
+    newest: false,
+  },
+  {id: 'vehicles-recent', title: 'Recently added', filter: '_type == "vehicle"', newest: true},
+] as const
+
+/** Landing Pages that have at least one blog post (the first step of "By landing page"). */
+export const LANDING_PAGES_WITH_POSTS =
+  '_type == "customPage" && count(*[_type == "blogPost" && landingPage._ref == ^._id]) > 0'
+/** The posts of one landing page (`$id` is that landing page's id). */
+export const POSTS_OF_LANDING_PAGE = '_type == "blogPost" && landingPage._ref == $id'
+
 /** Builds the grouped sidebar. */
 export function buildStructure(S: StructureBuilder, context: StructureResolverContext) {
   return S.list()
@@ -91,7 +124,36 @@ export function buildStructure(S: StructureBuilder, context: StructureResolverCo
         .id('blog-posts')
         .title(SIDEBAR.blogPosts)
         .icon(BookIcon)
-        .child(S.documentTypeList('blogPost').title(SIDEBAR.blogPosts)),
+        .child(
+          S.list()
+            .title(SIDEBAR.blogPosts)
+            .items([
+              S.listItem()
+                .id('posts-all')
+                .title('All posts')
+                .icon(BookIcon)
+                .child(S.documentTypeList('blogPost').title('All posts')),
+              // A post belongs to one Landing Page; this shows the landing pages that have posts, then the posts.
+              S.listItem()
+                .id('posts-by-landing-page')
+                .title('By landing page')
+                .icon(ComposeIcon)
+                .child(
+                  S.documentList()
+                    .id('landing-pages-with-posts')
+                    .title('Choose a landing page')
+                    .schemaType('customPage')
+                    .filter(LANDING_PAGES_WITH_POSTS)
+                    .child((landingPageId: string) =>
+                      S.documentList()
+                        .title('Posts')
+                        .schemaType('blogPost')
+                        .filter(POSTS_OF_LANDING_PAGE)
+                        .params({id: landingPageId}),
+                    ),
+                ),
+            ]),
+        ),
       // Standalone articles at /educational/[slug] — separate from the Educational Page's own sections.
       S.listItem()
         .id('educational-articles')
@@ -111,7 +173,29 @@ export function buildStructure(S: StructureBuilder, context: StructureResolverCo
         .id('vehicles')
         .title(SIDEBAR.vehicles)
         .icon(CubeIcon)
-        .child(S.documentTypeList('vehicle').title(SIDEBAR.vehicles)),
+        .child(
+          S.list()
+            .title(SIDEBAR.vehicles)
+            .items(
+              VEHICLE_VIEWS.map((view) =>
+                S.listItem()
+                  .id(view.id)
+                  .title(view.title)
+                  .icon(CubeIcon)
+                  .child(() => {
+                    const list = S.documentList()
+                      .id(view.id)
+                      .title(view.title)
+                      .schemaType('vehicle')
+                      .filter(view.filter)
+                    // "Recently added" is newest first; the other views keep the list's usual order.
+                    return view.newest
+                      ? list.defaultOrdering([{field: '_createdAt', direction: 'desc'}])
+                      : list
+                  }),
+              ),
+            ),
+        ),
 
       // ── Library ──
       S.divider().title(SIDEBAR.libraryHeading),
