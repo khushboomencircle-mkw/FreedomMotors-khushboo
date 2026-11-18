@@ -1,6 +1,7 @@
 import {LIBRARY_GROUPS} from '../sectionLibrary/library'
 import {SINGLETON_PAGES} from '../singletonPages'
 import {withCalmTabs} from './tabs'
+import {withStandardContent} from './contentLayout'
 import {withHiddenBadge} from './hiddenBadge'
 import {SECTION_CHECKS, withReadinessChecks, withSeoWarnings} from './readiness'
 
@@ -10,6 +11,8 @@ import {SECTION_CHECKS, withReadinessChecks, withSeoWarnings} from './readiness'
  */
 /** Plain tab names in the section forms, and no "All fields" tab. */
 export const CALM_TABS_ENABLED = true
+/** The standard Content tab: Status row, "Heading & intro", plain button blocks, no numbers in titles. */
+export const STANDARD_CONTENT_ENABLED = true
 /** A "Hidden" marker on the rows of sections that are switched off. */
 export const HIDDEN_BADGE_ENABLED = true
 /** Plain-language warnings (never errors) about empty cards, missing answers, no SEO title … */
@@ -44,6 +47,8 @@ export function applyStudioUsability<T extends TypeLike>(types: T[]): T[] {
   return types.map((type) => {
     let out = type
     if (SECTION_TYPES.has(type.name)) {
+      // The standard Content tab first: it decides which tabs are left, then the tab names are tidied.
+      if (STANDARD_CONTENT_ENABLED) out = withStandardContent(out as never)
       if (CALM_TABS_ENABLED) out = withCalmTabs(out as never)
       if (HIDDEN_BADGE_ENABLED) out = withHiddenBadge(out as never)
       if (READINESS_CHECKS_ENABLED && SECTION_CHECKS[type.name])
