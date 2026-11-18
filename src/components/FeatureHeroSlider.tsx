@@ -5,6 +5,7 @@ import Link from 'next/link'
 import VideoLightbox from './VideoLightbox'
 import RichText from './RichText'
 import SiteImage from './SiteImage'
+import {useReducedMotion} from '@/lib/useReducedMotion'
 
 interface Feature {
   _key: string
@@ -97,6 +98,8 @@ export default function FeatureHeroSlider({
   const [pos, setPos] = useState(loop ? 1 : 0)
   const [animate, setAnimate] = useState(true)
   const [paused, setPaused] = useState(false)
+  // A visitor who asks for less motion gets no autoplay and no sliding animation.
+  const reducedMotion = useReducedMotion()
   const posRef = useRef(pos)
   const busyRef = useRef(false)
   const settleTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -145,7 +148,7 @@ export default function FeatureHeroSlider({
   const prev = useCallback(() => move(posRef.current - 1), [move])
 
   useEffect(() => {
-    if (!autoPlay || !loop || paused) return
+    if (!autoPlay || !loop || paused || reducedMotion) return
     const id = setInterval(
       () => {
         if (document.visibilityState === 'visible') next()
@@ -153,7 +156,7 @@ export default function FeatureHeroSlider({
       Math.max(2, intervalSeconds) * 1000,
     )
     return () => clearInterval(id)
-  }, [autoPlay, loop, paused, intervalSeconds, next])
+  }, [autoPlay, loop, paused, reducedMotion, intervalSeconds, next])
 
   useEffect(
     () => () => {
@@ -300,6 +303,9 @@ export default function FeatureHeroSlider({
         className="h-full w-full flex-none"
         style={{flexBasis: '100%'}}
         aria-hidden={isClone || undefined}
+        // Slides that aren't on screen can't be tabbed into (their links and video buttons would
+        // otherwise scroll the clipped track out of step with the slider's own position).
+        inert={i !== pos}
       >
         {body}
       </div>
@@ -308,10 +314,20 @@ export default function FeatureHeroSlider({
 
   return (
     <div
-      className="relative w-full overflow-hidden"
-      style={{height: `min(${cardHeight}, 80vh)`, minHeight: 280}}
+      className="relative w-full overflow-hidden focus-visible:outline-offset-[-4px]"
+      style={{height: `min(${cardHeight}, 80dvh)`, minHeight: 280, touchAction: 'pan-y'}}
       role="region"
       aria-roledescription="carousel"
+      aria-label="Featured slides"
+      // Keyboard: focus the slider, then Left/Right arrow keys change slides.
+      tabIndex={loop ? 0 : undefined}
+      onKeyDown={(e) => {
+        if (!loop || e.target !== e.currentTarget) return
+        if (e.key === 'ArrowRight') next()
+        else if (e.key === 'ArrowLeft') prev()
+        else return
+        e.preventDefault()
+      }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onTouchStart={(e) => {
@@ -331,7 +347,7 @@ export default function FeatureHeroSlider({
         className="flex h-full will-change-transform"
         style={{
           transform: `translate3d(-${pos * 100}%, 0, 0)`,
-          transition: animate ? `transform ${SLIDE_MS}ms ${EASE}` : 'none',
+          transition: animate && !reducedMotion ? `transform ${SLIDE_MS}ms ${EASE}` : 'none',
         }}
         onTransitionEnd={(e) => {
           if (e.target === e.currentTarget) settle()
@@ -348,7 +364,7 @@ export default function FeatureHeroSlider({
       )}
 
       {showDots && loop && (
-        <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2">
+        <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 pointer-coarse:gap-0">
           {features.map((f, i) => (
             <button
               key={f._key}
@@ -356,7 +372,7 @@ export default function FeatureHeroSlider({
               aria-label={`Go to slide ${i + 1}`}
               aria-current={i === activeIndex}
               onClick={() => move(i + 1)}
-              className="h-2 rounded-full bg-white transition-all duration-300"
+              className="tap-dot h-2 rounded-full bg-white transition-all duration-300"
               style={{width: i === activeIndex ? 28 : 8, opacity: i === activeIndex ? 1 : 0.5}}
             />
           ))}
