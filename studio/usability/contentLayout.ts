@@ -2,7 +2,7 @@
  * The standard Content tab: the same blocks, in the same order, with the same plain names, in every section.
  *
  *   Status          Section Active + Display Order (+ position), side by side, always at the top
- *   Heading & intro the section's heading and text, open
+ *   Heading & intro the section's heading and text
  *   (the section's own content)
  *   Main button     the switch, its text and where it goes, in one row   \  only for sections
  *   Second button   the same, folded away until wanted                   /  that have buttons
@@ -132,8 +132,8 @@ export function exampleFrom(description: unknown): string | undefined {
 const groupsOf = (field: FieldLike): string[] =>
   Array.isArray(field.group) ? field.group : field.group ? [field.group] : []
 
-/** Blocks that can be folded away with a triangle, and start open. */
-const FOLDABLE_OPEN = new Set(['header', 'primaryButton', HEADING_MORE_FIELDSET])
+/** Blocks that can be folded away with a triangle. */
+const FOLDABLE = new Set(['header', 'primaryButton', HEADING_MORE_FIELDSET])
 /** Blocks that are always shown (the small Status row has nothing worth folding). */
 const ALWAYS_SHOWN = new Set([STATUS_FIELDSET])
 
@@ -145,21 +145,16 @@ function standardFieldsets(
   const out: FieldsetLike[] = fieldsets.map((fs) => {
     const title = BLOCK_TITLES[fs.name] ?? stripNumber(fs.title)
     const options: Record<string, unknown> = {...fs.options}
-    if (FOLDABLE_OPEN.has(fs.name)) {
-      options.collapsible = true
-      options.collapsed = false
-    }
+    if (FOLDABLE.has(fs.name)) options.collapsible = true
     if (ALWAYS_SHOWN.has(fs.name)) {
       options.collapsible = false
       options.collapsed = false
     }
     // The switch, its text and where it goes: one row.
     if (fs.name === 'primaryButton' || fs.name === 'secondaryButton') options.columns = 3
-    // Second button stays folded away until it is wanted.
-    if (fs.name === 'secondaryButton') {
-      options.collapsible = true
-      options.collapsed = true
-    }
+    if (fs.name === 'secondaryButton') options.collapsible = true
+    // Every fold-away block starts folded, so a tab opens as a short, tidy list of blocks.
+    if (options.collapsible === true) options.collapsed = true
     return {...fs, title, options}
   })
   const add = (fs: FieldsetLike, atStart = false) => {
@@ -182,7 +177,7 @@ function standardFieldsets(
     add({
       name: HEADING_MORE_FIELDSET,
       title: 'More heading options',
-      options: {collapsible: true, collapsed: false},
+      options: {collapsible: true, collapsed: true},
     })
   }
   if (extra.buttonStyle) {

@@ -60,16 +60,16 @@ describe('the standard Content tab', () => {
     }
   })
 
-  it('the heading block is called "Heading & intro" and is open by default', () => {
+  it('the heading block is called "Heading & intro" and starts folded', () => {
     for (const name of tabbed) {
       const header = fieldset(live(name), 'header')
       if (!header) continue
       assert.equal(header.title, 'Heading & intro', name)
-      assert.equal(header.options?.collapsed, false, name)
+      assert.equal(header.options?.collapsed, true, name)
     }
   })
 
-  it('buttons are "Main button" (open) and "Second button" (folded away)', () => {
+  it('buttons are "Main button" and "Second button", both starting folded', () => {
     let seen = 0
     for (const name of tabbed) {
       const t = live(name)
@@ -78,7 +78,7 @@ describe('the standard Content tab', () => {
       if (main) {
         seen++
         assert.equal(main.title, 'Main button', name)
-        assert.equal(main.options?.collapsed, false, name)
+        assert.equal(main.options?.collapsed, true, name)
       }
       if (second) {
         assert.equal(second.title, 'Second button', name)
@@ -330,14 +330,14 @@ describe('buttons: what it says and where it goes, in one row', () => {
 })
 
 describe('which blocks fold away', () => {
-  it('Heading & intro, More heading options and Main button can be folded away, and start open', () => {
+  it('Heading & intro, More heading options and Main button can be folded away, and start folded', () => {
     let seen = 0
     for (const name of tabbed) {
       for (const block of ['header', 'headerMore', 'primaryButton']) {
         const fs = fieldset(live(name), block)
         if (!fs) continue
         assert.equal(fs.options?.collapsible, true, `${name}.${block} can be folded`)
-        assert.equal(fs.options?.collapsed, false, `${name}.${block} starts open`)
+        assert.equal(fs.options?.collapsed, true, `${name}.${block} starts folded`)
         seen++
       }
     }
@@ -355,5 +355,25 @@ describe('which blocks fold away', () => {
       const status = fieldset(live(name), 'status')!
       assert.equal(status.options?.collapsible, false, name)
     }
+  })
+})
+
+describe('every fold-away block starts folded', () => {
+  it('in every section, on every tab: if a block can be folded, it starts folded', () => {
+    let foldable = 0
+    for (const name of tabbed) {
+      for (const fs of live(name).fieldsets ?? []) {
+        if (fs.options?.collapsible === true) {
+          foldable++
+          assert.equal(fs.options.collapsed, true, `${name}.${fs.name} starts open`)
+        }
+      }
+    }
+    assert.ok(foldable >= 25, `only ${foldable} foldable blocks found`)
+  })
+
+  it('the Status row is never folded away, so its switch is always in reach', () => {
+    for (const name of tabbed)
+      assert.notEqual(fieldset(live(name), 'status')!.options?.collapsed, true, name)
   })
 })
