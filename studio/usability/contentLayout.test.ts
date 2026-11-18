@@ -6,6 +6,9 @@ import {sectionObjectTypes} from '../schemaTypes/sections'
 import {LIBRARY_GROUPS} from '../sectionLibrary/library'
 import {
   BUTTON_FIELD_TITLES,
+  BUTTON_STYLE_FIELDS,
+  COMPACT_FIELDS,
+  exampleFrom,
   STATUS_FIELDSET,
   stripNumber,
   withStandardContent,
@@ -166,5 +169,173 @@ describe('numbers in titles', () => {
     assert.equal(stripNumber('Primary Button'), 'Primary Button')
     assert.equal(stripNumber('Top 3. things'), 'Top 3. things')
     assert.equal(stripNumber(undefined), undefined)
+  })
+})
+
+// ── The design pass: blocks that look like the approved mockup ──
+const fieldNamesIn = (t: T, fieldsetName: string) =>
+  t.fields!.filter((f) => f.fieldset === fieldsetName).map((f) => f.name)
+
+describe('clean label-and-input blocks (no long helper text)', () => {
+  it('the standard fields lose their helper text', () => {
+    let checked = 0
+    for (const name of tabbed) {
+      for (const f of live(name).fields!) {
+        if (COMPACT_FIELDS.has(f.name ?? '')) {
+          assert.equal((f as {description?: unknown}).description, undefined, `${name}.${f.name}`)
+          checked++
+        }
+      }
+    }
+    assert.ok(checked > 40, `only ${checked} fields checked`)
+  })
+
+  it('an example in the old helper text stays as a placeholder', () => {
+    const banner = live('bannerSection').fields!.find((f) => f.name === 'eyebrow') as {
+      placeholder?: string
+    }
+    assert.equal(banner.placeholder, 'e.g. What We Convert')
+    const cards = live('cardsGridSection').fields!.find((f) => f.name === 'sectionHeading') as {
+      placeholder?: string
+    }
+    assert.equal(cards.placeholder, 'e.g. How It Works')
+  })
+
+  it('exampleFrom only reads a quoted "e.g."', () => {
+    assert.equal(exampleFrom('Big title (e.g. "How It Works").'), 'e.g. How It Works')
+    assert.equal(exampleFrom('No example here'), undefined)
+    assert.equal(exampleFrom(undefined), undefined)
+  })
+
+  it('fields outside the standard blocks keep their helper text', () => {
+    const images = live('bannerSection').fields!.find((f) => f.name === 'images') as {
+      description?: string
+    }
+    assert.ok(images.description, 'Banner images keeps its description')
+  })
+})
+
+describe('the heading block shows the section’s real headline first', () => {
+  const order = (name: string) => live(name).fields!.map((f) => f.name)
+
+  it('Banner: Heading, Description, Eyebrow and Heading Style first; Title and Subtitle in "More heading options"', () => {
+    const names = order('bannerSection')
+    const seq = names.indexOf('sectionPosition')
+    assert.deepEqual(names.slice(seq + 1, seq + 7), [
+      'heading',
+      'description',
+      'eyebrow',
+      'headerStyle',
+      'sectionHeading',
+      'sectionDescription',
+    ])
+    assert.deepEqual(fieldNamesIn(live('bannerSection'), 'header'), [
+      'heading',
+      'description',
+      'eyebrow',
+      'headerStyle',
+    ])
+    assert.deepEqual(fieldNamesIn(live('bannerSection'), 'headerMore'), [
+      'sectionHeading',
+      'sectionDescription',
+    ])
+    assert.equal(fieldset(live('bannerSection'), 'headerMore')!.title, 'More heading options')
+  })
+
+  it('Accordion: the same, with Heading, Description and Eyebrow first', () => {
+    assert.deepEqual(fieldNamesIn(live('accordionSection'), 'header'), [
+      'heading',
+      'description',
+      'eyebrow',
+    ])
+    assert.deepEqual(fieldNamesIn(live('accordionSection'), 'headerMore'), [
+      'sectionHeading',
+      'sectionDescription',
+    ])
+  })
+
+  it('every other section keeps Title and Subtitle as its heading block, with no extra block', () => {
+    for (const name of tabbed.filter((n) => n !== 'bannerSection' && n !== 'accordionSection')) {
+      const t = live(name)
+      if (!fieldset(t, 'header')) continue
+      assert.deepEqual(fieldNamesIn(t, 'header'), ['sectionHeading', 'sectionDescription'], name)
+      assert.equal(fieldset(t, 'headerMore'), undefined, name)
+    }
+  })
+
+  it('nothing is hidden: both headline sets stay visible and in the Content tab', () => {
+    for (const key of [
+      'heading',
+      'description',
+      'eyebrow',
+      'headerStyle',
+      'sectionHeading',
+      'sectionDescription',
+    ]) {
+      const f = live('bannerSection').fields!.find((x) => x.name === key) as {
+        hidden?: unknown
+        group?: string
+      }
+      assert.equal(f.hidden, undefined, key)
+      assert.equal(f.group, 'content', key)
+    }
+  })
+})
+
+describe('buttons: what it says and where it goes, in one row', () => {
+  const withButtons = tabbed.filter((n) => fieldset(live(n), 'primaryButton'))
+
+  it('the Main button block holds only the switch, the text and the destination (plus the hidden old field)', () => {
+    assert.ok(withButtons.length >= 4)
+    for (const name of withButtons) {
+      const names = fieldNamesIn(live(name), 'primaryButton')
+      assert.deepEqual(
+        names.filter((n) => n !== 'buttonLink'),
+        ['showButton', 'buttonLabel', 'buttonLinkUrl'],
+        name,
+      )
+      assert.equal(fieldset(live(name), 'primaryButton')!.options?.columns, 3, name)
+    }
+  })
+
+  it('how a button looks moves to "Button style" in the Colors & Theme tab', () => {
+    let moved = 0
+    for (const name of withButtons) {
+      const t = live(name)
+      for (const f of t.fields!.filter((x) => BUTTON_STYLE_FIELDS.has(x.name ?? ''))) {
+        assert.equal(f.group, 'sectionStyles', `${name}.${f.name}`)
+        assert.equal(f.fieldset, 'buttonStyle', `${name}.${f.name}`)
+        moved++
+      }
+      assert.equal(t.fieldsets!.filter((fs) => fs.name === 'buttonStyle').length, 1, name)
+      assert.equal(fieldset(t, 'buttonStyle')!.title, 'Button style')
+      assert.ok(
+        !t.groups!.find((g) => g.name === 'sectionStyles')!.hidden,
+        `${name}: Colors & Theme is shown`,
+      )
+    }
+    assert.ok(moved >= 10, `only ${moved} style fields moved`)
+  })
+
+  it('the Second button block is a folded-away row with the same three fields', () => {
+    const t = live('bannerSection')
+    const second = fieldset(t, 'secondaryButton')!
+    assert.equal(second.options?.collapsible, true)
+    assert.equal(second.options?.collapsed, true)
+    assert.deepEqual(
+      fieldNamesIn(t, 'secondaryButton').filter((n) => n !== 'secondaryButtonLink'),
+      ['showSecondaryButton', 'secondaryButtonLabel', 'secondaryButtonLinkUrl'],
+    )
+  })
+})
+
+describe('blocks are flat labelled areas, not fold-away boxes (except the second button)', () => {
+  it('Status, Heading & intro, More heading options and Main button have no fold-away triangle', () => {
+    for (const name of tabbed) {
+      for (const block of ['status', 'header', 'headerMore', 'primaryButton']) {
+        const fs = fieldset(live(name), block)
+        if (fs) assert.equal(fs.options?.collapsible, false, `${name}.${block}`)
+      }
+    }
   })
 })
