@@ -29,7 +29,10 @@ export default function BlogPostView({post}: {post: BlogPost}) {
       <nav aria-label="Breadcrumb" className="w-full mb-14 px-6 py-5">
         <ol className="flex flex-wrap items-center gap-3 text-sm text-[var(--theme-muted,#9ca3af)]">
           <li>
-            <Link href="/" className="hover:text-[var(--theme-text,#ffffff)]">
+            <Link
+              href="/"
+              className="tap-target inline-block pointer-coarse:inline-flex pointer-coarse:items-center hover:text-[var(--theme-text,#ffffff)]"
+            >
               Home
             </Link>
           </li>
@@ -37,14 +40,17 @@ export default function BlogPostView({post}: {post: BlogPost}) {
           <li aria-hidden="true">/</li>
 
           <li>
-            <Link href={`/${post.landingSlug}`} className="hover:text-[var(--theme-text,#ffffff)]">
+            <Link
+              href={`/${post.landingSlug}`}
+              className="tap-target inline-block pointer-coarse:inline-flex pointer-coarse:items-center hover:text-[var(--theme-text,#ffffff)]"
+            >
               {post.landingTitle || post.landingSlug}
             </Link>
           </li>
 
           <li aria-hidden="true">/</li>
 
-          <li aria-current="page" className="font-bold text-[var(--theme-text,#ffffff)]">
+          <li aria-current="page" className="min-w-0 font-bold text-[var(--theme-text,#ffffff)]">
             {post.title}
           </li>
         </ol>
@@ -101,7 +107,7 @@ export default function BlogPostView({post}: {post: BlogPost}) {
               <Link
                 key={cat.slug}
                 href={`/category/${cat.slug}`}
-                className="inline-flex min-w-[183px] h-[42px] items-center justify-center rounded-md bg-[var(--theme-surface,#f3f4fa)] px-6 text-sm font-medium text-[var(--theme-primary,#e9432b)] transition-opacity hover:opacity-80"
+                className="inline-flex min-w-[183px] min-h-[42px] pointer-coarse:min-h-11 items-center justify-center rounded-md bg-[var(--theme-surface,#f3f4fa)] px-6 text-sm font-medium text-[var(--theme-primary,#e9432b)] transition-opacity hover:opacity-80"
               >
                 {cat.title}
               </Link>

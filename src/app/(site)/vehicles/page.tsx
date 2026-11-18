@@ -117,7 +117,7 @@ function StaticPillButton({icon: Icon, children}: {icon: typeof Video; children:
   return (
     <button
       type="button"
-      className="inline-flex items-center gap-1.5 rounded-[var(--theme-button-radius,9999px)] border border-[var(--theme-border,rgba(255,255,255,0.15))] px-3 py-1.5 text-xs font-semibold text-[var(--theme-text,#e5e7eb)]"
+      className="tap-target inline-flex items-center gap-1.5 rounded-[var(--theme-button-radius,9999px)] border border-[var(--theme-border,rgba(255,255,255,0.15))] px-3 py-1.5 text-xs font-semibold text-[var(--theme-text,#e5e7eb)]"
     >
       <Icon className="h-3.5 w-3.5" />
       {children}
@@ -208,7 +208,7 @@ function VehicleCardRow({v}: {v: VehicleCard}) {
           {v.slug ? (
             <Link
               href={`/vehicles/${v.slug}`}
-              className="inline-flex items-center gap-1.5 rounded-[var(--theme-button-radius,9999px)] bg-[var(--theme-button-bg,#dc2626)] px-4 py-2 text-sm font-bold text-[var(--theme-button-text,#ffffff)] transition-opacity hover:opacity-90"
+              className="tap-target inline-flex items-center gap-1.5 rounded-[var(--theme-button-radius,9999px)] bg-[var(--theme-button-bg,#dc2626)] px-4 py-2 text-sm font-bold text-[var(--theme-button-text,#ffffff)] transition-opacity hover:opacity-90"
             >
               Details
               <ArrowRight className="h-4 w-4" />
@@ -274,7 +274,10 @@ function VehicleListing({
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <nav aria-label="Breadcrumb" className="mb-4 text-xs text-[var(--theme-text,#6b7280)]/70">
-        <Link href="/" className="hover:text-[var(--theme-primary,#ef4444)]">
+        <Link
+          href="/"
+          className="tap-target inline-block pointer-coarse:inline-flex pointer-coarse:items-center hover:text-[var(--theme-primary,#ef4444)]"
+        >
           Home
         </Link>
         <span className="mx-1.5">/</span>
@@ -386,7 +389,7 @@ export default function VehiclesPage({
   return (
     <div
       data-page-css={pageCssId('vehicles')}
-      className="min-h-screen overflow-x-hidden"
+      className="min-h-dvh overflow-x-hidden"
       style={{background: 'var(--theme-bg, #121212)', color: 'var(--theme-text, #ffffff)'}}
     >
       <Suspense fallback={<LoadingOverlay />}>

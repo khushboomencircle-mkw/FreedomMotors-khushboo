@@ -51,14 +51,14 @@ export default function VehiclePagination({
   const pageNumbers = getPageNumbers(currentPage, totalPages)
 
   const pageLinkClass = (active: boolean) =>
-    `flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold transition-colors ${
+    `tap-target flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold transition-colors ${
       active
         ? 'bg-[var(--theme-button-bg,#dc2626)] text-[var(--theme-button-text,#ffffff)]'
         : 'text-[var(--theme-text,#d1d5db)] hover:bg-white/5'
     }`
 
   const arrowClass = (enabled: boolean) =>
-    `flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
+    `tap-target flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
       enabled
         ? 'text-[var(--theme-text,#d1d5db)] hover:bg-white/5'
         : 'pointer-events-none text-[var(--theme-muted,#4b5563)]'
@@ -66,7 +66,7 @@ export default function VehiclePagination({
 
   return (
     <div className="mt-10 flex flex-col items-center gap-4">
-      <nav aria-label="Pagination" className="flex items-center gap-1.5">
+      <nav aria-label="Pagination" className="flex flex-wrap items-center justify-center gap-1.5">
         {currentPage > 1 ? (
           <Link
             href={getPageHref(currentPage - 1)}

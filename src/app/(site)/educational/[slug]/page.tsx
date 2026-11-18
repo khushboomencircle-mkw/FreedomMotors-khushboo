@@ -53,7 +53,10 @@ async function PageContent({slug}: {slug: string}) {
       <nav aria-label="Breadcrumb" className="w-full mb-14 px-6 py-5">
         <ol className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
           <li>
-            <Link href="/" className="hover:text-black">
+            <Link
+              href="/"
+              className="tap-target inline-block pointer-coarse:inline-flex pointer-coarse:items-center hover:text-black"
+            >
               Home
             </Link>
           </li>
@@ -61,14 +64,17 @@ async function PageContent({slug}: {slug: string}) {
           <li aria-hidden="true">/</li>
 
           <li>
-            <Link href="/educational/" className="hover:text-black">
+            <Link
+              href="/educational/"
+              className="tap-target inline-block pointer-coarse:inline-flex pointer-coarse:items-center hover:text-black"
+            >
               Educational
             </Link>
           </li>
 
           <li aria-hidden="true">/</li>
 
-          <li className="font-bold text-gray-700">{article.title}</li>
+          <li className="min-w-0 font-bold text-gray-700">{article.title}</li>
         </ol>
       </nav>
       <article className="w-full max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -114,7 +120,7 @@ async function PageContent({slug}: {slug: string}) {
                 <Link
                   key={cat.slug}
                   href={`/category/${cat.slug}`}
-                  className="inline-flex min-w-[183px] h-[42px] items-center justify-center rounded-md bg-[#f3f4fa] px-6 text-sm font-medium text-[#e9432b] transition-colors hover:bg-[#e8eaf3]"
+                  className="inline-flex min-w-[183px] min-h-[42px] pointer-coarse:min-h-11 items-center justify-center rounded-md bg-[#f3f4fa] px-6 text-sm font-medium text-[#e9432b] transition-colors hover:bg-[#e8eaf3]"
                 >
                   {cat.title}
                 </Link>
@@ -132,7 +138,7 @@ export default async function EducationalArticlePage({params}: {params: Promise<
 
   return (
     <div
-      className="min-h-screen overflow-x-hidden"
+      className="min-h-dvh overflow-x-hidden"
       style={{background: 'var(--theme-bg, #121212)', color: 'var(--theme-text, #ffffff)'}}
     >
       <Suspense
