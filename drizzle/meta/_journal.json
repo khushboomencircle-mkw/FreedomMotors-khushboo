@@ -8,6 +8,13 @@
       "when": 1794472206142,
       "tag": "0000_cheerful_husk",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1795011209959,
+      "tag": "0001_vehicle_schema_homenet",
+      "breakpoints": true
     }
   ]
 }

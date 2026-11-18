@@ -1,6 +1,7 @@
 import {sql} from 'drizzle-orm'
 import {
   boolean,
+  check,
   index,
   integer,
   pgEnum,
@@ -13,12 +14,11 @@ import {
 import {vehicles} from './vehicles'
 
 /**
- * A photo only counts toward "this vehicle can go live" once it's `ready`.
- * `pending` → not yet downloaded/processed; `processing` → download/resize in
- * flight; `ready` → safe to serve; `failed` → the sync job's retry logic
- * (out of scope here) gave up on it. The actual sync job that moves a row
- * through these states is a separate, later task — this column is the hook
- * it writes into.
+ * Where a photo is in its life. A photo only counts toward "this vehicle can go live" once it is `ready`.
+ *  pending     → known from the feed, not downloaded yet
+ *  processing  → being downloaded and stored
+ *  ready       → in the Supabase bucket and safe to serve
+ *  failed      → the sync gave up after its retries (see `attempts` and `lastError`)
  */
 export const vehicleImageStatus = pgEnum('vehicle_image_status', [
   'pending',
@@ -28,27 +28,24 @@ export const vehicleImageStatus = pgEnum('vehicle_image_status', [
 ])
 
 /**
- * vehicleImages — one row per photo. `storagePath` is a path, not a full URL
- * (per the earlier decision to build URLs in one place, not store them
- * per-row), so the storage provider/CDN can change without a data migration.
+ * vehicleImages — one row per photo of a vehicle. It is a separate table from `vehicles` on purpose: a vehicle has
+ * many photos, and a photo has its own life cycle (download, retry, replace, reorder).
  *
- * `checksum` lets the twice-daily sync tell a photo is unchanged without
- * re-downloading it: compare the feed's photo hash (or a hash computed from
- * the downloaded bytes, depending on what the sync job ends up doing) against
- * this column before doing any work.
+ * TWO LOCATIONS, ONE ROW.
+ *   sourceUrl    where HomeNet serves the photo (one URL per entry of the feed's "ImageList"). It identifies the photo
+ *                to the sync, so re-running a sync never creates a second row for the same URL.
+ *   storagePath  where our copy lives in the Supabase Storage bucket, once downloaded.
  *
- * Deliberately NOT included: alt text. Confirm before adding it — it's
- * unclear whether the HomeNet feed provides per-photo alt text at all, or
- * whether it should instead be generated from the vehicle's own
- * year/make/model/trim at render time (in which case it doesn't belong on
- * this row at all). Flagging rather than guessing either way.
+ * THE STORED PATH IS CONTENT-ADDRESSED: `vehicles/<vehicle id>/<sha256 of the file>.<jpg|png|webp>`. It is a path, never
+ * a full URL: the host and bucket come from configuration in one place (src/lib/imageUrl.ts), so moving the storage to
+ * another account or provider needs no data change. Because the name is the file's own hash, the path is only known
+ * after the download, which is why `storagePath` is empty while a photo is pending, and why the database enforces:
+ *   - a `ready` photo always has a path and a checksum;
+ *   - the path always has exactly the shape the site and the upload helper (src/lib/photoUpload.ts) write, and always
+ *     belongs to this vehicle and to this checksum, so a wrong or malformed path cannot be saved.
+ * Only original files are stored, untouched; the Next.js image optimizer makes the smaller sizes on demand.
  *
- * Also deliberately NOT included: per-photo retry count/last-attempt
- * timestamp. The task scopes per-photo sync bookkeeping to live on this
- * table (not a separate queue table), but the actual retry behavior is part
- * of the sync job itself, which is out of scope for this task — add those
- * columns alongside whichever retry strategy the sync job actually ends up
- * needing, rather than guessing the shape now.
+ * Deliberately NOT included: alt text. Confirm with the client before adding it, since the feed has none to import.
  */
 export const vehicleImages = pgTable(
   'vehicle_images',
@@ -58,11 +55,31 @@ export const vehicleImages = pgTable(
       .notNull()
       .references(() => vehicles.id, {onDelete: 'cascade'}),
 
-    storagePath: text('storage_path').notNull(),
+    /** The HomeNet URL this photo came from. Empty for a photo added another way. */
+    sourceUrl: text('source_url'),
+    /** The path inside the bucket. Empty until the photo has been downloaded. */
+    storagePath: text('storage_path'),
+
+    /** Position in the feed's list (0 is first). */
     sortOrder: integer('sort_order').notNull().default(0),
+    /** The photo shown first. At most one per vehicle (see the unique index below). */
     isMain: boolean('is_main').notNull().default(false),
+
     status: vehicleImageStatus('status').notNull().default('pending'),
+    /**
+     * SHA-256 of the file's bytes, in lowercase hex. The sync compares it to tell an unchanged photo without storing
+     * it again, and the stored path is built from it.
+     */
     checksum: text('checksum'),
+    contentType: text('content_type'),
+    byteSize: integer('byte_size'),
+    width: integer('width'),
+    height: integer('height'),
+
+    /** Download attempts so far, and why the last one failed. */
+    attempts: integer('attempts').notNull().default(0),
+    lastError: text('last_error'),
+    downloadedAt: timestamp('downloaded_at', {withTimezone: true}),
 
     createdAt: timestamp('created_at', {withTimezone: true}).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', {withTimezone: true}).notNull().defaultNow(),
@@ -70,15 +87,37 @@ export const vehicleImages = pgTable(
   (table) => [
     index('vehicle_images_vehicle_id_idx').on(table.vehicleId),
     index('vehicle_images_status_idx').on(table.status),
-    // At most one main photo per vehicle — a partial unique index rather
-    // than a plain unique constraint, since `is_main = false` must be
-    // allowed on every other row for the same vehicle.
+    // Exactly one main photo per vehicle, at most.
     uniqueIndex('vehicle_images_one_main_per_vehicle_idx')
       .on(table.vehicleId)
-      // `eq(table.isMain, true)` would bind `true` as a query parameter
-      // ($1) instead of inlining it — invalid in a migration's raw DDL.
-      // Writing `true` as a literal in the template (not interpolated)
-      // generates a real `WHERE ... = true` clause.
       .where(sql`${table.isMain} = true`),
+    // The same HomeNet URL is one row per vehicle, however many times it is synced.
+    uniqueIndex('vehicle_images_vehicle_source_url_idx')
+      .on(table.vehicleId, table.sourceUrl)
+      .where(sql`${table.sourceUrl} IS NOT NULL`),
+    // A stored file is one row.
+    uniqueIndex('vehicle_images_storage_path_idx')
+      .on(table.storagePath)
+      .where(sql`${table.storagePath} IS NOT NULL`),
+
+    check('vehicle_images_sort_order_not_negative', sql`${table.sortOrder} >= 0`),
+    check(
+      'vehicle_images_checksum_format',
+      sql`${table.checksum} IS NULL OR ${table.checksum} ~ '^[0-9a-f]{64}$'`,
+    ),
+    // A photo that is ready can be served: it must have its file and its hash.
+    check(
+      'vehicle_images_ready_has_file',
+      sql`${table.status} <> 'ready' OR (${table.storagePath} IS NOT NULL AND ${table.checksum} IS NOT NULL)`,
+    ),
+    // The stored path always has the one shape the site and the upload helper use, and always belongs to this vehicle
+    // and this checksum: vehicles/<vehicle id>/<checksum>.<jpg|png|webp>
+    check(
+      'vehicle_images_storage_path_shape',
+      sql`${table.storagePath} IS NULL OR (
+        ${table.checksum} IS NOT NULL
+        AND ${table.storagePath} ~ ('^vehicles/' || ${table.vehicleId}::text || '/' || ${table.checksum} || '\\.(jpg|png|webp)$')
+      )`,
+    ),
   ],
 ).enableRLS()

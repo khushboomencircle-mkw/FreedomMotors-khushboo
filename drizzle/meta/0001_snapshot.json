@@ -1,0 +1,1086 @@
+{
+  "id": "9770846b-3ae1-4012-b1d1-71e8f90f5d8d",
+  "prevId": "f69b0c3b-bfa8-43d3-b1ab-4a98477b5e43",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.sync_runs": {
+      "name": "sync_runs",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "started_at": {
+          "name": "started_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "finished_at": {
+          "name": "finished_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "sync_run_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'running'"
+        },
+        "vehicles_processed": {
+          "name": "vehicles_processed",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "vehicles_added": {
+          "name": "vehicles_added",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "vehicles_removed": {
+          "name": "vehicles_removed",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "photos_downloaded": {
+          "name": "photos_downloaded",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "photos_skipped": {
+          "name": "photos_skipped",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "photos_failed": {
+          "name": "photos_failed",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "error_summary": {
+          "name": "error_summary",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": true
+    },
+    "public.vehicle_images": {
+      "name": "vehicle_images",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "vehicle_id": {
+          "name": "vehicle_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source_url": {
+          "name": "source_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "storage_path": {
+          "name": "storage_path",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sort_order": {
+          "name": "sort_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "is_main": {
+          "name": "is_main",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "status": {
+          "name": "status",
+          "type": "vehicle_image_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pending'"
+        },
+        "checksum": {
+          "name": "checksum",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "content_type": {
+          "name": "content_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "byte_size": {
+          "name": "byte_size",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "width": {
+          "name": "width",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "height": {
+          "name": "height",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "attempts": {
+          "name": "attempts",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "last_error": {
+          "name": "last_error",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "downloaded_at": {
+          "name": "downloaded_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "vehicle_images_vehicle_id_idx": {
+          "name": "vehicle_images_vehicle_id_idx",
+          "columns": [
+            {
+              "expression": "vehicle_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "vehicle_images_status_idx": {
+          "name": "vehicle_images_status_idx",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "vehicle_images_one_main_per_vehicle_idx": {
+          "name": "vehicle_images_one_main_per_vehicle_idx",
+          "columns": [
+            {
+              "expression": "vehicle_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"vehicle_images\".\"is_main\" = true",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "vehicle_images_vehicle_source_url_idx": {
+          "name": "vehicle_images_vehicle_source_url_idx",
+          "columns": [
+            {
+              "expression": "vehicle_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "source_url",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"vehicle_images\".\"source_url\" IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "vehicle_images_storage_path_idx": {
+          "name": "vehicle_images_storage_path_idx",
+          "columns": [
+            {
+              "expression": "storage_path",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"vehicle_images\".\"storage_path\" IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "vehicle_images_vehicle_id_vehicles_id_fk": {
+          "name": "vehicle_images_vehicle_id_vehicles_id_fk",
+          "tableFrom": "vehicle_images",
+          "tableTo": "vehicles",
+          "columnsFrom": [
+            "vehicle_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "vehicle_images_sort_order_not_negative": {
+          "name": "vehicle_images_sort_order_not_negative",
+          "value": "\"vehicle_images\".\"sort_order\" >= 0"
+        },
+        "vehicle_images_checksum_format": {
+          "name": "vehicle_images_checksum_format",
+          "value": "\"vehicle_images\".\"checksum\" IS NULL OR \"vehicle_images\".\"checksum\" ~ '^[0-9a-f]{64}$'"
+        },
+        "vehicle_images_ready_has_file": {
+          "name": "vehicle_images_ready_has_file",
+          "value": "\"vehicle_images\".\"status\" <> 'ready' OR (\"vehicle_images\".\"storage_path\" IS NOT NULL AND \"vehicle_images\".\"checksum\" IS NOT NULL)"
+        },
+        "vehicle_images_storage_path_shape": {
+          "name": "vehicle_images_storage_path_shape",
+          "value": "\"vehicle_images\".\"storage_path\" IS NULL OR (\n        \"vehicle_images\".\"checksum\" IS NOT NULL\n        AND \"vehicle_images\".\"storage_path\" ~ ('^vehicles/' || \"vehicle_images\".\"vehicle_id\"::text || '/' || \"vehicle_images\".\"checksum\" || '\\.(jpg|png|webp)$')\n      )"
+        }
+      },
+      "isRLSEnabled": true
+    },
+    "public.vehicle_inventory": {
+      "name": "vehicle_inventory",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "vehicle_id": {
+          "name": "vehicle_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "vehicle_inventory_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'available'"
+        },
+        "date_in_stock": {
+          "name": "date_in_stock",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "selling_price_cents": {
+          "name": "selling_price_cents",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "msrp_cents": {
+          "name": "msrp_cents",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "book_value_cents": {
+          "name": "book_value_cents",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "invoice_cents": {
+          "name": "invoice_cents",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "internet_price_cents": {
+          "name": "internet_price_cents",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "misc_price_1_cents": {
+          "name": "misc_price_1_cents",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "misc_price_2_cents": {
+          "name": "misc_price_2_cents",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "misc_price_3_cents": {
+          "name": "misc_price_3_cents",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dealer_name": {
+          "name": "dealer_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dealer_address": {
+          "name": "dealer_address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dealer_city": {
+          "name": "dealer_city",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dealer_state": {
+          "name": "dealer_state",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dealer_zip": {
+          "name": "dealer_zip",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dealer_phone": {
+          "name": "dealer_phone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dealer_fax": {
+          "name": "dealer_fax",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dealer_email": {
+          "name": "dealer_email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last_seen_in_feed_at": {
+          "name": "last_seen_in_feed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "vehicle_inventory_vehicle_id_idx": {
+          "name": "vehicle_inventory_vehicle_id_idx",
+          "columns": [
+            {
+              "expression": "vehicle_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "vehicle_inventory_status_idx": {
+          "name": "vehicle_inventory_status_idx",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "vehicle_inventory_status_price_idx": {
+          "name": "vehicle_inventory_status_price_idx",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "selling_price_cents",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "vehicle_inventory_vehicle_id_vehicles_id_fk": {
+          "name": "vehicle_inventory_vehicle_id_vehicles_id_fk",
+          "tableFrom": "vehicle_inventory",
+          "tableTo": "vehicles",
+          "columnsFrom": [
+            "vehicle_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "vehicle_inventory_prices_not_negative": {
+          "name": "vehicle_inventory_prices_not_negative",
+          "value": "COALESCE(\"vehicle_inventory\".\"selling_price_cents\", 0) >= 0\n        AND COALESCE(\"vehicle_inventory\".\"msrp_cents\", 0) >= 0\n        AND COALESCE(\"vehicle_inventory\".\"book_value_cents\", 0) >= 0\n        AND COALESCE(\"vehicle_inventory\".\"invoice_cents\", 0) >= 0\n        AND COALESCE(\"vehicle_inventory\".\"internet_price_cents\", 0) >= 0\n        AND COALESCE(\"vehicle_inventory\".\"misc_price_1_cents\", 0) >= 0\n        AND COALESCE(\"vehicle_inventory\".\"misc_price_2_cents\", 0) >= 0\n        AND COALESCE(\"vehicle_inventory\".\"misc_price_3_cents\", 0) >= 0"
+        }
+      },
+      "isRLSEnabled": true
+    },
+    "public.vehicles": {
+      "name": "vehicles",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "stock_type": {
+          "name": "stock_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "stock_number": {
+          "name": "stock_number",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "vin": {
+          "name": "vin",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "year": {
+          "name": "year",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "make": {
+          "name": "make",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "model": {
+          "name": "model",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "body_style": {
+          "name": "body_style",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "trim": {
+          "name": "trim",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "model_number": {
+          "name": "model_number",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "doors": {
+          "name": "doors",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "style_description": {
+          "name": "style_description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "market_class": {
+          "name": "market_class",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "passenger_capacity": {
+          "name": "passenger_capacity",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "factory_codes": {
+          "name": "factory_codes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "exterior_color": {
+          "name": "exterior_color",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ext_color_generic": {
+          "name": "ext_color_generic",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ext_color_code": {
+          "name": "ext_color_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ext_color_hex": {
+          "name": "ext_color_hex",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "interior_color": {
+          "name": "interior_color",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "int_color_generic": {
+          "name": "int_color_generic",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "int_color_code": {
+          "name": "int_color_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "int_color_hex": {
+          "name": "int_color_hex",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "interior_upholstery": {
+          "name": "interior_upholstery",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "engine_cylinders": {
+          "name": "engine_cylinders",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "engine_displacement": {
+          "name": "engine_displacement",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "engine_displacement_cubic_inches": {
+          "name": "engine_displacement_cubic_inches",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "engine_block_type": {
+          "name": "engine_block_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "engine_aspiration_type": {
+          "name": "engine_aspiration_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "engine": {
+          "name": "engine",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "transmission": {
+          "name": "transmission",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "transmission_speed": {
+          "name": "transmission_speed",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "transmission_description": {
+          "name": "transmission_description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "drivetrain": {
+          "name": "drivetrain",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fuel_type": {
+          "name": "fuel_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "city_mpg": {
+          "name": "city_mpg",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "highway_mpg": {
+          "name": "highway_mpg",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "epa_classification": {
+          "name": "epa_classification",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "wheelbase_code": {
+          "name": "wheelbase_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "mileage": {
+          "name": "mileage",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "certified": {
+          "name": "certified",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "options": {
+          "name": "options",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "categorized_options": {
+          "name": "categorized_options",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "conversion_warranty": {
+          "name": "conversion_warranty",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "comment_1": {
+          "name": "comment_1",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "comment_2": {
+          "name": "comment_2",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "comment_3": {
+          "name": "comment_3",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "comment_4": {
+          "name": "comment_4",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "comment_5": {
+          "name": "comment_5",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "comment_6": {
+          "name": "comment_6",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "comment_7": {
+          "name": "comment_7",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "comment_8": {
+          "name": "comment_8",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "comment_9": {
+          "name": "comment_9",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "raw_feed_data": {
+          "name": "raw_feed_data",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "feed_checksum": {
+          "name": "feed_checksum",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "vehicles_vin_idx": {
+          "name": "vehicles_vin_idx",
+          "columns": [
+            {
+              "expression": "vin",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "vehicles_stock_number_idx": {
+          "name": "vehicles_stock_number_idx",
+          "columns": [
+            {
+              "expression": "stock_number",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "vehicles_make_model_idx": {
+          "name": "vehicles_make_model_idx",
+          "columns": [
+            {
+              "expression": "make",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "model",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "vehicles_year_idx": {
+          "name": "vehicles_year_idx",
+          "columns": [
+            {
+              "expression": "year",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "vehicles_stock_type_idx": {
+          "name": "vehicles_stock_type_idx",
+          "columns": [
+            {
+              "expression": "stock_type",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "vehicles_body_style_idx": {
+          "name": "vehicles_body_style_idx",
+          "columns": [
+            {
+              "expression": "body_style",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "vehicles_has_identity": {
+          "name": "vehicles_has_identity",
+          "value": "\"vehicles\".\"vin\" IS NOT NULL OR \"vehicles\".\"stock_number\" IS NOT NULL"
+        },
+        "vehicles_year_range": {
+          "name": "vehicles_year_range",
+          "value": "\"vehicles\".\"year\" IS NULL OR \"vehicles\".\"year\" BETWEEN 1900 AND 2100"
+        },
+        "vehicles_mileage_not_negative": {
+          "name": "vehicles_mileage_not_negative",
+          "value": "\"vehicles\".\"mileage\" IS NULL OR \"vehicles\".\"mileage\" >= 0"
+        },
+        "vehicles_ext_color_hex_format": {
+          "name": "vehicles_ext_color_hex_format",
+          "value": "\"vehicles\".\"ext_color_hex\" IS NULL OR \"vehicles\".\"ext_color_hex\" ~ '^[0-9A-Fa-f]{6}$'"
+        },
+        "vehicles_int_color_hex_format": {
+          "name": "vehicles_int_color_hex_format",
+          "value": "\"vehicles\".\"int_color_hex\" IS NULL OR \"vehicles\".\"int_color_hex\" ~ '^[0-9A-Fa-f]{6}$'"
+        }
+      },
+      "isRLSEnabled": true
+    }
+  },
+  "enums": {
+    "public.sync_run_status": {
+      "name": "sync_run_status",
+      "schema": "public",
+      "values": [
+        "running",
+        "completed",
+        "failed"
+      ]
+    },
+    "public.vehicle_image_status": {
+      "name": "vehicle_image_status",
+      "schema": "public",
+      "values": [
+        "pending",
+        "processing",
+        "ready",
+        "failed"
+      ]
+    },
+    "public.vehicle_inventory_status": {
+      "name": "vehicle_inventory_status",
+      "schema": "public",
+      "values": [
+        "available",
+        "pending",
+        "sold"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
