@@ -6,11 +6,13 @@ import {ComposeIcon} from '@sanity/icons/Compose'
 import {CopyIcon} from '@sanity/icons/Copy'
 import {CubeIcon} from '@sanity/icons/Cube'
 import {DocumentsIcon} from '@sanity/icons/Documents'
+import {HelpCircleIcon} from '@sanity/icons/HelpCircle'
 import {LinkIcon} from '@sanity/icons/Link'
 import {MenuIcon} from '@sanity/icons/Menu'
 import {TagIcon} from '@sanity/icons/Tag'
 import {TemplatePicker, legacyCreateMenuTemplates} from '../pageTemplateLibrary'
 import {singletonStructureItems} from '../singletonStructure'
+import StartHere from './StartHere'
 
 /**
  * The Studio sidebar, organised by what an editor wants to DO rather than by how the content is stored:
@@ -28,6 +30,7 @@ import {singletonStructureItems} from '../singletonStructure'
 
 /** The sidebar's visible labels, in one place (also what the tests check). */
 export const SIDEBAR = {
+  startHere: 'Start here',
   pagesHeading: 'Pages',
   pages: 'Pages',
   landingPages: 'Landing Pages',
@@ -85,6 +88,13 @@ export function buildStructure(S: StructureBuilder, context: StructureResolverCo
   return S.list()
     .title('Content')
     .items([
+      // A welcome page with the everyday jobs as buttons.
+      S.listItem()
+        .id('start-here')
+        .title(SIDEBAR.startHere)
+        .icon(HelpCircleIcon)
+        .child(S.component(StartHere).id('start-here').title(SIDEBAR.startHere)),
+
       // ── Pages ──
       S.divider().title(SIDEBAR.pagesHeading),
       // The fixed pages: each opens its one document directly (see studio/singletonPages.ts).

@@ -10,41 +10,12 @@ import {
   VEHICLE_VIEWS,
 } from './structure'
 import {SINGLETON_PAGES} from '../singletonPages'
+import {fakeContext, fakeS, type Spec} from './fakeStructure'
 
 // Run with: npm run test:usability
 
-/** A stand-in for Sanity's structure builder that records what was asked for. */
-type Spec = Record<string, unknown> & {kind: string}
-function builder(kind: string, init: Record<string, unknown> = {}) {
-  const spec: Spec = {kind, ...init}
-  const b: unknown = new Proxy(
-    {},
-    {
-      get: (_t, prop) => {
-        if (prop === 'spec') return spec
-        return (...args: unknown[]) => {
-          spec[String(prop)] = args.length <= 1 ? args[0] : args
-          return b
-        }
-      },
-    },
-  )
-  return b as {spec: Spec}
-}
-const S = {
-  list: () => builder('list'),
-  listItem: () => builder('item'),
-  divider: () => builder('divider'),
-  document: () => builder('document'),
-  documentTypeList: (type: string) => builder('typeList', {type}),
-  documentList: () => builder('documentList'),
-  component: () => builder('component'),
-  initialValueTemplateItem: (id: string) => ({id}),
-}
-const context = {
-  schema: {get: () => ({icon: () => null})},
-  getClient: () => ({fetch: async () => []}),
-}
+const S = fakeS
+const context = fakeContext
 
 const root = buildStructure(S as never, context as never) as unknown as {spec: Spec}
 const items = (root.spec.items as {spec: Spec}[]).map((i) => i.spec)
@@ -56,6 +27,7 @@ describe('the sidebar', () => {
     assert.deepEqual(
       items.map((i) => i.title),
       [
+        'Start here',
         'Pages',
         'Pages',
         'Landing Pages',
