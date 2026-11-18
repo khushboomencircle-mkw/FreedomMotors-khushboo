@@ -14,6 +14,8 @@ import {
 } from './studio/pageTemplateLibrary'
 import { DuplicateLandingPageAction } from './studio/schemaTypes/actions/DuplicateLandingPageAction'
 import { guardLandingPageAction } from './studio/schemaTypes/actions/LandingPageGuardActions'
+import { singletonStructureItems } from './studio/singletonStructure'
+import { withoutSingletonActions, withoutSingletonCreateOptions } from './studio/singletonPages'
 import { sectionCopyPasteFieldActionsResolver } from './studio/schemaTypes/fieldActions/sectionCopyPasteFieldActions'
 const dynamicPages = [
   { type: 'convertVehicle2Page', title: 'Convert Your Vehicle' },
@@ -44,7 +46,7 @@ export default defineConfig({
 
   plugins: [
     structureTool({
-      structure: (S) =>
+      structure: (S, context) =>
         S.list()
           .title('Content')
           .items([
@@ -57,15 +59,9 @@ export default defineConfig({
                 S.list()
                   .title('Pages')
                   .items([
-                    S.documentTypeListItem('homePage').title('Home Page'),
-                    S.documentTypeListItem('vehiclesPage').title('Vehicle Page'),
-                    S.documentTypeListItem('vehicleDetailPage').title('Vehicle Detail Page'),
-                    S.documentTypeListItem('convertVehicle2Page').title('Convert Your Vehicle'),
-                    S.documentTypeListItem('driver').title('Driver Page'),
-                    S.documentTypeListItem('commercialPage').title('Commercial Page'),
-                    S.documentTypeListItem('ourStoryPage').title('Our Story Page'),
-                    S.documentTypeListItem('contactPage').title('Contact Page'),
-                    S.documentTypeListItem('educationalPage').title('Educational Page'),
+                    // The fixed pages: each opens its one document directly, so there is no list and no "+"
+                    // to add a second copy (see studio/singletonPages.ts).
+                    ...singletonStructureItems(S, context),
                     S.divider(),
 
                     // 🚀 NATIVE "+" ACCESSIBLE FOR USERS:
@@ -140,17 +136,23 @@ export default defineConfig({
     // actions unchanged. Duplicate is replaced; Delete and both Unpublish actions
     // (plain, and the Releases one) are wrapped so they stay disabled while any
     // Blog Post is attached to the landing page.
-    actions: (prev, context) =>
-      context.schemaType === 'customPage'
-        ? prev.map((action) => {
-          if (action.action === 'duplicate') return DuplicateLandingPageAction
-          if (action.action === 'delete') return guardLandingPageAction(action, 'delete')
-          if (action.action === 'unpublish' || action.action === 'unpublishVersion') {
-            return guardLandingPageAction(action, 'unpublish')
-          }
-          return action
-        })
-        : prev,
+    actions: (prev, context) => {
+      const actions =
+        context.schemaType === 'customPage'
+          ? prev.map((action) => {
+            if (action.action === 'duplicate') return DuplicateLandingPageAction
+            if (action.action === 'delete') return guardLandingPageAction(action, 'delete')
+            if (action.action === 'unpublish' || action.action === 'unpublishVersion') {
+              return guardLandingPageAction(action, 'unpublish')
+            }
+            return action
+          })
+          : prev
+      // A fixed page (Home, Commercial …) can be neither duplicated nor deleted — there is only ever one.
+      return withoutSingletonActions(actions, context.schemaType)
+    },
+    // The fixed pages are never offered in a "+ New document" menu. Landing Pages and everything else are.
+    newDocumentOptions: (prev) => withoutSingletonCreateOptions(prev),
     // Always-visible Copy/Paste icon buttons on every page type's `sections`
     // field — wraps Sanity's own built-in copyField/pasteField field actions.
     unstable_fieldActions: sectionCopyPasteFieldActionsResolver,
