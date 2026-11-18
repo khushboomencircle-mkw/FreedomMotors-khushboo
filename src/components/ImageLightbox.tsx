@@ -1,7 +1,8 @@
 'use client'
 
-import {useEffect, useState} from 'react'
+import {useState} from 'react'
 import SiteImage from './SiteImage'
+import ModalShell from './ModalShell'
 
 interface Props {
   trigger: React.ReactNode
@@ -10,27 +11,12 @@ interface Props {
 }
 
 /**
- * Click-to-enlarge popup for a single photo. Same interaction shell as
- * VideoLightbox.tsx (Escape closes, clicking the backdrop closes, a
- * `trigger` prop wraps whatever should open it) so the two lightboxes in
- * this codebase behave consistently — VideoLightbox itself isn't reusable
- * here as-is since it's YouTube/Vimeo/video-URL specific, not a plain image.
+ * Click-to-enlarge popup for a single photo. The overlay itself (portal, Escape, backdrop click,
+ * close button, focus handling, scroll lock) is ModalShell, shared with VideoLightbox and
+ * ShareResultsModal; `trigger` wraps whatever should open it.
  */
 export default function ImageLightbox({trigger, src, alt}: Props) {
   const [open, setOpen] = useState(false)
-
-  useEffect(() => {
-    if (!open) return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false)
-    }
-    document.addEventListener('keydown', onKey)
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.removeEventListener('keydown', onKey)
-      document.body.style.overflow = ''
-    }
-  }, [open])
 
   return (
     <>
@@ -42,35 +28,17 @@ export default function ImageLightbox({trigger, src, alt}: Props) {
         {trigger}
       </button>
 
-      {open && (
-        // z-[9999], not VideoLightbox's z-[10000] — the video lightbox stays
-        // the single highest layer in the app on purpose (see its own
-        // comment); the two are never open at the same time in practice, but
-        // this keeps that ordering true if that ever changed.
-        <div
-          className="fixed inset-0 z-[9999] bg-black/85 flex items-center justify-center p-4"
-          onClick={() => setOpen(false)}
-        >
-          <div className="relative max-w-5xl max-h-[85vh]" onClick={(e) => e.stopPropagation()}>
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              aria-label="Close"
-              className="absolute -top-10 right-0 text-white hover:text-gray-300 text-3xl leading-none"
-            >
-              ×
-            </button>
-            {/* Optimized, capped size — never the raw original. `auto` size + max-* keeps the photo's proportions. */}
-            <SiteImage
-              src={src}
-              alt={alt || ''}
-              sizes="lightbox"
-              className="max-w-full max-h-[85vh] object-contain"
-              style={{width: 'auto', height: 'auto'}}
-            />
-          </div>
-        </div>
-      )}
+      <ModalShell open={open} onClose={() => setOpen(false)} label={alt || 'Enlarged photo'}>
+        {/* Optimized, capped size — never the raw original. `auto` size + max-* keeps the photo's proportions
+            and keeps it fully inside the screen (dvh = the visible height on phones). */}
+        <SiteImage
+          src={src}
+          alt={alt || ''}
+          sizes="lightbox"
+          className="max-w-[min(100%,64rem)] max-h-[calc(100dvh-2rem)] object-contain"
+          style={{width: 'auto', height: 'auto'}}
+        />
+      </ModalShell>
     </>
   )
 }

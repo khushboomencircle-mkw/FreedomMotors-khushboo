@@ -1,11 +1,7 @@
 'use client'
 
-import {useEffect, useState, useSyncExternalStore} from 'react'
-import {createPortal} from 'react-dom'
-
-// Nothing to subscribe to — useSyncExternalStore is used below only because
-// it reports `false` during server render/hydration and `true` afterwards.
-const subscribeNoop = () => () => {}
+import {useState} from 'react'
+import ModalShell from './ModalShell'
 
 interface Props {
   trigger: React.ReactNode
@@ -37,69 +33,13 @@ function toEmbedUrl(url: string): string {
 
 export default function VideoLightbox({trigger, videoUrl, videoFileUrl}: Props) {
   const [open, setOpen] = useState(false)
-  // False on the server and during hydration, true once on the client —
-  // `document.body` (the portal target) only exists from then on.
-  const mounted = useSyncExternalStore(
-    subscribeNoop,
-    () => true,
-    () => false,
-  )
-
-  useEffect(() => {
-    if (!open) return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false)
-    }
-    document.addEventListener('keydown', onKey)
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.removeEventListener('keydown', onKey)
-      document.body.style.overflow = ''
-    }
-  }, [open])
 
   const isFile = Boolean(videoFileUrl)
   const embedSrc = isFile ? videoFileUrl! : toEmbedUrl(videoUrl || '')
 
-  // Portal the overlay to document.body so that CSS `transform` on any ancestor
-  // (e.g. the FeatureHeroSlider's translated flex track) cannot create a new
-  // containing block for `position: fixed` and push the modal off-screen.
-  const modal = open ? (
-    <div
-      // Highest z-index in the app on purpose: this overlay (and the video
-      // iframe inside it) must sit above every other component, including
-      // PreviewBar's z-[9999] draft-mode banner — the next value used
-      // after that anywhere in the codebase.
-      className="fixed inset-0 z-[10000] bg-black/85 flex items-center justify-center p-4"
-      onClick={() => setOpen(false)}
-    >
-      <div
-        className="relative w-full max-w-5xl aspect-video bg-black"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button
-          type="button"
-          onClick={() => setOpen(false)}
-          aria-label="Close video"
-          className="absolute -top-10 right-0 text-white hover:text-gray-300 text-3xl leading-none"
-        >
-          ×
-        </button>
-        {isFile ? (
-          <video src={embedSrc} controls autoPlay className="w-full h-full object-contain" />
-        ) : (
-          <iframe
-            src={embedSrc}
-            title="Video"
-            allow="autoplay; encrypted-media; picture-in-picture"
-            allowFullScreen
-            className="w-full h-full border-0"
-          />
-        )}
-      </div>
-    </div>
-  ) : null
-
+  // The overlay is ModalShell: it is portaled to <body>, so CSS `transform` on any ancestor (e.g.
+  // the FeatureHeroSlider's translated flex track) cannot trap `position: fixed`, and it is the
+  // highest layer in the app, above every other component.
   return (
     <>
       <button
@@ -110,7 +50,32 @@ export default function VideoLightbox({trigger, videoUrl, videoFileUrl}: Props) 
         {trigger}
       </button>
 
-      {mounted && createPortal(modal, document.body)}
+      <ModalShell open={open} onClose={() => setOpen(false)} label="Video">
+        {/* 16:9, as wide as the screen allows but never taller than it (dvh) — so on a phone held
+            sideways the whole video and its controls stay visible. */}
+        <div
+          className="aspect-video bg-black"
+          style={{width: 'min(calc(100vw - 2rem), 64rem, calc((100dvh - 2rem) * 16 / 9))'}}
+        >
+          {isFile ? (
+            <video
+              src={embedSrc}
+              controls
+              autoPlay
+              playsInline
+              className="w-full h-full object-contain"
+            />
+          ) : (
+            <iframe
+              src={embedSrc}
+              title="Video"
+              allow="autoplay; encrypted-media; picture-in-picture"
+              allowFullScreen
+              className="w-full h-full border-0"
+            />
+          )}
+        </div>
+      </ModalShell>
     </>
   )
 }
