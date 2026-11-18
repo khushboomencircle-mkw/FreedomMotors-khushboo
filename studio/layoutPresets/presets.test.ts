@@ -5,6 +5,9 @@ import {
   changesFor,
   effectiveValues,
   LAYOUT_PRESETS,
+  perRowChange,
+  perRowValue,
+  showsPerRow,
   type FieldValues,
   type SectionPresetConfig,
 } from './presets'
@@ -117,9 +120,9 @@ describe('picking a preset always lands on that preset', () => {
 
 describe('existing pages show the right layout without being touched', () => {
   it('a section with no layout values set shows the website default', () => {
-    assert.equal(activePresetId(LAYOUT_PRESETS.cardsGridSection, {}), 'grid3')
-    assert.equal(activePresetId(LAYOUT_PRESETS.featureGridSection, {}), 'grid3')
-    assert.equal(activePresetId(LAYOUT_PRESETS.photoGallerySection, {}), 'grid3')
+    assert.equal(activePresetId(LAYOUT_PRESETS.cardsGridSection, {}), 'grid')
+    assert.equal(activePresetId(LAYOUT_PRESETS.featureGridSection, {}), 'grid')
+    assert.equal(activePresetId(LAYOUT_PRESETS.photoGallerySection, {}), 'grid')
     assert.equal(activePresetId(LAYOUT_PRESETS.linkListSection, {}), 'left')
   })
 
@@ -147,12 +150,17 @@ describe('Cards Grid in detail', () => {
       oneColumnDisplayMode: 'slider',
     })
   })
-  it('Grid 4 from a slider resets to rows', () => {
-    const changes = changesFor(cards, preset('grid4'), {
+  it('Grid from a slider goes back to rows of 3 (the website default)', () => {
+    const changes = changesFor(cards, preset('grid'), {
       columns: '1',
       oneColumnDisplayMode: 'slider',
     })
-    assert.deepEqual(changes, {columns: '4'})
+    assert.deepEqual(changes, {columns: '3'})
+  })
+  it('Grid keeps the number of cards per row the editor already chose', () => {
+    assert.deepEqual(changesFor(cards, preset('grid'), {columns: '4', mosaicView: true}), {
+      mosaicView: false,
+    })
   })
   it('Mosaic keeps the editor’s column count', () => {
     assert.deepEqual(changesFor(cards, preset('mosaic'), {columns: '4'}), {mosaicView: true})
@@ -162,6 +170,75 @@ describe('Cards Grid in detail', () => {
       for (const key of Object.keys(changesFor(cards, p, {columns: '1'}))) {
         assert.ok(cards.fields.includes(key), key)
       }
+    }
+  })
+})
+
+describe('the "cards per row" number input', () => {
+  const withInput = configs.filter((c) => c.perRow)
+
+  it('exists for Cards Grid, Feature Grid and Photo Gallery only', () => {
+    assert.deepEqual(withInput.map((c) => c.sectionType).sort(), [
+      'cardsGridSection',
+      'featureGridSection',
+      'photoGallerySection',
+    ])
+  })
+
+  for (const config of withInput) {
+    const perRow = config.perRow!
+
+    it(`${config.sectionType}: it writes the existing Columns field, within the schema's options`, () => {
+      assert.equal(perRow.field, 'columns')
+      const legal = legalValues(config.sectionType, perRow.field)
+      for (let n = perRow.min; n <= perRow.max; n++) assert.ok(legal.includes(String(n)), String(n))
+    })
+
+    it(`${config.sectionType}: changing the number keeps the same layout and never leaves the list`, () => {
+      const legal = legalValues(config.sectionType, perRow.field)
+      for (const state of allStates(config)) {
+        if (!showsPerRow(config, state)) continue
+        const before = activePresetId(config, state)
+        for (let n = perRow.min; n <= perRow.max; n++) {
+          const change = perRowChange(config, state, n)
+          for (const value of Object.values(change)) assert.ok(legal.includes(value as string))
+          const after = {...state, ...change}
+          assert.equal(activePresetId(config, after), before, JSON.stringify([state, n]))
+          assert.equal(perRowValue(config, after), n)
+        }
+      }
+    })
+
+    it(`${config.sectionType}: numbers outside the range or not whole numbers write nothing`, () => {
+      for (const bad of [0, 1, perRow.max + 1, 7, 2.5, -3, NaN, Infinity]) {
+        assert.deepEqual(perRowChange(config, {}, bad), {}, String(bad))
+      }
+    })
+
+    it(`${config.sectionType}: typing the number already showing writes nothing`, () => {
+      assert.deepEqual(perRowChange(config, {}, 3), {})
+      assert.deepEqual(perRowChange(config, {columns: '4'}, 4), {})
+    })
+  }
+
+  it('is shown for Grid and Mosaic on cards, but not for a slider or list', () => {
+    const cards = LAYOUT_PRESETS.cardsGridSection
+    assert.equal(showsPerRow(cards, {}), true)
+    assert.equal(showsPerRow(cards, {mosaicView: true}), true)
+    assert.equal(showsPerRow(cards, {columns: '1', oneColumnDisplayMode: 'slider'}), false)
+    assert.equal(showsPerRow(cards, {columns: '1'}), false)
+  })
+
+  it('is shown for a gallery Grid only (its Columns field applies to Grid alone)', () => {
+    const gallery = LAYOUT_PRESETS.photoGallerySection
+    assert.equal(showsPerRow(gallery, {layout: 'grid'}), true)
+    assert.equal(showsPerRow(gallery, {layout: 'mosaic'}), false)
+    assert.equal(showsPerRow(gallery, {layout: 'slider'}), false)
+  })
+
+  it('there are no separate Grid 2 / Grid 3 / Grid 4 presets any more', () => {
+    for (const config of configs) {
+      assert.ok(!config.presets.some((p) => /^grid\d$/.test(p.id)), config.sectionType)
     }
   })
 })

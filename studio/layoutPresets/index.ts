@@ -1,5 +1,6 @@
 import {defineField} from 'sanity'
 import LayoutPresetInput from './LayoutPresetInput'
+import LayoutSectionInput from './LayoutSectionInput'
 import {LAYOUT_PRESETS} from './presets'
 
 /**
@@ -24,18 +25,25 @@ const layoutPickerField = defineField({
 interface SectionTypeLike {
   name: string
   fields?: unknown[]
+  components?: {input?: unknown} & Record<string, unknown>
 }
 
 /**
  * Returns the section type with the picker added as the FIRST field of its Layout tab. Every existing field is
- * kept exactly as it is, in the same order. Sections without presets are returned unchanged.
+ * kept exactly as it is, in the same order. The section's form is wrapped only to hand its value and `onChange`
+ * to the picker; it renders exactly as before. Sections without presets are returned unchanged, and so is a section
+ * that already has its own custom input (it is never replaced).
  */
 export function withLayoutPicker<T extends SectionTypeLike>(type: T): T {
   if (!LAYOUT_PICKER_ENABLED || !LAYOUT_PRESETS[type.name]) return type
   const fields = type.fields ?? []
   const already = fields.some((f) => (f as {name?: string}).name === layoutPickerField.name)
-  if (already) return type
-  return {...type, fields: [layoutPickerField, ...fields]}
+  if (already || type.components?.input) return type
+  return {
+    ...type,
+    components: {...type.components, input: LayoutSectionInput},
+    fields: [layoutPickerField, ...fields],
+  }
 }
 
 /** Applies `withLayoutPicker` to a list of schema types (used where the section types are registered). */

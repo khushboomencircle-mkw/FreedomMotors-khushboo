@@ -1,11 +1,14 @@
-import {useCallback} from 'react'
-import {PatchEvent, set, useFormCallbacks, useFormValue} from 'sanity'
-import type {StringInputProps} from 'sanity'
+import {useCallback, useContext, useEffect, useState} from 'react'
+import {PatchEvent, set} from 'sanity'
 import LayoutThumb from './LayoutThumb'
+import {LayoutPickerContext} from './LayoutPickerContext'
 import {
   activePresetId,
   changesFor,
   LAYOUT_PRESETS,
+  perRowChange,
+  perRowValue,
+  showsPerRow,
   type FieldValues,
   type LayoutPreset,
 } from './presets'
@@ -44,46 +47,75 @@ const card = (active: boolean, disabled: boolean): React.CSSProperties => ({
 })
 
 const label: React.CSSProperties = {fontSize: 12, fontWeight: 600, lineHeight: 1.25}
-const note: React.CSSProperties = {
-  marginTop: 10,
-  fontSize: 12,
-  lineHeight: 1.45,
-  opacity: 0.75,
+const note: React.CSSProperties = {marginTop: 10, fontSize: 12, lineHeight: 1.45, opacity: 0.75}
+const perRowRow: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 10,
+  marginTop: 12,
+  fontSize: 13,
+}
+const numberInput: React.CSSProperties = {
+  width: 64,
+  padding: '6px 8px',
+  borderRadius: 6,
+  border: '1px solid color-mix(in srgb, currentColor 28%, transparent)',
+  background: 'transparent',
+  color: 'inherit',
+  font: 'inherit',
 }
 
-export default function LayoutPresetInput(props: StringInputProps) {
-  const {path, readOnly} = props
-  // The section this picker sits in (the picker field is a child of it).
-  const sectionPath = path.slice(0, -1)
-  const section = useFormValue(sectionPath) as (FieldValues & {_type?: string}) | undefined
-  const {onChange} = useFormCallbacks()
+export default function LayoutPresetInput() {
+  // The section this picker sits in, supplied by LayoutSectionInput (see LayoutPickerContext for why).
+  const ctx = useContext(LayoutPickerContext)
+  const section = ctx?.value as (FieldValues & {_type?: string}) | undefined
+  const readOnly = ctx?.readOnly
+  const onChange = ctx?.onChange
 
-  const config = section?._type ? LAYOUT_PRESETS[section._type as string] : undefined
+  const config = section?._type ? LAYOUT_PRESETS[section._type] : undefined
+
+  const write = useCallback(
+    (changes: FieldValues) => {
+      const entries = Object.entries(changes)
+      if (!onChange || readOnly || entries.length === 0) return
+      // One patch event = one undo step. Paths are relative to the section, like any field inside it.
+      onChange(PatchEvent.from(entries.map(([field, value]) => set(value, [field]))))
+    },
+    [onChange, readOnly],
+  )
 
   const choose = useCallback(
     (preset: LayoutPreset) => {
-      if (!config || readOnly) return
-      const changes = changesFor(config, preset, section)
-      const entries = Object.entries(changes)
-      if (entries.length === 0) return
-      // One patch event = one undo step. Paths are from the document root, so the section's siblings are reachable.
-      onChange(
-        PatchEvent.from(entries.map(([field, value]) => set(value, [...sectionPath, field]))),
-      )
+      if (config) write(changesFor(config, preset, section))
     },
-    [config, readOnly, section, onChange, sectionPath],
+    [config, section, write],
   )
+
+  // The number box: typed text is kept while editing, and only a valid whole number in range is saved.
+  const shown = config ? perRowValue(config, section) : undefined
+  const [typed, setTyped] = useState<string>(shown === undefined ? '' : String(shown))
+  useEffect(() => {
+    setTyped(shown === undefined ? '' : String(shown))
+  }, [shown])
 
   if (!config) return null
 
   const activeId = activePresetId(config, section)
   const active = config.presets.find((p) => p.id === activeId)
+  const perRow = config.perRow
+  const values = {...section} as FieldValues
+
+  const onType = (text: string) => {
+    setTyped(text)
+    if (perRow && text.trim() !== '') write(perRowChange(config, section ?? {}, Number(text)))
+  }
 
   return (
     <div>
       <div role="radiogroup" aria-label="Layout" style={grid}>
         {config.presets.map((preset) => {
           const selected = preset.id === activeId
+          const kind = preset.thumbFor ? preset.thumbFor(values) : preset.thumb
           return (
             <button
               key={preset.id}
@@ -95,12 +127,35 @@ export default function LayoutPresetInput(props: StringInputProps) {
               style={card(selected, Boolean(readOnly))}
               onClick={() => choose(preset)}
             >
-              <LayoutThumb kind={preset.thumb} />
+              <LayoutThumb kind={kind} />
               <span style={label}>{preset.title}</span>
             </button>
           )
         })}
       </div>
+
+      {perRow && showsPerRow(config, section) && (
+        <label style={perRowRow}>
+          <span>{perRow.label}</span>
+          <input
+            type="number"
+            inputMode="numeric"
+            min={perRow.min}
+            max={perRow.max}
+            step={1}
+            value={typed}
+            disabled={readOnly}
+            aria-describedby="layout-per-row-hint"
+            style={numberInput}
+            onChange={(e) => onType(e.currentTarget.value)}
+            // Leaving the box with something invalid or empty puts back the number that is really saved.
+            onBlur={() => setTyped(shown === undefined ? '' : String(shown))}
+          />
+          <span id="layout-per-row-hint" style={{opacity: 0.65, fontSize: 12}}>
+            {perRow.min} to {perRow.max}
+          </span>
+        </label>
+      )}
 
       <p style={note} aria-live="polite">
         {active

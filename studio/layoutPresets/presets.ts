@@ -34,10 +34,23 @@ export interface LayoutPreset {
   title: string
   description: string
   thumb: ThumbKind
+  /** Picture that follows the current values (the Grid picture shows 2, 3 or 4 cards). Defaults to `thumb`. */
+  thumbFor?: (values: FieldValues) => ThumbKind
   /** True when `values` (already filled with the website's own defaults) is this layout. */
   matches: (values: FieldValues) => boolean
   /** The values this layout needs, given the current ones. May return more keys than will actually change. */
   apply: (values: FieldValues) => FieldValues
+}
+
+/** A "how many per row" number input, shown under the picker for the layouts listed in `showFor`. */
+export interface PerRowInput {
+  /** The existing field it writes (always `columns`). */
+  field: string
+  min: number
+  max: number
+  label: string
+  /** Preset ids the input is shown for. */
+  showFor: string[]
 }
 
 export interface SectionPresetConfig {
@@ -52,6 +65,7 @@ export interface SectionPresetConfig {
    */
   defaults: FieldValues
   presets: LayoutPreset[]
+  perRow?: PerRowInput
 }
 
 /** Gap-free helper: a preset that sets one field to one value. */
@@ -70,29 +84,37 @@ const single = (
   apply: () => ({[field]: value}),
 })
 
+/** "Cards per row" for a Grid: the schema's Columns field offers 1–4, and 1 is the list/slider, so rows are 2–4. */
+const ROW_MIN = 2
+const ROW_MAX = 4
+const isRowCount = (columns: FieldValues[string]): columns is string =>
+  typeof columns === 'string' && columns >= String(ROW_MIN) && columns <= String(ROW_MAX)
+/** The current row count if it is a valid one, otherwise the website's default of 3. */
+const rowCountOr3 = (columns: FieldValues[string]): string => (isRowCount(columns) ? columns : '3')
+const gridThumb = (v: FieldValues): ThumbKind => `grid${rowCountOr3(v.columns)}` as ThumbKind
+
 // ── Cards Grid ─────────────────────────────────────────────────────────────
 // Layout lives in three fields: Columns, Mosaic View and (for one column) Display as.
 const cardsGrid: SectionPresetConfig = {
   sectionType: 'cardsGridSection',
   fields: ['columns', 'mosaicView', 'oneColumnDisplayMode'],
   defaults: {columns: '3', mosaicView: false, oneColumnDisplayMode: 'stack'},
+  perRow: {
+    field: 'columns',
+    min: ROW_MIN,
+    max: ROW_MAX,
+    label: 'Cards per row',
+    showFor: ['grid', 'mosaic'],
+  },
   presets: [
     {
-      id: 'slider',
-      title: 'Slider',
-      description: 'One card at a time with arrows. Sets Columns to 1 and Display as Slider.',
-      thumb: 'slider',
-      matches: (v) => v.columns === '1' && v.oneColumnDisplayMode === 'slider',
-      apply: () => ({columns: '1', oneColumnDisplayMode: 'slider'}),
-    },
-    {
-      id: 'list',
-      title: 'Vertical list',
-      description:
-        'Cards stacked one under another. Sets Columns to 1 and Display as Vertical Stack.',
-      thumb: 'list',
-      matches: (v) => v.columns === '1' && v.mosaicView !== true,
-      apply: () => ({columns: '1', oneColumnDisplayMode: 'stack', mosaicView: false}),
+      id: 'grid',
+      title: 'Grid',
+      description: 'Cards in rows. Choose how many cards sit in each row below.',
+      thumb: 'grid3',
+      thumbFor: gridThumb,
+      matches: (v) => isRowCount(v.columns) && v.mosaicView !== true,
+      apply: (v) => ({columns: rowCountOr3(v.columns), mosaicView: false}),
     },
     {
       id: 'mosaic',
@@ -101,16 +123,26 @@ const cardsGrid: SectionPresetConfig = {
       thumb: 'mosaic',
       matches: (v) => v.mosaicView === true && v.columns !== '1',
       // Mosaic needs more than one column; keep the editor's choice unless it was 1.
-      apply: (v) => ({mosaicView: true, columns: v.columns === '1' ? '3' : v.columns}),
+      apply: (v) => ({mosaicView: true, columns: rowCountOr3(v.columns)}),
     },
-    ...(['2', '3', '4'] as const).map((n): LayoutPreset => ({
-      id: `grid${n}`,
-      title: `Grid · ${n} columns`,
-      description: `Cards in rows, ${n} across on desktop. Sets Columns to ${n}.`,
-      thumb: `grid${n}` as ThumbKind,
-      matches: (v) => v.columns === n && v.mosaicView !== true,
-      apply: () => ({columns: n, mosaicView: false}),
-    })),
+    {
+      id: 'list',
+      title: 'Vertical list',
+      description:
+        'Cards stacked one under another. Sets Columns to 1 and Display as Vertical Stack.',
+      thumb: 'list',
+      matches: (v) =>
+        v.columns === '1' && v.oneColumnDisplayMode !== 'slider' && v.mosaicView !== true,
+      apply: () => ({columns: '1', oneColumnDisplayMode: 'stack', mosaicView: false}),
+    },
+    {
+      id: 'slider',
+      title: 'Slider',
+      description: 'One card at a time with arrows. Sets Columns to 1 and Display as Slider.',
+      thumb: 'slider',
+      matches: (v) => v.columns === '1' && v.oneColumnDisplayMode === 'slider',
+      apply: () => ({columns: '1', oneColumnDisplayMode: 'slider'}),
+    },
   ],
 }
 
@@ -119,14 +151,27 @@ const featureGrid: SectionPresetConfig = {
   sectionType: 'featureGridSection',
   fields: ['featureDisplayMode', 'columns', 'mosaicView'],
   defaults: {featureDisplayMode: 'grid', columns: '3', mosaicView: false},
+  perRow: {
+    field: 'columns',
+    min: ROW_MIN,
+    max: ROW_MAX,
+    label: 'Cards per row',
+    showFor: ['grid', 'mosaic'],
+  },
   presets: [
     {
-      id: 'scroller',
-      title: 'Scroller',
-      description: 'One draggable row of cards. Sets Display Mode to Horizontal Scroll.',
-      thumb: 'scroller',
-      matches: (v) => v.featureDisplayMode === 'horizontalScroll',
-      apply: () => ({featureDisplayMode: 'horizontalScroll'}),
+      id: 'grid',
+      title: 'Grid',
+      description: 'Cards in rows. Choose how many cards sit in each row below.',
+      thumb: 'grid3',
+      thumbFor: gridThumb,
+      matches: (v) =>
+        v.featureDisplayMode === 'grid' && v.mosaicView !== true && isRowCount(v.columns),
+      apply: (v) => ({
+        featureDisplayMode: 'grid',
+        columns: rowCountOr3(v.columns),
+        mosaicView: false,
+      }),
     },
     {
       id: 'mosaic',
@@ -136,14 +181,14 @@ const featureGrid: SectionPresetConfig = {
       matches: (v) => v.featureDisplayMode === 'grid' && v.mosaicView === true,
       apply: () => ({featureDisplayMode: 'grid', mosaicView: true}),
     },
-    ...(['2', '3', '4'] as const).map((n): LayoutPreset => ({
-      id: `grid${n}`,
-      title: `Grid · ${n} columns`,
-      description: `Cards in rows, ${n} across on desktop. Sets Display Mode to Grid and Columns to ${n}.`,
-      thumb: `grid${n}` as ThumbKind,
-      matches: (v) => v.featureDisplayMode === 'grid' && v.mosaicView !== true && v.columns === n,
-      apply: () => ({featureDisplayMode: 'grid', columns: n, mosaicView: false}),
-    })),
+    {
+      id: 'scroller',
+      title: 'Scroller',
+      description: 'One draggable row of cards. Sets Display Mode to Horizontal Scroll.',
+      thumb: 'scroller',
+      matches: (v) => v.featureDisplayMode === 'horizontalScroll',
+      apply: () => ({featureDisplayMode: 'horizontalScroll'}),
+    },
   ],
 }
 
@@ -220,15 +265,24 @@ const photoGallery: SectionPresetConfig = {
   sectionType: 'photoGallerySection',
   fields: ['layout', 'columns'],
   defaults: {layout: 'grid', columns: '3'},
+  // The gallery's Columns field only applies to the Grid layout.
+  perRow: {
+    field: 'columns',
+    min: ROW_MIN,
+    max: ROW_MAX,
+    label: 'Photos per row',
+    showFor: ['grid'],
+  },
   presets: [
-    ...(['2', '3', '4'] as const).map((n): LayoutPreset => ({
-      id: `grid${n}`,
-      title: `Grid · ${n} columns`,
-      description: `Photos in rows, ${n} across on desktop. Sets Layout to Grid and Columns to ${n}.`,
-      thumb: `grid${n}` as ThumbKind,
-      matches: (v) => v.layout === 'grid' && v.columns === n,
-      apply: () => ({layout: 'grid', columns: n}),
-    })),
+    {
+      id: 'grid',
+      title: 'Grid',
+      description: 'Photos in rows. Choose how many photos sit in each row below.',
+      thumb: 'grid3',
+      thumbFor: gridThumb,
+      matches: (v) => v.layout === 'grid' && isRowCount(v.columns),
+      apply: (v) => ({layout: 'grid', columns: rowCountOr3(v.columns)}),
+    },
     single('layout', 'mosaic', 'Mosaic', 'Photos of mixed sizes in a tiled pattern.', 'mosaic'),
     single('layout', 'slider', 'Slider', 'One photo at a time that slides.', 'slider'),
   ],
@@ -278,4 +332,34 @@ export function changesFor(
     if (value !== current[field]) changes[field] = value
   }
   return changes
+}
+
+/** The number currently shown in the "per row" input (the website default when the field is empty). */
+export function perRowValue(
+  config: SectionPresetConfig,
+  raw: FieldValues = {},
+): number | undefined {
+  if (!config.perRow) return undefined
+  const value = effectiveValues(config, raw)[config.perRow.field]
+  return isRowCount(value) ? Number(value) : undefined
+}
+
+/** Whether the "per row" input applies to the layout that is showing. */
+export function showsPerRow(config: SectionPresetConfig, raw: FieldValues = {}): boolean {
+  return Boolean(config.perRow?.showFor.includes(activePresetId(config, raw)))
+}
+
+/**
+ * The change for typing a row count: the field to write, or nothing when the number is not a whole number inside
+ * the allowed range or is already set. Never writes anything the section's Columns field wouldn't accept.
+ */
+export function perRowChange(
+  config: SectionPresetConfig,
+  raw: FieldValues,
+  count: number,
+): FieldValues {
+  const perRow = config.perRow
+  if (!perRow || !Number.isInteger(count) || count < perRow.min || count > perRow.max) return {}
+  const next = String(count)
+  return effectiveValues(config, raw)[perRow.field] === next ? {} : {[perRow.field]: next}
 }
