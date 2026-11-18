@@ -37,8 +37,8 @@ describe('the standard Content tab', () => {
     for (const name of tabbed) {
       const t = live(name)
       assert.deepEqual(
-        t.fields!.slice(0, 2).map((f) => f.name),
-        ['isActive', 'sequence'],
+        t.fields!.slice(0, 4).map((f) => f.name),
+        ['sectionIntro', 'isActive', 'sequence', 'sectionPosition'],
         name,
       )
       for (const key of ['isActive', 'sequence']) {
@@ -46,7 +46,7 @@ describe('the standard Content tab', () => {
         assert.equal(field(t, key)!.fieldset, STATUS_FIELDSET, `${name}.${key} fieldset`)
       }
       assert.equal(t.fieldsets![0].name, STATUS_FIELDSET, name)
-      assert.equal(t.fieldsets![0].options?.columns, 2, name)
+      assert.equal(t.fieldsets![0].options?.columns, 3, name)
     }
   })
 

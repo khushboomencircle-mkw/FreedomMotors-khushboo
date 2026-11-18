@@ -77,7 +77,7 @@ function standardFieldsets(fieldsets: FieldsetLike[], hasStatus: boolean): Field
     return {...fs, title, options}
   })
   if (hasStatus && !out.some((f) => f.name === STATUS_FIELDSET)) {
-    out.unshift({name: STATUS_FIELDSET, title: 'Status', options: {columns: 2}})
+    out.unshift({name: STATUS_FIELDSET, title: 'Status', options: {columns: 3}})
   }
   return out
 }
