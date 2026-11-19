@@ -15,6 +15,7 @@ import { DuplicateLandingPageAction } from './studio/schemaTypes/actions/Duplica
 import { guardLandingPageAction } from './studio/schemaTypes/actions/LandingPageGuardActions'
 import { withoutSingletonActions, withoutSingletonCreateOptions } from './studio/singletonPages'
 import { sectionCopyPasteFieldActionsResolver } from './studio/schemaTypes/fieldActions/sectionCopyPasteFieldActions'
+import {requireEnv} from './src/lib/env'
 const dynamicPages = [
   { type: 'convertVehicle2Page', title: 'Convert Your Vehicle' },
   { type: 'driver', title: 'Driver Page' },
@@ -22,16 +23,12 @@ const dynamicPages = [
   // { type: 'aboutPage', title: 'About Us Page' },
 ]
 
-// Which Sanity project/dataset this Studio manages, and what its header
-// says — all overridable per environment (see .env.local.example) so
-// pointing this Studio at a different project (e.g. the client's own, once
-// created) is an env var change, not a code change. Falls back to this
-// repo's current dev project/branding so nothing breaks before those are set.
-// Project/dataset use the website's own NEXT_PUBLIC_SANITY_* variables (one setting
-// for both), so the site and the Studio can never point at different projects.
-const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'sp8bk444'
-const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production'
-const studioTitle = process.env.SANITY_STUDIO_TITLE || 'Freedom motor'
+// Which Sanity project/dataset this Studio manages comes from the website's own NEXT_PUBLIC_SANITY_*
+// variables (one setting for both), so the site and the Studio can never point at different projects.
+// There is no fallback: a missing variable stops the Studio with a clear message (see src/lib/env.ts).
+const projectId = requireEnv('NEXT_PUBLIC_SANITY_PROJECT_ID', process.env.NEXT_PUBLIC_SANITY_PROJECT_ID)
+const dataset = requireEnv('NEXT_PUBLIC_SANITY_DATASET', process.env.NEXT_PUBLIC_SANITY_DATASET)
+const studioTitle = 'Freedom motor'
 
 export default defineConfig({
   name: 'default',

@@ -18,6 +18,7 @@
  * same TRUSTED_SCRIPT_HOSTS env var, so the host list itself is always shared.
  */
 import {CSS_UNSAFE_RULES, type CssUnsafeRule} from '../../../src/lib/cssPolicy'
+import {requireEnv} from '../../../src/lib/env'
 
 export const ALLOWED_TAGS = new Set<string>([
   'div',
@@ -123,7 +124,10 @@ const SCRIPT_ALLOWED_ATTRS = new Set<string>(['src', 'async', 'defer'])
 // (src/lib/sanitizeHtml.ts) reads, so Studio and site share one list.
 // It reaches this browser code via next.config.ts `env` (embedded /studio) and
 // sanity.cli.ts `vite.define` (hosted Studio).
-export const TRUSTED_SCRIPT_HOSTS: string[] = (process.env.TRUSTED_SCRIPT_HOSTS || '')
+export const TRUSTED_SCRIPT_HOSTS: string[] = requireEnv(
+  'TRUSTED_SCRIPT_HOSTS',
+  process.env.TRUSTED_SCRIPT_HOSTS,
+)
   .split(',')
   .map((host) => host.trim().toLowerCase())
   .filter(Boolean)

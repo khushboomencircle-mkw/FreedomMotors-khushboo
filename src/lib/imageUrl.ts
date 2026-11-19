@@ -1,4 +1,4 @@
-import {DEFAULT_STORAGE_BUCKET, SANITY_CDN_HOST, storagePublicPathPrefix} from './imageConfig'
+import {SANITY_CDN_HOST, storagePublicPathPrefix} from './imageConfig'
 
 /**
  * Where image URLs come from — and the only place a stored photo path becomes a URL.
@@ -24,7 +24,7 @@ export interface StorageUrlOptions {
   bucket?: string
 }
 
-/** The public URL of a stored photo, or undefined for a malformed path or when Supabase is not configured. */
+/** The public URL of a stored photo, or undefined for a malformed path or when Supabase (URL and bucket) is not configured. */
 export function storagePublicUrl(
   storagePath: string,
   options: StorageUrlOptions = {},
@@ -32,8 +32,9 @@ export function storagePublicUrl(
   if (!isStoragePath(storagePath)) return undefined
   const baseUrl = options.baseUrl ?? process.env.NEXT_PUBLIC_SUPABASE_URL
   if (!baseUrl) return undefined
-  const bucket =
-    options.bucket || process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET || DEFAULT_STORAGE_BUCKET
+  // The bucket name comes only from the environment (no default): without it, photos are "not configured".
+  const bucket = options.bucket || process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET
+  if (!bucket) return undefined
   let origin: string
   try {
     origin = new URL(baseUrl).origin

@@ -36,9 +36,12 @@ Requirements: **Node.js 22.12 or newer** and access to the Freedom Motors Sanity
    cp .env.local.example .env.local
    ```
 
-   For local work you need at least the Sanity project ID and dataset
-   (`NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET`) and `SANITY_API_READ_TOKEN`
-   for the Studio's live preview.
+   For local work you need the Sanity project ID and dataset (`NEXT_PUBLIC_SANITY_PROJECT_ID`,
+   `NEXT_PUBLIC_SANITY_DATASET`), `TRUSTED_SCRIPT_HOSTS` (can be empty) and `SANITY_API_READ_TOKEN` for the
+   Studio's live preview. None of them has a built-in default; the app stops with a clear message if one is
+   missing. For anything that touches the database, also set the two Supabase connection strings of the
+   environment you are using: `DATABASE_URL` (Transaction pooler, port 6543 — the app) and `DIRECT_URL`
+   (Session pooler, port 5432 — migrations).
 
 3. Start the website and the Studio:
 
@@ -99,6 +102,25 @@ for this project.
 | `npm run redirects:sync`                                     | Push the Studio's published redirects to Vercel (a Sanity webhook does this on publish) |
 | `npm run redirects:check -- /old-path/`                      | Check whether a redirect works on the live site                                         |
 | `npx sanity exec studio/scripts/<file>.ts --with-user-token` | Run a one-off content script                                                            |
+| `npm run db:generate`                                        | Turn schema changes in `src/db/schema` into a SQL migration in `drizzle/`               |
+| `npm run db:migrate`                                         | Apply pending migrations to the database in `DIRECT_URL`                                |
+
+## Database
+
+The database is Supabase Postgres, reached with two connection strings (from the Supabase project →
+**Connect**). They use the same pooler host and differ only in the port, so each has one job:
+
+| Variable       | Pooler mode | Port   | Used for                                                        |
+| -------------- | ----------- | ------ | --------------------------------------------------------------- |
+| `DATABASE_URL` | Transaction | `6543` | The app's own queries (`src/db/client.ts`)                      |
+| `DIRECT_URL`   | Session     | `5432` | Migrations only (`npm run db:migrate`, via `drizzle.config.ts`) |
+
+**Don't swap them.** A migration over port 6543 can fail oddly, and the app on port 5432 can use up
+connections.
+
+Each environment is its own Supabase project (development, staging, production), so each has its own
+pair — use the pair for the environment you are running, in `.env.local` locally and in Vercel for the
+deployed sites. `.env.local.example` shows the format.
 
 ## Redirects
 

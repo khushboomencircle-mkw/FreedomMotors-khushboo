@@ -1,4 +1,5 @@
 import sanitizeHtmlLib from 'sanitize-html'
+import {requireEnv} from './env'
 import {CSS_UNSAFE_RULES} from './cssPolicy'
 
 /**
@@ -25,7 +26,10 @@ import {CSS_UNSAFE_RULES} from './cssPolicy'
 // .env.local.example). This module only ever runs server-side; the
 // Studio's htmlValidation.ts reads the same variable (next.config.ts passes it
 // to the Studio in the browser — it's a list of hostnames, not a secret).
-const TRUSTED_SCRIPT_HOSTS: string[] = (process.env.TRUSTED_SCRIPT_HOSTS || '')
+const TRUSTED_SCRIPT_HOSTS: string[] = requireEnv(
+  'TRUSTED_SCRIPT_HOSTS',
+  process.env.TRUSTED_SCRIPT_HOSTS,
+)
   .split(',')
   .map((host) => host.trim().toLowerCase())
   .filter(Boolean)

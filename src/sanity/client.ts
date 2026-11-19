@@ -1,11 +1,15 @@
 import {cache} from 'react'
 import {createClient, type QueryParams} from 'next-sanity'
 import {draftMode} from 'next/headers'
+import {requireEnv} from '@/lib/env'
 
 const isProduction = process.env.NODE_ENV === 'production'
 
-const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'sp8bk444'
-const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production'
+const projectId = requireEnv(
+  'NEXT_PUBLIC_SANITY_PROJECT_ID',
+  process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+)
+const dataset = requireEnv('NEXT_PUBLIC_SANITY_DATASET', process.env.NEXT_PUBLIC_SANITY_DATASET)
 
 export const client = createClient({
   projectId,
@@ -43,7 +47,7 @@ const draftClient = client.withConfig({
   stega: {
     enabled: true,
     // Studio is embedded at /studio on this same site.
-    studioUrl: process.env.SANITY_STUDIO_URL || '/studio',
+    studioUrl: '/studio',
     filter: (props) => {
       const endPath = props.resultPath.at(-1)
       if (typeof endPath !== 'string' || !STEGA_TEXT_FIELDS.has(endPath)) return false

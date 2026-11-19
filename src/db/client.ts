@@ -9,17 +9,17 @@ import * as schema from './schema'
  * later, is an env var change wherever this app is deployed, not a code
  * change.
  *
- * CONNECTION STRING: use Supabase's pooled "Transaction" connection string
- * here, not the direct one. This app runs as Next.js server code (including
+ * CONNECTION STRING: use Supabase's pooler in "Transaction" mode (port 6543)
+ * here, not the Session-mode one (port 5432). This app runs as Next.js server code (including
  * on serverless/edge-adjacent runtimes when deployed), which can spin up many
- * short-lived connections under load; Supabase's direct connection has a low,
- * fixed connection limit that a serverless deployment can exhaust quickly,
- * while the Transaction pooler (PgBouncer) is built for exactly this. The
+ * short-lived connections under load; a session-mode or direct connection holds one database
+ * connection per client for as long as it lives, which a serverless deployment can
+ * exhaust quickly, while Transaction mode shares connections between queries. The
  * tradeoff: PgBouncer in transaction mode doesn't support session-level
  * features or prepared statements, which is why `prepare: false` is set
  * below — without it, queries can fail or silently misbehave against the
  * pooler. Migrations are a different story — see drizzle.config.ts, which
- * intentionally uses a separate `DIRECT_URL` instead.
+ * intentionally uses a separate `DIRECT_URL` (Session mode, port 5432) instead.
  *
  * ROLE: this must be the `postgres` user from Supabase's own connection
  * string (Project Settings → Database → Connection string) — a real
@@ -37,7 +37,7 @@ const connectionString = process.env.DATABASE_URL
 if (!connectionString) {
   throw new Error(
     'DATABASE_URL is not set. See .env.local.example for where to find it ' +
-      "(Supabase project → Connect → the 'Transaction' pooler connection string).",
+      "(Supabase project → Connect → the 'Transaction pooler' connection string, port 6543).",
   )
 }
 

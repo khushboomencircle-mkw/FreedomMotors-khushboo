@@ -1,9 +1,13 @@
 import {defineCliConfig} from 'sanity/cli'
+import {requireEnv} from './src/lib/env'
 
 // Same variables (and fallbacks) as the website and sanity.config.ts. Every `sanity`
 // command loads this folder's .env files first, so these come from .env.local.
-const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'sp8bk444'
-const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production'
+const projectId = requireEnv(
+  'NEXT_PUBLIC_SANITY_PROJECT_ID',
+  process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+)
+const dataset = requireEnv('NEXT_PUBLIC_SANITY_DATASET', process.env.NEXT_PUBLIC_SANITY_DATASET)
 
 export default defineCliConfig({
   api: {projectId, dataset},
@@ -15,7 +19,9 @@ export default defineCliConfig({
     define: {
       'process.env.NEXT_PUBLIC_SANITY_PROJECT_ID': JSON.stringify(projectId),
       'process.env.NEXT_PUBLIC_SANITY_DATASET': JSON.stringify(dataset),
-      'process.env.TRUSTED_SCRIPT_HOSTS': JSON.stringify(process.env.TRUSTED_SCRIPT_HOSTS ?? ''),
+      'process.env.TRUSTED_SCRIPT_HOSTS': JSON.stringify(
+        requireEnv('TRUSTED_SCRIPT_HOSTS', process.env.TRUSTED_SCRIPT_HOSTS),
+      ),
     },
   },
   deployment: {

@@ -1,5 +1,5 @@
 import {createHash} from 'node:crypto'
-import {DEFAULT_STORAGE_BUCKET, MAX_PHOTO_BYTES, MAX_PHOTO_PIXELS} from './imageConfig'
+import {MAX_PHOTO_BYTES, MAX_PHOTO_PIXELS} from './imageConfig'
 import {isStoragePath} from './imageUrl'
 
 /**
@@ -301,11 +301,12 @@ export async function uploadVehiclePhoto(
 export function createSupabaseStorageClient(config: {
   url: string
   serviceKey: string
-  bucket?: string
+  /** The PUBLIC bucket's name (from SUPABASE_STORAGE_BUCKET); there is no default. */
+  bucket: string
   fetchImpl?: typeof fetch
 }): StorageClient {
   const base = config.url.replace(/\/+$/, '')
-  const bucket = config.bucket || DEFAULT_STORAGE_BUCKET
+  const bucket = config.bucket
   const doFetch = config.fetchImpl ?? fetch
 
   return {
@@ -342,7 +343,10 @@ export function createSupabaseStorageClientFromEnv(
 ): StorageClient {
   const url = env.SUPABASE_URL
   const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY
-  if (!url || !serviceKey)
-    throw new Error('SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set to upload photos.')
-  return createSupabaseStorageClient({url, serviceKey, bucket: env.SUPABASE_STORAGE_BUCKET})
+  const bucket = env.SUPABASE_STORAGE_BUCKET
+  if (!url || !serviceKey || !bucket)
+    throw new Error(
+      'SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY and SUPABASE_STORAGE_BUCKET must be set to upload photos.',
+    )
+  return createSupabaseStorageClient({url, serviceKey, bucket})
 }

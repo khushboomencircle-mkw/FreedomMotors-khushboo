@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict'
 import {describe, it} from 'node:test'
+import {randomUUID} from 'node:crypto'
 import {MAX_PHOTO_BYTES} from './imageConfig'
+import {testEnv} from './testEnv'
 import {isStoragePath} from './imageUrl'
 import {
   PhotoUploadError,
@@ -338,7 +340,11 @@ describe('upload stores the original, untouched', () => {
 })
 
 describe('Supabase REST client', () => {
-  const KEY = 'test-service-key-123'
+  // A throwaway key made fresh for each run (never the real service key): the tests only check where it is sent
+  // and that it never leaks into an error message.
+  const KEY = `test-${randomUUID()}`
+  const SUPABASE_ORIGIN = new URL(testEnv('SUPABASE_URL')).origin
+  const BUCKET = testEnv('SUPABASE_STORAGE_BUCKET')
   function fakeFetch(status: number, body = '') {
     const seen: {url: string; init: RequestInit}[] = []
     const fetchImpl = (async (url: string, init: RequestInit) => {
@@ -349,9 +355,9 @@ describe('Supabase REST client', () => {
   }
   const upload = (fetchImpl: typeof fetch) =>
     createSupabaseStorageClient({
-      url: 'https://abc.supabase.co/',
+      url: `${SUPABASE_ORIGIN}/`,
       serviceKey: KEY,
-      bucket: 'vehicle-photos',
+      bucket: BUCKET,
       fetchImpl,
     }).upload(`vehicles/${VEHICLE}/${'a'.repeat(64)}.jpg`, jpeg(10, 10), {
       contentType: 'image/jpeg',
@@ -363,7 +369,7 @@ describe('Supabase REST client', () => {
     assert.deepEqual(await upload(fetchImpl), {created: true})
     assert.equal(
       seen[0].url,
-      `https://abc.supabase.co/storage/v1/object/vehicle-photos/vehicles/${VEHICLE}/${'a'.repeat(64)}.jpg`,
+      `${SUPABASE_ORIGIN}/storage/v1/object/${BUCKET}/vehicles/${VEHICLE}/${'a'.repeat(64)}.jpg`,
     )
     const headers = seen[0].init.headers as Record<string, string>
     assert.equal(headers['x-upsert'], 'false')

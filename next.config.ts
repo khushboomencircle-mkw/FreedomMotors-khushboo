@@ -1,5 +1,6 @@
 import type {NextConfig} from 'next'
 import {buildImagesConfig} from './src/lib/imageConfig'
+import {requireEnv} from './src/lib/env'
 
 const nextConfig: NextConfig = {
   /* config options here */
@@ -21,13 +22,14 @@ const nextConfig: NextConfig = {
   // NEXT_PUBLIC_* there by default, so forward them here. TRUSTED_SCRIPT_HOSTS is
   // shared with the website's sanitizer (one list for both; hostnames, not a secret).
   env: {
-    SANITY_STUDIO_TITLE: process.env.SANITY_STUDIO_TITLE ?? '',
-    SANITY_STUDIO_PREVIEW_URL: process.env.SANITY_STUDIO_PREVIEW_URL ?? '',
-    TRUSTED_SCRIPT_HOSTS: process.env.TRUSTED_SCRIPT_HOSTS ?? '',
+    TRUSTED_SCRIPT_HOSTS: requireEnv('TRUSTED_SCRIPT_HOSTS', process.env.TRUSTED_SCRIPT_HOSTS),
     // The Supabase project URL and bucket NAME are public (they appear in every photo URL), so they are shared
     // with browser code that builds photo URLs (src/lib/imageUrl.ts). The service-role key is NEVER exposed here.
-    NEXT_PUBLIC_SUPABASE_URL: process.env.SUPABASE_URL ?? '',
-    NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET: process.env.SUPABASE_STORAGE_BUCKET ?? '',
+    // Only forwarded when set (no placeholder value).
+    ...(process.env.SUPABASE_URL ? {NEXT_PUBLIC_SUPABASE_URL: process.env.SUPABASE_URL} : {}),
+    ...(process.env.SUPABASE_STORAGE_BUCKET
+      ? {NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET: process.env.SUPABASE_STORAGE_BUCKET}
+      : {}),
   },
   cacheComponents: true,
   partialPrefetching: true,

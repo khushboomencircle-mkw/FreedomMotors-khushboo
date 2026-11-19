@@ -1,4 +1,5 @@
 import type {NextConfig} from 'next'
+import {requireEnv} from './env'
 
 /**
  * The image pipeline's configuration, in one place: what the Next.js image optimizer may fetch, how its
@@ -15,14 +16,6 @@ type Env = Record<string, string | undefined>
 // ─── What the optimizer may fetch (never an arbitrary host) ───
 
 export const SANITY_CDN_HOST = 'cdn.sanity.io'
-
-// Same defaults as src/sanity/client.ts, sanity.config.ts and sanity.cli.ts (documented in .env.local.example).
-// Candidate follow-up: one shared module for all four.
-const DEFAULT_SANITY_PROJECT_ID = 'sp8bk444'
-const DEFAULT_SANITY_DATASET = 'production'
-
-/** The Supabase Storage bucket vehicle photos live in. Must be a PUBLIC bucket. Override with SUPABASE_STORAGE_BUCKET. */
-export const DEFAULT_STORAGE_BUCKET = 'vehicle-photos'
 
 /** Path every public object URL in Supabase Storage starts with, for one bucket. */
 export function storagePublicPathPrefix(bucket: string): string {
@@ -67,8 +60,9 @@ function parseUrl(raw: string | undefined): URL | null {
 
 /** Sanity images of THIS project and dataset only — not the whole of cdn.sanity.io. */
 export function sanityRemotePattern(env: Env): RemotePattern {
-  const projectId = env.NEXT_PUBLIC_SANITY_PROJECT_ID || DEFAULT_SANITY_PROJECT_ID
-  const dataset = env.NEXT_PUBLIC_SANITY_DATASET || DEFAULT_SANITY_DATASET
+  // No fallback project or dataset: a missing variable stops the build with a clear message (see lib/env.ts).
+  const projectId = requireEnv('NEXT_PUBLIC_SANITY_PROJECT_ID', env.NEXT_PUBLIC_SANITY_PROJECT_ID)
+  const dataset = requireEnv('NEXT_PUBLIC_SANITY_DATASET', env.NEXT_PUBLIC_SANITY_DATASET)
   return {
     protocol: 'https',
     hostname: SANITY_CDN_HOST,
@@ -81,7 +75,12 @@ export function sanityRemotePattern(env: Env): RemotePattern {
 export function supabaseRemotePattern(env: Env): RemotePattern | null {
   const url = parseUrl(env.SUPABASE_URL)
   if (!url) return null
-  const bucket = env.SUPABASE_STORAGE_BUCKET || DEFAULT_STORAGE_BUCKET
+  // The PUBLIC bucket vehicle photos live in. Its name comes only from SUPABASE_STORAGE_BUCKET (no default).
+  const bucket = env.SUPABASE_STORAGE_BUCKET
+  if (!bucket)
+    throw new Error(
+      'SUPABASE_STORAGE_BUCKET is not set. Set it to the name of the PUBLIC Supabase Storage bucket for vehicle photos (see .env.local.example).',
+    )
   return {
     protocol: url.protocol === 'http:' ? 'http' : 'https',
     hostname: url.hostname,

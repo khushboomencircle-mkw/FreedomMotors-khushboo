@@ -9,11 +9,8 @@ import {presentationTool, defineLocations} from 'sanity/presentation'
  * `SANITY_API_READ_TOKEN` — see .env.local.example.
  */
 
-// SANITY_STUDIO_PREVIEW_URL is forwarded to the browser by next.config.ts `env`.
-// Unset → the site this Studio is served from (same origin, works locally and deployed).
-const PREVIEW_URL =
-  process.env.SANITY_STUDIO_PREVIEW_URL ||
-  (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000')
+// The site this Studio is served from (same origin, works locally and deployed).
+const PREVIEW_URL = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'
 /** A singleton page: one fixed document → one fixed route, nothing to resolve. */
 const singleton = (href: string) =>
   defineLocations({

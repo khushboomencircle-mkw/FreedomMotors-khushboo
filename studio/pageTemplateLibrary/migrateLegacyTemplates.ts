@@ -11,14 +11,19 @@
 import {createClient} from '@sanity/client'
 import {legacyTemplateDocuments} from './legacyTemplateDocuments'
 import {TEMPLATE_API_VERSION} from './queries'
+import {requireEnv} from '../../src/lib/env'
 
 async function main() {
   const args = process.argv.slice(2)
   const write = args.includes('--write')
   const datasetArg = args.find((a) => a.startsWith('--dataset='))?.split('=')[1]
 
-  const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'sp8bk444'
-  const dataset = datasetArg || process.env.NEXT_PUBLIC_SANITY_DATASET || 'production'
+  const projectId = requireEnv(
+    'NEXT_PUBLIC_SANITY_PROJECT_ID',
+    process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+  )
+  const dataset =
+    datasetArg || requireEnv('NEXT_PUBLIC_SANITY_DATASET', process.env.NEXT_PUBLIC_SANITY_DATASET)
   const docs = legacyTemplateDocuments()
 
   console.log(
