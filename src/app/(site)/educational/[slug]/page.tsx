@@ -51,11 +51,11 @@ async function PageContent({slug}: {slug: string}) {
   return (
     <Fragment>
       <nav aria-label="Breadcrumb" className="w-full mb-14 px-6 py-5">
-        <ol className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
+        <ol className="flex flex-wrap items-center gap-3 text-sm text-[var(--theme-muted,#9ca3af)]">
           <li>
             <Link
               href="/"
-              className="tap-target inline-block pointer-coarse:inline-flex pointer-coarse:items-center hover:text-black"
+              className="tap-target inline-block pointer-coarse:inline-flex pointer-coarse:items-center hover:text-[var(--theme-text,#ffffff)]"
             >
               Home
             </Link>
@@ -66,7 +66,7 @@ async function PageContent({slug}: {slug: string}) {
           <li>
             <Link
               href="/educational/"
-              className="tap-target inline-block pointer-coarse:inline-flex pointer-coarse:items-center hover:text-black"
+              className="tap-target inline-block pointer-coarse:inline-flex pointer-coarse:items-center hover:text-[var(--theme-text,#ffffff)]"
             >
               Educational
             </Link>
@@ -74,7 +74,9 @@ async function PageContent({slug}: {slug: string}) {
 
           <li aria-hidden="true">/</li>
 
-          <li className="min-w-0 font-bold text-gray-700">{article.title}</li>
+          <li aria-current="page" className="min-w-0 font-bold text-[var(--theme-text,#ffffff)]">
+            {article.title}
+          </li>
         </ol>
       </nav>
       <article className="w-full max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
