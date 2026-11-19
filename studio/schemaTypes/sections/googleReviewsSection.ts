@@ -1,17 +1,18 @@
 import {defineField, defineType} from 'sanity'
 import {StarIcon} from '@sanity/icons/Star'
 import {sequenceField, activeField} from '../fields/sectionFields'
+import {extractTrustindexWidgetId, isTrustindexWidgetId} from '../../../src/lib/trustindex'
 
 /**
- * Google Reviews Section — embeds the Trustindex widget already used on the
- * live site (freedommotors.com) to show Google reviews in a slider.
+ * Google Reviews Section — shows the client's Google reviews in a slider, through
+ * the Trustindex widget already used on the live site (freedommotors.com).
  *
  * Trustindex (not this app) owns the actual review data and the widget's
  * visual style — both are configured once in the Trustindex dashboard and
- * keyed by a single ID (`data-pid` in their embed snippet). This section only
- * needs that ID; the matching loader script is added once, site-wide, in
- * layout.tsx — not per section, since Trustindex's own install instructions
- * install it once per site, not once per widget placement.
+ * keyed by a single ID (`data-pid`, also the part after "loader.js?" in their
+ * embed code). That ID is the only thing needed from the client: the website
+ * loads Trustindex's own public loader itself and points it at this ID
+ * (src/lib/trustindex.ts), so there is nothing else to install or configure.
  */
 export const googleReviewsSectionType = defineType({
   name: 'googleReviewsSection',
@@ -31,9 +32,18 @@ export const googleReviewsSectionType = defineType({
       type: 'string',
       group: 'content',
       description:
-        'From Trustindex dashboard → widget → Get Code → the data-pid value only (e.g. "d30d0d728098843d03365408186"), not the whole snippet.',
+        'The ID of your Trustindex widget — ask the client for it. In Trustindex: Widgets → your Google widget → Get Code, then copy the ID only: the data-pid value, or the letters and digits after "loader.js?" (about 27 characters, e.g. "d30d0d728098843d03365408186"). Not the whole snippet. The look of the slider (layout, colors, number of reviews) is set in Trustindex, not here.',
       validation: (Rule) =>
-        Rule.required().error('Paste the data-pid value from your Trustindex embed code.'),
+        Rule.required()
+          .error('Add the Trustindex widget ID — without it this section shows nothing.')
+          .custom((value) => {
+            if (typeof value !== 'string' || value === '' || isTrustindexWidgetId(value))
+              return true
+            const found = extractTrustindexWidgetId(value)
+            return found
+              ? `Paste only the ID, not the whole snippet: ${found}`
+              : 'That is not a Trustindex widget ID. It is about 27 letters and digits, with no spaces or symbols.'
+          }),
     }),
     activeField('behavior'),
   ],

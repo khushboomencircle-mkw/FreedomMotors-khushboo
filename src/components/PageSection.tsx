@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Script from 'next/script'
+import {TRUSTINDEX_LOADER_SRC, trustindexWidgetSrc} from '@/lib/trustindex'
 import {stegaClean} from 'next-sanity'
 import ExpandableSection from './ExpandableSection'
 import FaqAccordionList, {FaqItem} from './FaqAccordionList'
@@ -2712,19 +2713,13 @@ function CustomHtmlSection({section, doc}: {section: Section; doc?: SanityDoc}) 
 }
 
 /**
- * Google Reviews Section — embeds the Trustindex widget already used on the
- * live site to show Google reviews in a slider. Trustindex owns the review
- * data and the widget's look (both configured once in their dashboard, keyed
- * by this one ID); this only has to place the `.ti-widget[data-pid]` slot
- * their loader script scans for and fills in — not render any review content
- * itself.
+ * Google Reviews Section — shows the client's Google reviews (a slider) through their Trustindex widget.
+ * Trustindex owns the review data and the widget's look (set once in their dashboard); this only places the
+ * mount element and loads Trustindex's public loader. The only thing needed from the client is the widget ID,
+ * which is a field in Sanity (see lib/trustindex.ts for how the loader finds it) — no environment variable.
  *
- * Needs `NEXT_PUBLIC_TRUSTINDEX_LOADER_SRC` set to this account's Trustindex
- * install script URL (Trustindex dashboard → Get Code — the install snippet
- * is separate from, and in addition to, the per-widget `data-pid` div).
- * Without it the slot renders but nothing fills it in, since the script that
- * would populate it was never loaded, so this renders nothing rather than an
- * empty box — only logged as a warning server-side, in development.
+ * The loader replaces the mount element with the widget, so the mount sits inside a wrapper React owns and
+ * is never given children or changing props. A missing or malformed ID renders nothing, rather than an empty box.
  */
 function GoogleReviewsSection({
   widgetId,
@@ -2733,23 +2728,20 @@ function GoogleReviewsSection({
   widgetId?: string
   hooks: ReturnType<typeof sectionHooks>
 }) {
-  if (!widgetId) return null
-  const loaderSrc = process.env.NEXT_PUBLIC_TRUSTINDEX_LOADER_SRC
-  if (!loaderSrc) {
-    if (process.env.NODE_ENV !== 'production') {
-      console.warn(
-        '[Google Reviews Section] NEXT_PUBLIC_TRUSTINDEX_LOADER_SRC is not set — rendering nothing. ' +
-          'Set it to this account’s Trustindex install script URL to show the widget.',
-      )
-    }
-    return null
-  }
+  const src = trustindexWidgetSrc(widgetId)
+  if (!src) return null
   return (
     <section {...hooks}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="ti-widget" data-pid={widgetId} data-trustindex-widget="true" />
+        {/* Reserves the height the widget (the slider layout) takes at each width — measured: 500px up to about
+            475px wide, 457px from 480px, 258px from 650px — so the page does not jump when it arrives. If the
+            widget's layout is changed in Trustindex, these three numbers are what to re-measure. */}
+        <div className="min-h-[31.25rem] min-[480px]:min-h-[28.5625rem] min-[650px]:min-h-[16.125rem]">
+          <div data-src={src} />
+        </div>
       </div>
-      <Script src={loaderSrc} strategy="lazyOnload" />
+      {/* One shared loader; next/script loads it once however many sections are on the page. */}
+      <Script id="trustindex-loader" src={TRUSTINDEX_LOADER_SRC} strategy="lazyOnload" />
     </section>
   )
 }

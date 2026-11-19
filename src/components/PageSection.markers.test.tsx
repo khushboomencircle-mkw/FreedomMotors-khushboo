@@ -7,8 +7,6 @@ import PageSection, {type Section} from './PageSection'
 // Renders the real PageSection for one sample of every section type, with and without the preview document,
 // and checks the click-to-edit marker: present and correct in preview, completely absent on the live site.
 
-process.env.NEXT_PUBLIC_TRUSTINDEX_LOADER_SRC = 'https://example.com/loader.js'
-
 const DOC = {id: 'homePage', type: 'homePage'}
 
 /** One minimal-but-real section per type. `_type` drives the renderer; the fields are just enough to render. */
@@ -43,7 +41,8 @@ const SAMPLES: Record<string, Partial<Section>> = {
   vehicleCarouselSection: {sectionHeading: 'Vehicles', isPreview: true},
   callToActionSection: {sectionHeading: 'Call to action', buttonLabel: 'Go'},
   customHtmlSection: {htmlCode: '<p>Hello</p>'},
-  googleReviewsSection: {trustindexWidgetId: 'abc'},
+  // A made-up ID of the real shape (the widget needs a valid-looking ID to render at all).
+  googleReviewsSection: {trustindexWidgetId: 'a1b2c3d4e5f60718293a4b5c6d7'},
 }
 
 const render = (section: Section, doc?: typeof DOC) =>
