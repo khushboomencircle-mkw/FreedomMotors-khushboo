@@ -138,7 +138,7 @@ function clean(cfg?: ThemeConfig | null): ThemeConfig {
 }
 
 /**
- * Built-in colors for whichever of the 10 color fields (both the 'colors'
+ * Built-in colors for whichever of the 9 color fields (both the 'colors'
  * fieldset and the 'buttons' one — button colors are colors too) an
  * admin-edited palette leaves blank, so picking Light or Dark always
  * produces a coherent, correctly-lit result instead of just whatever
@@ -168,7 +168,6 @@ const LIGHT_DEFAULTS: Partial<ThemeConfig> = {
   borderColor: '#e5e7eb',
   buttonBackgroundColor: '#dc2626',
   buttonTextColor: '#ffffff',
-  buttonBorderColor: 'transparent',
 }
 
 const DARK_DEFAULTS: Partial<ThemeConfig> = {
@@ -181,7 +180,6 @@ const DARK_DEFAULTS: Partial<ThemeConfig> = {
   borderColor: 'rgba(255,255,255,0.1)',
   buttonBackgroundColor: '#dc2626',
   buttonTextColor: '#ffffff',
-  buttonBorderColor: 'transparent',
 }
 
 function resolveMode(mode: ThemeMode | undefined): ThemeMode {
@@ -209,7 +207,11 @@ function resolvePalette(mode: ThemeMode, palette: ThemeConfig | null | undefined
 export function resolveGlobalTheme(site?: SiteThemeSettings | null): ThemeConfig {
   if (!site?.enableSiteTheme) return {}
   const mode = resolveMode(site.defaultMode)
-  return resolvePalette(mode, mode === 'light' ? site.lightTheme : site.darkTheme)
+  const config = resolvePalette(mode, mode === 'light' ? site.lightTheme : site.darkTheme)
+  // A Button Border color with no width would be invisible on buttons whose own border is 0 —
+  // default the width to 1px (the Studio's own placeholder) so picking a color just works.
+  if (config.buttonBorderColor && !config.buttonBorderWidth) config.buttonBorderWidth = '1px'
+  return config
 }
 
 /**

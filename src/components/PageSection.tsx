@@ -12,6 +12,8 @@ import FeatureHeroSlider from './FeatureHeroSlider'
 import VehicleCarousel from './VehicleCarousel'
 import {dataSanity, sectionPath, type SanityDoc} from '@/lib/sanityDoc'
 import type {CarouselVehicle} from './VehicleCarouselCard'
+import TestimonialCard, {visibleTestimonials, type Testimonial} from './TestimonialCard'
+import TestimonialsSlider from './TestimonialsSlider'
 import {sanitizeHtml} from '@/lib/sanitizeHtml'
 import {resolveSectionTheme, themeToCssVars, type ThemeConfig} from '@/lib/theme'
 import {toPlainText} from '@/lib/richText'
@@ -302,10 +304,13 @@ export interface Section {
   expandIcon?: string
   expandedByDefault?: boolean
   photos?: {_key: string; url?: string; alt?: string}[]
-  layout?: 'grid' | 'mosaic' | 'slider'
+  layout?: 'grid' | 'mosaic' | 'slider' | 'featured'
   lightbox?: boolean
   // Vehicle Carousel Section (vehicleCarouselSection) — `isPreview` is true only on draft reads.
   vehicles?: CarouselVehicle[] | null
+  // Testimonials Section (testimonialsSection) — `isPreview` is true only on draft reads.
+  testimonials?: Testimonial[]
+  showRatings?: boolean
   isPreview?: boolean
 }
 
@@ -453,6 +458,16 @@ function resolveButtonColors(
   return {bg, fg, isOutline}
 }
 
+/**
+ * Button border, in the theme's usual priority: Section Theme > Site Theme > the button's own
+ * look. The theme's Button Border / Button Border Width vars win when set (a section theme
+ * overrides the site one through the CSS cascade); otherwise outline buttons keep their 2px
+ * border in the text color and filled buttons stay borderless.
+ */
+function buttonBorder(isOutline: boolean, fg: string) {
+  return `var(--theme-button-border-width, ${isOutline ? '2px' : '0px'}) solid var(--theme-button-border, ${isOutline ? fg : 'transparent'})`
+}
+
 function PrimaryButton({section}: {section: Section}) {
   if (!section.showButton || !section.buttonLabel) return null
   const href = section.buttonLinkUrl || section.buttonLink?.endpoint || '/'
@@ -470,7 +485,7 @@ function PrimaryButton({section}: {section: Section}) {
   const style: React.CSSProperties = {
     backgroundColor: isOutline ? bg : `var(--theme-button-bg, ${bg})`,
     color: `var(--theme-button-text, ${fg})`,
-    border: isOutline ? `2px solid ${fg}` : 'none',
+    border: buttonBorder(isOutline, fg),
     borderRadius: `var(--theme-button-radius, ${radius})`,
     fontFamily: 'var(--theme-button-font, inherit)',
     fontSize: 'var(--theme-button-size, 0.875rem)',
@@ -520,7 +535,7 @@ function SecondaryButton({section}: {section: Section}) {
   const style: React.CSSProperties = {
     backgroundColor: isOutline ? bg : `var(--theme-button-bg, ${bg})`,
     color: isOutline ? fg : `var(--theme-button-text, ${fg})`,
-    border: isOutline ? `2px solid ${fg}` : 'none',
+    border: buttonBorder(isOutline, fg),
     borderRadius: `var(--theme-button-radius, ${radius})`,
     fontFamily: 'var(--theme-button-font, inherit)',
     fontSize: 'var(--theme-button-size, 0.875rem)',
@@ -1752,6 +1767,82 @@ function VehicleCarouselSection({section}: {section: Section}) {
 }
 
 /**
+ * Testimonials Section — hand-written customer quotes as a slider, grid, or one featured quote.
+ * Every color comes from the --theme-* variables (see TestimonialCard), so Site Theme and
+ * Section Theme apply with nothing pinned here.
+ *
+ * Deliberately NO Review / AggregateRating JSON-LD: self-serving review markup for quotes a
+ * business hosts about itself can violate search-engine guidelines.
+ */
+function TestimonialsSection({section}: {section: Section}) {
+  const items = visibleTestimonials(section.testimonials)
+
+  // Only reachable in preview — PageSection hides an empty section on the live site.
+  if (items.length === 0) {
+    return (
+      <div
+        className="mx-auto max-w-3xl rounded-xl p-8 text-center"
+        style={{border: '2px dashed color-mix(in srgb, currentColor 35%, transparent)'}}
+      >
+        <p className="font-semibold">Testimonials</p>
+        <p className="mt-1 text-sm opacity-80">
+          Add at least one testimonial with a quote and a name. This note only shows in preview —
+          the section stays hidden on the live site until then.
+        </p>
+      </div>
+    )
+  }
+
+  // stegaClean: these strings drive logic, and preview mode can hide invisible markers in them.
+  const layout = stegaClean(section.layout) || 'slider'
+  const columns = stegaClean(section.columns) || '3'
+  const showRatings = section.showRatings !== false
+  const heading = stegaClean(section.sectionHeading)
+
+  return (
+    <div>
+      {(section.sectionHeading || section.sectionDescription) && (
+        <div className="mx-auto mb-10 max-w-3xl text-center">
+          {section.sectionHeading && (
+            <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
+              {section.sectionHeading}
+            </h2>
+          )}
+          {section.sectionDescription && (
+            <RichText
+              value={section.sectionDescription}
+              className="mt-4 text-base leading-relaxed opacity-90 sm:text-lg"
+            />
+          )}
+        </div>
+      )}
+
+      {layout === 'grid' ? (
+        // Same column classes as Photo Gallery's grid: 1 on phones, 2 on tablets, 2–3 on desktop.
+        <div
+          className={`grid gap-6 ${PHOTO_GALLERY_COL_CLASSES[columns] || PHOTO_GALLERY_COL_CLASSES['3']}`}
+        >
+          {items.map((t) => (
+            <TestimonialCard key={t._key} testimonial={t} showRatings={showRatings} />
+          ))}
+        </div>
+      ) : layout === 'featured' ? (
+        // Only the first quote — the editor picks it by dragging one to the top of the list.
+        <TestimonialCard testimonial={items[0]} showRatings={showRatings} variant="featured" />
+      ) : (
+        <TestimonialsSlider
+          items={items}
+          showRatings={showRatings}
+          autoPlay={section.sliderAutoPlay === true}
+          intervalSeconds={section.sliderAutoPlayInterval ?? 6}
+          label={heading || 'Customer testimonials'}
+        />
+      )}
+    </div>
+  )
+}
+
+/**
  * Generic CTA button — same styling rules as PrimaryButton/SecondaryButton
  * (resolveButtonColors + the theme-var-with-fallback convention) but
  * prop-driven instead of reading straight off a `Section`, so it isn't tied
@@ -1784,7 +1875,7 @@ function CtaButton({
   const style: React.CSSProperties = {
     backgroundColor: isOutline ? bg : `var(--theme-button-bg, ${bg})`,
     color: isOutline ? fg : `var(--theme-button-text, ${fg})`,
-    border: isOutline ? `2px solid ${fg}` : 'none',
+    border: buttonBorder(isOutline, fg),
     borderRadius: `var(--theme-button-radius, ${radiusPx})`,
     fontFamily: 'var(--theme-button-font, inherit)',
     fontSize: 'var(--theme-button-size, 0.875rem)',
@@ -2709,6 +2800,15 @@ export default function PageSection({
   ) {
     return null
   }
+  // Testimonials with nothing to show are hidden on the live site entirely (no empty padded
+  // band). In preview the section stays so the editor sees a placeholder instead.
+  if (
+    section._type === 'testimonialsSection' &&
+    !section.isPreview &&
+    visibleTestimonials(section.testimonials).length === 0
+  ) {
+    return null
+  }
 
   const cont = section.container
 
@@ -2729,6 +2829,8 @@ export default function PageSection({
 
   // Same: explicit _type — it shares sectionHeading and the button fields with other sections.
   const isVehicleCarousel = section._type === 'vehicleCarouselSection'
+  // Same: explicit _type — it shares sectionHeading/layout/columns with other section types.
+  const isTestimonials = section._type === 'testimonialsSection'
 
   const isFeatureGrid =
     !isLinkList &&
@@ -2919,6 +3021,8 @@ export default function PageSection({
               <CallToActionSection section={section} />
             ) : isVehicleCarousel ? (
               <VehicleCarouselSection section={section} />
+            ) : isTestimonials ? (
+              <TestimonialsSection section={section} />
             ) : (
               <StandardSectionContent
                 section={section}
@@ -2949,6 +3053,8 @@ export default function PageSection({
           <CallToActionSection section={section} />
         ) : isVehicleCarousel ? (
           <VehicleCarouselSection section={section} />
+        ) : isTestimonials ? (
+          <TestimonialsSection section={section} />
         ) : (
           <StandardSectionContent section={section} isWhiteTheme={isWhiteTheme} isFirst={isFirst} />
         )}

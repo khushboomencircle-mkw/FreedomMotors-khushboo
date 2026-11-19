@@ -94,7 +94,7 @@ async function VehicleContent({slug}: {slug: string}) {
               <div>
                 {vehicle.stockType && (
                   <span
-                    className="inline-block rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider"
+                    className="btn-border inline-block rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider"
                     style={{
                       backgroundColor: 'var(--theme-button-bg, #dc2626)',
                       color: 'var(--theme-button-text, #ffffff)',

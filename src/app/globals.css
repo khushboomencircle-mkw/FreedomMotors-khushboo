@@ -227,6 +227,15 @@ button {
   }
 }
 
+/* Border for every themed button that is styled with Tailwind classes. Site Theme > nothing:
+   with no Button Border set the width is 0, so the button looks exactly as before. A Section
+   Theme overrides the vars on its own wrapper, so it wins inside that section. */
+@layer components {
+  .btn-border {
+    border: var(--theme-button-border-width, 0px) solid var(--theme-button-border, transparent);
+  }
+}
+
 /* Hide scrollbar for horizontal scroller while keeping scroll functionality */
 .scrollbar-hide {
   -ms-overflow-style: none;

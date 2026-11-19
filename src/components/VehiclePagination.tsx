@@ -53,7 +53,7 @@ export default function VehiclePagination({
   const pageLinkClass = (active: boolean) =>
     `tap-target flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold transition-colors ${
       active
-        ? 'bg-[var(--theme-button-bg,#dc2626)] text-[var(--theme-button-text,#ffffff)]'
+        ? 'btn-border bg-[var(--theme-button-bg,#dc2626)] text-[var(--theme-button-text,#ffffff)]'
         : 'text-[var(--theme-text,#d1d5db)] hover:bg-white/5'
     }`
 
