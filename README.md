@@ -124,22 +124,25 @@ deployed sites. `.env.local.example` shows the format.
 
 ## Redirects
 
-Redirects are managed in the Studio (the `redirect` document type). Publishing one syncs the full
-list to Vercel Global Config, and `src/proxy.ts` applies it on every request. Set this up once:
+Redirects are managed in the Studio (the `redirect` document type): an old address and where it should
+go (308 permanent, or 307 temporary). Nothing else needs setting up — there is no webhook, token or
+extra service.
 
-1. In `.env.local` and in Vercel, set `SANITY_REDIRECTS_WEBHOOK_SECRET` (any long random value),
-   `VERCEL_API_TOKEN`, `GLOBAL_CONFIG_ID` and, for a team project, `VERCEL_TEAM_ID`.
-2. On sanity.io/manage → your project → **API → Webhooks**, create a webhook:
-   - **URL:** `https://<your-live-site>/api/redirects/sync`
-   - **Dataset:** `production`
-   - **Trigger on:** Create, Update, Delete
-   - **Filter:** `_type == "redirect"`
-   - **HTTP method:** POST
-   - **HTTP header:** `x-sanity-webhook-secret` with the same value as `SANITY_REDIRECTS_WEBHOOK_SECRET`
-3. Without the secret the route answers 401; the live site keeps the last synced redirects.
+`src/proxy.ts` applies them on every page request. It reads the **published, active** redirects from
+Sanity and keeps them in memory for 30 seconds (`getRedirectMap` in `src/lib/redirects.ts`), so a redirect
+you publish is live within about half a minute, locally and when deployed. Case, a trailing slash and the
+leading slash are ignored when matching, a visitor's query string is carried over, chains are collapsed
+into one hop, and loops are dropped. A **draft** redirect does nothing until it is published.
 
-To sync by hand, run `npm run redirects:sync`. To test one path on the live site, run
-`npm run redirects:check -- /old-path/`.
+If Sanity cannot be reached, the last good set keeps being used (or no redirects, if there never was
+one) and the site carries on normally.
+
+To check a path, open it in the browser or run `curl -I http://localhost:3000/old-path`. Run the loader's
+tests with `npm run test:redirects`.
+
+The Vercel Global Config sync (`/api/redirects/sync`, `npm run redirects:sync` and the
+`VERCEL_*` / `GLOBAL_CONFIG_ID` / `SANITY_REDIRECTS_WEBHOOK_SECRET` variables) is no longer used for
+redirects and can be removed.
 
 ## Responsive checklist
 

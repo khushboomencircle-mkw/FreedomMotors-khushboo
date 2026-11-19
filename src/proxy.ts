@@ -1,20 +1,20 @@
 import {NextResponse} from 'next/server'
 import type {NextRequest} from 'next/server'
-import {get} from '@vercel/global-config'
-import {GLOBAL_CONFIG_REDIRECTS_KEY, normalizePath, type RedirectMap} from '@/lib/redirects'
+import {getRedirectMap, normalizePath} from '@/lib/redirects'
 
 /**
- * Studio-editable redirects, looked up against the map `/api/redirects/sync`
- * (and `npm run redirects:sync`) writes to Vercel's Global Config — see
- * src/lib/redirects.ts. A failed or missing lookup must never take the site
- * down, so any error here just falls through to normal routing, exactly as
- * if no redirect existed for that path.
+ * Studio-editable redirects: the published `redirect` documents, read from
+ * Sanity and kept in memory for a short time (see getRedirectMap in
+ * src/lib/redirects.ts) — so a redirect set in Studio works locally and when
+ * deployed, with no extra service. A failed or missing lookup must never take
+ * the site down, so any error here just falls through to normal routing,
+ * exactly as if no redirect existed for that path.
  */
 export async function proxy(request: NextRequest) {
   const pathname = normalizePath(request.nextUrl.pathname)
 
   try {
-    const map = await get<RedirectMap>(GLOBAL_CONFIG_REDIRECTS_KEY)
+    const map = await getRedirectMap()
     const entry = map?.[pathname]
 
     if (entry) {
