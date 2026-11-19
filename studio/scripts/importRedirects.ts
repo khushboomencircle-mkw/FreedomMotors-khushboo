@@ -181,7 +181,7 @@ async function run() {
 
   console.log('')
   console.log(
-    'Remember to run `npm run redirects:sync` in the project root (or wait for the next publish) to push these live.',
+    'Publish these redirects in Studio (drafts do nothing) — once published they are live within about 30 seconds.',
   )
 }
 

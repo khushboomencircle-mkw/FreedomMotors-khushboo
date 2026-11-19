@@ -82,7 +82,7 @@ for this project.
 │   └── proxy.ts                 Applies the redirects managed in the Studio
 ├── studio/                      Studio code: content schemas, custom inputs, preview setup, page templates
 │   └── scripts/                 One-off content scripts (run with npx sanity exec)
-├── scripts/                     Redirect scripts (npm run redirects:sync / redirects:check)
+├── scripts/                     Redirect check script (npm run redirects:check)
 ├── drizzle/                     Database migrations (Drizzle) — prepared, not used by the site yet
 ├── public/                      Static files
 ├── sanity.config.ts             Studio configuration
@@ -92,18 +92,17 @@ for this project.
 
 ## Commands
 
-| Command                                                      | What it does                                                                            |
-| ------------------------------------------------------------ | --------------------------------------------------------------------------------------- |
-| `npm run dev`                                                | Start the website and the Studio locally                                                |
-| `npm run build`                                              | Create a production build                                                               |
-| `npm run start`                                              | Run the production build                                                                |
-| `npm run format`                                             | Format the code with Prettier                                                           |
-| `npm run eslint`                                             | Check the code with ESLint                                                              |
-| `npm run redirects:sync`                                     | Push the Studio's published redirects to Vercel (a Sanity webhook does this on publish) |
-| `npm run redirects:check -- /old-path/`                      | Check whether a redirect works on the live site                                         |
-| `npx sanity exec studio/scripts/<file>.ts --with-user-token` | Run a one-off content script                                                            |
-| `npm run db:generate`                                        | Turn schema changes in `src/db/schema` into a SQL migration in `drizzle/`               |
-| `npm run db:migrate`                                         | Apply pending migrations to the database in `DIRECT_URL`                                |
+| Command                                                      | What it does                                                              |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------- |
+| `npm run dev`                                                | Start the website and the Studio locally                                  |
+| `npm run build`                                              | Create a production build                                                 |
+| `npm run start`                                              | Run the production build                                                  |
+| `npm run format`                                             | Format the code with Prettier                                             |
+| `npm run eslint`                                             | Check the code with ESLint                                                |
+| `npm run redirects:check -- /old-path/`                      | Check whether a path would redirect, and where to                         |
+| `npx sanity exec studio/scripts/<file>.ts --with-user-token` | Run a one-off content script                                              |
+| `npm run db:generate`                                        | Turn schema changes in `src/db/schema` into a SQL migration in `drizzle/` |
+| `npm run db:migrate`                                         | Apply pending migrations to the database in `DIRECT_URL`                  |
 
 ## Database
 
@@ -139,10 +138,6 @@ one) and the site carries on normally.
 
 To check a path, open it in the browser or run `curl -I http://localhost:3000/old-path`. Run the loader's
 tests with `npm run test:redirects`.
-
-The Vercel Global Config sync (`/api/redirects/sync`, `npm run redirects:sync` and the
-`VERCEL_*` / `GLOBAL_CONFIG_ID` / `SANITY_REDIRECTS_WEBHOOK_SECRET` variables) is no longer used for
-redirects and can be removed.
 
 ## Responsive checklist
 

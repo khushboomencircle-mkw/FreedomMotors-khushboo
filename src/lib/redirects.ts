@@ -3,9 +3,6 @@ import {client} from '@/sanity/client'
 export type RedirectEntry = {destination: string; permanent: boolean}
 export type RedirectMap = Record<string, RedirectEntry>
 
-/** The single Global Config key the whole flattened map is stored under. */
-export const GLOBAL_CONFIG_REDIRECTS_KEY = 'redirects'
-
 type RawRedirect = {source: string; destination: string; permanent: boolean}
 
 const PUBLISHED_REDIRECTS_QUERY = `*[
@@ -129,44 +126,3 @@ export function createRedirectMapLoader(
 
 /** The redirect map the site uses: published Studio redirects, read straight from Sanity (no other service needed). */
 export const getRedirectMap = createRedirectMapLoader(fetchPublishedRedirects)
-
-function vercelApiHeaders(): HeadersInit {
-  const token = process.env.VERCEL_API_TOKEN
-  if (!token) throw new Error('VERCEL_API_TOKEN is not set.')
-  return {Authorization: `Bearer ${token}`, 'Content-Type': 'application/json'}
-}
-
-async function writeRedirectMap(map: RedirectMap): Promise<void> {
-  const configId = process.env.GLOBAL_CONFIG_ID
-  if (!configId) throw new Error('GLOBAL_CONFIG_ID is not set.')
-
-  const url = new URL(`https://api.vercel.com/v1/global-config/${configId}/items`)
-  const teamId = process.env.VERCEL_TEAM_ID
-  if (teamId) url.searchParams.set('teamId', teamId)
-
-  const res = await fetch(url, {
-    method: 'PATCH',
-    headers: vercelApiHeaders(),
-    body: JSON.stringify({
-      items: [{operation: 'upsert', key: GLOBAL_CONFIG_REDIRECTS_KEY, value: map}],
-    }),
-  })
-
-  if (!res.ok) {
-    const body = await res.text().catch(() => '')
-    throw new Error(`Vercel Global Config update failed (${res.status}): ${body}`)
-  }
-}
-
-export type SyncResult = {
-  count: number
-  dropped: {source: string; reason: string}[]
-  map: RedirectMap
-}
-
-export async function syncRedirects(): Promise<SyncResult> {
-  const raw = await fetchPublishedRedirects()
-  const {map, dropped} = flattenRedirects(raw)
-  await writeRedirectMap(map)
-  return {count: Object.keys(map).length, dropped, map}
-}

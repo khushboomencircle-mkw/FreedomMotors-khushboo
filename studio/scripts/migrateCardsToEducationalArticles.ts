@@ -254,7 +254,7 @@ async function main() {
     `Done. Created/updated ${articles.length} article(s), ${redirects.length} redirect(s), and linked ${cardPatches.length + featurePatches.length} card(s)/feature(s).`,
   )
   console.log(
-    'Remember to run `npm run redirects:sync` in the project root (or wait for the next publish) to push the new redirects live.',
+    'Publish the new redirects in Studio (drafts do nothing) — once published they are live within about 30 seconds.',
   )
 }
 

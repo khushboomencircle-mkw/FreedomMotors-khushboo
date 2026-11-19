@@ -1,13 +1,11 @@
 /**
- * Looks up a path against the live Vercel Global Config redirect map —
- * exactly what proxy.ts reads at request time — so this answers "does this
- * redirect actually work in production right now", not just "is it in
- * Sanity".
+ * Looks up a path in the redirects the site uses right now — the published, active Studio redirects, flattened
+ * exactly as src/proxy.ts does — so this answers "would this path redirect", not just "is it in Sanity".
+ * (The site keeps its copy for up to 30 seconds, so a redirect published a moment ago may take that long.)
  *
  * Run with: npm run redirects:check -- /old-path/
  */
-import {get} from '@vercel/global-config'
-import {GLOBAL_CONFIG_REDIRECTS_KEY, normalizePath, type RedirectMap} from '../src/lib/redirects'
+import {getRedirectMap, normalizePath} from '../src/lib/redirects'
 
 async function run() {
   const input = process.argv[2]
@@ -17,8 +15,8 @@ async function run() {
   }
 
   const pathname = normalizePath(input)
-  const map = await get<RedirectMap>(GLOBAL_CONFIG_REDIRECTS_KEY)
-  const entry = map?.[pathname]
+  const map = await getRedirectMap()
+  const entry = map[pathname]
 
   if (!entry) {
     console.log(
